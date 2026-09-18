@@ -10,6 +10,7 @@ import asyncio
 import datetime as dt
 import traceback
 import uuid
+from dataclasses import dataclass, field
 
 import httpx
 from fastapi import HTTPException
@@ -42,6 +43,50 @@ class MissionFailed(Exception):
     pass
 
 
+@dataclass
+class Recruitment:
+    """One round of "we need someone for this, who is out there?".
+
+    Created the moment the Commander finds it has nobody for a capability, and kept for the
+    life of the mission — including the candidates that were turned away, because who we
+    refused is as much a part of the record as who we hired.
+    """
+    mission_id: str
+    job_title: str
+    capability: str
+    requested_scopes: list[str] = field(default_factory=list)
+    id: str = field(default_factory=lambda: "rec_" + uuid.uuid4().hex[:8])
+    status: str = "discovering"  # discovering | evaluating | awaiting_approval | admitted | rejected | failed
+    candidates: list[dict] = field(default_factory=list)
+    rejected: list[dict] = field(default_factory=list)
+    selected: str | None = None
+    replacing: dict | None = None  # set when we are backfilling an agent we lost mid-mission
+    granted_scopes: list[str] = field(default_factory=list)
+    started_at: str = field(default_factory=lambda: now())
+    finished_at: str | None = None
+
+    def public(self) -> dict:
+        return {
+            "id": self.id, "mission_id": self.mission_id, "job_title": self.job_title,
+            "capability": self.capability, "status": self.status, "candidates": self.candidates,
+            "selected": self.selected, "replacing": self.replacing, "rejected": self.rejected,
+            "requested_scopes": self.requested_scopes, "granted_scopes": self.granted_scopes,
+            "started_at": self.started_at, "finished_at": self.finished_at,
+        }
+
+
+def roster_match(roster: dict, capability: str, excluded: set) -> dict | None:
+    """Is anyone already working on this mission able to do this job?
+
+    Deterministic and boring on purpose: first hired wins, and anyone we have dropped is
+    not a candidate no matter what their card says.
+    """
+    for entry in roster.values():
+        if capability in entry["capabilities"] and (entry["ans_name"], entry["endpoint"]) not in excluded:
+            return entry
+    return None
+
+
 class Mission:
     def __init__(self, text: str, scenario: dict):
         self.id = "m_" + uuid.uuid4().hex[:8]
@@ -51,6 +96,13 @@ class Mission:
         self.business: dict = {}
         self.jobs: list[dict] = []
         self.hires: list[dict] = []
+        self.recruitments: list[Recruitment] = []
+        # Who is already working on this mission, by ANS name. Being on it gets you the next
+        # job of the same kind; it does not carry any authority — that is granted per job.
+        self.roster: dict[str, dict] = {}
+        # Agents we had and lost, by capability — so backfilling one reads as a replacement
+        # rather than as never having had anyone.
+        self.lost: dict[str, dict] = {}
         self.excluded: set[tuple[str, str]] = set()
         self.policy = Policy.from_config(config.policy())
         self.approval: dict | None = None
@@ -70,6 +122,9 @@ class Mission:
         return {
             "id": self.id, "text": self.text, "scenario": self.scenario, "status": self.status,
             "business": self.business, "jobs": self.jobs, "hires": self.hires, "approval": self.approval,
+            "recruitments": [r.public() for r in self.recruitments],
+            "roster": [{"ans_name": e["ans_name"], "org": e["org"], "version": e["version"],
+                        "capabilities": e["capabilities"]} for e in self.roster.values()],
             "stats": self.stats, "review": self.review, "error": self.error, "has_result": bool(self.result_html),
             "engines": sorted(e for e in self.engines if e), "started_at": self.started_at,
             "finished_at": self.finished_at,
@@ -95,22 +150,33 @@ async def _delayed_hub_post(path: str, delay: float):
 
 # --- finding and hiring -----------------------------------------------------------------
 
-async def discover(m: Mission, capability: str, prefer: str | None = None) -> list[dict]:
-    """Candidates come from two places: open offers on the web (unverified) and the ANS registry."""
+async def discover(m: Mission, rec: Recruitment) -> list[dict]:
+    """Candidates come from two places: open offers on the web, and the ANS registry.
+
+    Anyone can post an offer — that is the point of having them, and it is how the impostor
+    gets in front of us. Nothing here is trusted; this only decides who we bother to check.
+    """
+    await say(m, "discovery.started", f"Searching for an agent that can {rec.capability}",
+              capability=rec.capability, recruitment_id=rec.id,
+              sources=["ANS registry", "open-web offers"])
+
     cands: list[dict] = []
     try:
-        offers = (await client().get(f"{config.hub_url()}/api/offers", params={"capability": capability}, timeout=5)).json()
+        offers = (await client().get(f"{config.hub_url()}/api/offers",
+                                     params={"capability": rec.capability}, timeout=5)).json()
     except (httpx.HTTPError, ValueError):
         offers = []
     for o in offers:
         cands.append({"ans_name": o["ans_name"], "endpoint": o["endpoint"], "source": "open-web offer",
-                      "pitch": o.get("pitch")})
+                      "org": o.get("org"), "pitch": o.get("pitch"), "capabilities": [rec.capability]})
 
     rank = {d: i for i, d in enumerate(m.policy.preferred_vendors)}
-    records = await state.ans.search(capability=capability)
+    records = await state.ans.search(capability=rec.capability)
     records.sort(key=lambda r: rank.get(config.parse_ans_name(r["ans_name"])["domain"], 99))
     for r in records:
-        cands.append({"ans_name": r["ans_name"], "endpoint": r["endpoint"], "source": "ANS registry"})
+        cands.append({"ans_name": r["ans_name"], "endpoint": r["endpoint"], "source": "ANS registry",
+                      "org": r.get("org"), "version": r.get("version"),
+                      "capabilities": r.get("capabilities", []), "pitch": None})
 
     seen, out = set(), []
     for c in cands:
@@ -118,11 +184,40 @@ async def discover(m: Mission, capability: str, prefer: str | None = None) -> li
         if key not in seen and key not in m.excluded:
             seen.add(key)
             out.append(c)
-    if prefer:
-        out.sort(key=lambda c: c["ans_name"] != prefer)
-    await say(m, "discovery", f"Found {len(out)} candidate(s) for {capability}", capability=capability,
-              candidates=[{k: c[k] for k in ("ans_name", "endpoint", "source")} for c in out])
+
+    for c in out:
+        rec.candidates.append(dict(c))
+        await say(m, "discovery.candidate_found",
+                  f"{c.get('org') or c['ans_name']} offers {rec.capability}"
+                  + (f" — \"{c['pitch']}\"" if c.get("pitch") else ""),
+                  subject=c["ans_name"], recruitment_id=rec.id, capability=rec.capability, **c)
+        await asyncio.sleep(config.pace() / 4)
+
+    await say(m, "discovery.completed", f"Found {len(out)} candidate(s) for {rec.capability}",
+              capability=rec.capability, recruitment_id=rec.id, count=len(out))
     return out
+
+
+async def reverify(entry: dict) -> tuple[bool, str]:
+    """A quick re-check before handing someone we already hired another job.
+
+    Only two things can have changed since we admitted them: their standing in ANS, and their
+    version. So those are the two we look at. A new version is a different agent — different
+    card, different capabilities, different policy standing — so it goes back through the full
+    gate instead of inheriting the old admission.
+    """
+    record = await state.ans.resolve(entry["ans_name"])
+    if not record:
+        return False, "no longer registered in ANS"
+    if record.get("version") != entry["version"]:
+        return False, f"now running v{record.get('version')} (we verified v{entry['version']})"
+    check = await state.gate.recheck_status(entry["ans_name"])
+    if not check.ok:
+        return False, check.detail
+    # Keep the certificate fresh: it is what we check their signed deliverables against.
+    entry["trust"].record = record
+    entry["trust"].cert_pem = record.get("identity_cert_pem") or entry["trust"].cert_pem
+    return True, check.detail
 
 
 async def ask_approval(m: Mission, job: dict, cand: dict, res) -> bool:
@@ -148,19 +243,104 @@ async def ask_approval(m: Mission, job: dict, cand: dict, res) -> bool:
     return approved
 
 
-async def hire(m: Mission, job: dict, prefer: str | None = None) -> tuple[dict, object]:
+async def hire(m: Mission, job: dict) -> tuple[dict, object]:
+    """Someone we already have, or someone we go and find."""
     capability = job["capability"]
-    for cand in await discover(m, capability, prefer):
+
+    known = roster_match(m.roster, capability, m.excluded)
+    if known:
+        ok, detail = await reverify(known)
+        if ok:
+            m.stats["checks_passed"] += 1
+            await say(m, "capability.covered",
+                      f"{known['org']} is already on this mission and still in good standing",
+                      subject=known["ans_name"], capability=capability, job=job["title"],
+                      ans_name=known["ans_name"], org=known["org"], detail=detail)
+            return {"ans_name": known["ans_name"], "endpoint": known["endpoint"],
+                    "source": "mission roster", "org": known["org"]}, known["trust"]
+        # They were fine when we hired them and they are not fine now. Off the roster.
+        m.roster.pop(known["ans_name"], None)
+        m.excluded.add((known["ans_name"], known["endpoint"]))
+        m.lost[capability] = {"ans_name": known["ans_name"], "org": known["org"], "reason": detail}
+        m.stats["blocked"] += 1
+        await say(m, "agent.unavailable", f"{known['org']} can no longer take this job: {detail}",
+                  subject=known["ans_name"], ans_name=known["ans_name"], org=known["org"], reason=detail)
+
+    return await recruit(m, job)
+
+
+async def recruit(m: Mission, job: dict) -> tuple[dict, object]:
+    """Nobody we have can do this. Say so out loud, then go looking."""
+    capability = job["capability"]
+    lost = m.lost.pop(capability, None)
+    rec = Recruitment(mission_id=m.id, job_title=job["title"], capability=capability,
+                      requested_scopes=job_scopes(capability), replacing=lost)
+    m.recruitments.append(rec)
+    job["recruitment_id"] = rec.id
+
+    roster = [{"ans_name": e["ans_name"], "org": e["org"], "capabilities": e["capabilities"]}
+              for e in m.roster.values()]
+    if lost:
+        await say(m, "recruitment.replacement_requested",
+                  f"{lost['org']} is out and the {job['title'].lower()} still needs doing. Finding a replacement.",
+                  subject=lost["ans_name"], capability=capability, job=job["title"], recruitment_id=rec.id,
+                  requested_scopes=rec.requested_scopes, replacing=lost, roster=roster)
+    else:
+        await say(m, "capability.missing",
+                  f"Nobody on this mission can {capability}. Looking for an agent that can.",
+                  capability=capability, job=job["title"], recruitment_id=rec.id,
+                  requested_scopes=rec.requested_scopes, roster=roster)
+    await asyncio.sleep(config.pace() / 2)
+
+    candidates = await discover(m, rec)
+    if not candidates:
+        rec.status, rec.finished_at = "failed", now()
+        await say(m, "discovery.failed", f"No agent anywhere offers {capability}",
+                  capability=capability, recruitment_id=rec.id)
+        raise MissionFailed(f"No verified agent is available for {capability}")
+
+    rec.status = "evaluating"
+    for cand in candidates:
         res = await state.gate.check_agent(cand["ans_name"], cand["endpoint"], capability, m.policy,
                                            mission_id=m.id, source=cand["source"])
         m.stats["checks_passed"] += res.passed
-        if res.verdict == TRUSTED:
+
+        admitted = res.verdict == TRUSTED
+        if not admitted and res.verdict == NEEDS_APPROVAL:
+            rec.status = "awaiting_approval"
+            admitted = await ask_approval(m, job, cand, res)
+            rec.status = "evaluating"
+
+        if admitted:
+            org = res.record["org"]
+            rec.selected, rec.status, rec.finished_at = cand["ans_name"], "admitted", now()
+            # The Guardian issues exactly these when the job goes out; /api/guardian/grants is
+            # the authority on what was actually granted.
+            rec.granted_scopes = list(rec.requested_scopes)
+            m.roster[cand["ans_name"]] = {
+                "ans_name": cand["ans_name"], "endpoint": cand["endpoint"], "org": org,
+                "version": res.record.get("version"), "capabilities": res.record.get("capabilities", []),
+                "trust": res, "hired_at": now(),
+            }
+            await say(m, "agent.admitted", f"{org} passed the Trust Gate and joins the mission",
+                      subject=cand["ans_name"], recruitment_id=rec.id, capability=capability,
+                      ans_name=cand["ans_name"], org=org, granted_scopes=rec.granted_scopes,
+                      source=cand["source"])
             return cand, res
-        if res.verdict == NEEDS_APPROVAL and await ask_approval(m, job, cand, res):
-            return cand, res
+
+        failed = next((c for c in res.checks if c.ok is False), None)
+        rec.rejected.append({"ans_name": cand["ans_name"], "org": cand.get("org"),
+                             "failed_check": failed.name if failed else None,
+                             "reason": failed.detail if failed else "rejected"})
+        await say(m, "agent.rejected", f"{cand.get('org') or cand['ans_name']} was turned away: {res.reason}",
+                  subject=cand["ans_name"], recruitment_id=rec.id, ans_name=cand["ans_name"],
+                  org=cand.get("org"), failed_check=failed.name if failed else None, reason=res.reason,
+                  source=cand["source"])
         m.stats["blocked"] += 1
         m.excluded.add((cand["ans_name"], cand["endpoint"]))
         await asyncio.sleep(config.pace() / 2)
+
+    rec.status, rec.finished_at = "rejected", now()
     raise MissionFailed(f"No verified agent is available for {capability}")
 
 
@@ -186,11 +366,10 @@ async def issue_grant(m: Mission, ans_name: str, job_id: str, capability: str) -
     return scopes
 
 
-async def run_job(m: Mission, job: dict, job_input: dict, *, prefer: str | None = None,
-                  revoke_during: str | None = None) -> dict:
+async def run_job(m: Mission, job: dict, job_input: dict, *, revoke_during: str | None = None) -> dict:
     job["status"] = "hiring"
     while True:
-        cand, trust = await hire(m, job, prefer)
+        cand, trust = await hire(m, job)
         org = trust.record["org"]
         job.update(status="working", agent=cand["ans_name"], org=org)
         job_id = "job_" + uuid.uuid4().hex[:8]
@@ -209,11 +388,16 @@ async def run_job(m: Mission, job: dict, job_input: dict, *, prefer: str | None 
             m.fired.add("revoke")
             revoke_task = asyncio.create_task(_delayed_hub_post(f"/api/chaos/revoke/{revoke_during}", 0.3))
 
-        def drop(reason_event: str):
+        async def drop(reason: str):
+            """Take an agent off this mission. Says so out loud, so the board can grey them out."""
             m.excluded.add((cand["ans_name"], cand["endpoint"]))
+            if m.roster.pop(cand["ans_name"], None):
+                m.lost[job["capability"]] = {"ans_name": cand["ans_name"], "org": org, "reason": reason}
             m.stats["blocked"] += 1
             job.update(status="rehiring", agent=None, org=None)
-            return reason_event
+            await say(m, "agent.unavailable", f"{org} is off the {job['title'].lower()}: {reason}",
+                      subject=cand["ans_name"], ans_name=cand["ans_name"], org=org,
+                      capability=job["capability"], reason=reason)
 
         try:
             r = await client().post(f"{cand['endpoint']}/job", json={"payload": payload, "signature": signature},
@@ -221,12 +405,12 @@ async def run_job(m: Mission, job: dict, job_input: dict, *, prefer: str | None 
         except httpx.HTTPError as exc:
             await say(m, "result.rejected", f"{org} didn't respond ({type(exc).__name__}); finding another agent",
                       subject=cand["ans_name"])
-            drop("no response")
+            await drop("no response")
             continue
         if r.status_code != 200:
             detail = r.json().get("detail", r.text) if r.headers.get("content-type", "").startswith("application/json") else r.text
             await say(m, "result.rejected", f"{org} refused the job: {detail}", subject=cand["ans_name"])
-            drop("refused")
+            await drop("refused")
             continue
 
         result = r.json()
@@ -239,7 +423,7 @@ async def run_job(m: Mission, job: dict, job_input: dict, *, prefer: str | None 
                 ok, why = False, f"{org} is now {status.detail}. Deliverable discarded."
         if not ok:
             await say(m, "result.rejected", why, subject=cand["ans_name"])
-            drop(why)
+            await drop(why)
             continue
 
         out = result["payload"]
@@ -302,8 +486,8 @@ async def run(m: Mission):
             final_job = _job("Final review", "compliance.review")
             m.jobs += [fix_job, final_job]
             site = await run_job(m, fix_job, {"brand_kit": brand, "business": m.business, "brief": site_job["brief"],
-                                              "issues": issues, "previous_html": site["html"]}, prefer=site_job["agent"])
-            review = await run_job(m, final_job, {"html": site["html"], "business": m.business}, prefer=review_job["agent"])
+                                              "issues": issues, "previous_html": site["html"]})
+            review = await run_job(m, final_job, {"html": site["html"], "business": m.business})
 
         m.result_html = site["html"]
         m.review = review

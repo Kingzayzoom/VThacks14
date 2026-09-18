@@ -140,6 +140,11 @@ async def current_mission():
     return await _call("GET", f"{COMMANDER}/missions/current", timeout=5)
 
 
+@app.get("/api/missions/{mission_id}")
+async def get_mission(mission_id: str):
+    return await _call("GET", f"{COMMANDER}/missions/{mission_id}", timeout=5)
+
+
 @app.get("/api/missions/{mission_id}/result", response_class=HTMLResponse)
 async def mission_result(mission_id: str):
     return await _call("GET", f"{COMMANDER}/missions/{mission_id}/result", timeout=5)

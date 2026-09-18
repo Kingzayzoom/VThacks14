@@ -1,6 +1,8 @@
 """End-to-end check of the full demo against a running system (start it with run_all.py first).
 
 Runs a mission with every scenario on, answers both things that need a human, and checks that:
+  - the Commander said out loud that it had nobody, before it went looking
+  - it did not go looking again for jobs the agents it already had could do
   - the impostor was blocked at the identity check
   - WebForge's deliverable was discarded after revocation and SiteSmith took over
   - the mission paused for the new LegalCheck version, then finished
@@ -64,6 +66,48 @@ def main():
     from websockets.sync.client import connect  # installed with uvicorn[standard]
     with connect(HUB.replace("http", "ws", 1) + "/ws") as ws:
         events = json.loads(ws.recv())["events"]
+
+    def typed(t):
+        return [e for e in events if e["type"] == t and e["mission_id"] == m["id"]]
+
+    # Three capabilities, three recruitments. The fix and final jobs reuse agents we already
+    # have, so they must NOT trigger a fourth and fifth search.
+    missing = typed("capability.missing")
+    covered = typed("capability.covered")
+    replacing = typed("recruitment.replacement_requested")
+    assert len(missing) == 3, f"expected one per capability, got {[e['data']['capability'] for e in missing]}"
+    assert {e["data"]["capability"] for e in missing} == {"brand.identity", "site.generate", "compliance.review"}
+    assert len(covered) == 2, f"fix + final review should reuse the roster, got {len(covered)}"
+    # Losing WebForge is a replacement, not a cold start — the Commander had a site builder.
+    assert len(replacing) == 1, f"expected one replacement request, got {len(replacing)}"
+    assert replacing[0]["data"]["replacing"]["org"] == "WebForge", replacing[0]["data"]
+    print(f"✓ asked for help {len(missing)}x, reused the roster {len(covered)}x, "
+          f"replaced {replacing[0]['data']['replacing']['org']} once")
+
+    found = typed("discovery.candidate_found")
+    completed = typed("discovery.completed")
+    assert completed and sum(e["data"]["count"] for e in completed) == len(found), "every candidate is announced"
+    assert not typed("discovery.failed"), "the registry should never have come up empty"
+    print(f"✓ discovery announced {len(found)} candidates across {len(completed)} searches")
+
+    # Revocation has to take WebForge off the roster, or the retry hires it straight back.
+    unavailable = typed("agent.unavailable")
+    admitted = typed("agent.admitted")
+    rejected = typed("agent.rejected")
+    assert any(e["data"]["org"] == "BrandStudio" for e in admitted), "BrandStudio should be admitted"
+    assert any("brandstudio" in (e["data"].get("ans_name") or "") for e in rejected), "the impostor is rejected"
+    assert any(e["data"]["org"] == "WebForge" for e in unavailable), "losing WebForge must be announced"
+    print(f"✓ {len(admitted)} admitted, {len(rejected)} turned away, {len(unavailable)} dropped mid-mission")
+
+    recs = m["recruitments"]
+    assert len(recs) == 4, f"three cold starts plus one replacement, got {len(recs)}"
+    assert sum(1 for r in recs if r["replacing"]) == 1, "exactly one recruitment is a backfill"
+    assert all(r["status"] in ("admitted", "rejected", "failed") for r in recs), "no recruitment left hanging"
+    assert all(r["selected"] and r["granted_scopes"] for r in recs if r["status"] == "admitted")
+    brand_rec = next(r for r in recs if r["capability"] == "brand.identity")
+    assert any(c["source"] == "open-web offer" for c in brand_rec["candidates"]), "the impostor should appear as a candidate"
+    assert any(x["failed_check"] == "authenticate" for x in brand_rec["rejected"]), brand_rec["rejected"]
+    print(f"✓ {len(recs)} recruitments recorded, candidates and refusals kept")
 
     checks = [e for e in events if e["type"] == "trust.check" and e["mission_id"] == m["id"]]
     impostor = [e for e in checks if e["data"].get("source") == "open-web offer"]

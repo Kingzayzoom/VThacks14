@@ -1,6 +1,6 @@
 /* Phase A / optical instrument refinement. Same routes and application state. */
 
-/* Material is original imagegen artwork; every readable surface remains DOM. */
+/* Legacy composition, with procedural material supplied by living.css. */
 .atmosphere {
   background: var(--canvas);
 }
@@ -10,7 +10,7 @@
 .atmosphere .optical-material {
   position: absolute;
   inset: 0;
-  background: url("/assets/optical-field.webp") center top / 100% auto no-repeat;
+  background: none center top / 100% auto no-repeat;
   opacity: 0.9;
 }
 .atmosphere:after {
@@ -332,7 +332,7 @@
   opacity: 0.82;
 }
 .sidebar-art svg {
-  background: url("/assets/optical-field.webp") 90% 24% / 440px auto;
+  background: none 90% 24% / 440px auto;
   border-color: #cec8ad30;
   stroke: #d3c19c;
   opacity: 0.8;
@@ -437,7 +437,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: url("/assets/optical-field.webp") center 67% / 100% auto no-repeat;
+  background: none center 67% / 100% auto no-repeat;
   opacity: 0.19;
   mix-blend-mode: screen;
 }
@@ -1151,7 +1151,7 @@ html[data-hidden="true"] .workspace-shell * {
     opacity: 0.08;
   }
   .atmosphere .optical-material {
-    background-image: url("/assets/optical-field-mobile.webp");
+    background-image: none;
     background-size: auto 810px;
     background-position: 64% 2px;
     opacity: 0.52;
@@ -1363,7 +1363,7 @@ html[data-hidden="true"] .workspace-shell * {
     position: relative;
     padding: 19px 4px 21px;
     border-bottom: 1px solid var(--border);
-    background: url("/assets/optical-field-mobile.webp") 95% 38% / 500px auto;
+    background: none 95% 38% / 500px auto;
   }
   .mobile-field-caption > .eyebrow {
     font-size: 7px;

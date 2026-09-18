@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import type { Agent, Snapshot } from "@/contracts";
 import { Status } from "./ui";
 import { AgentSignature } from "./agent-signature";
+import { LivingField } from "./living-field";
 import { ContourSheet } from "./atmosphere";
 import { agentInMission } from "@/lib/demo/fixtures";
 import { Shield, ArrowUpRight, CornerDownRight } from "lucide-react";
@@ -57,7 +58,7 @@ export function Network({
       className={`network-container ${list ? "list-mode" : ""} ${mission.status === "paused" ? "is-paused" : ""}`}
     >
       <div className="network-visual">
-        <div className="network-material" aria-hidden="true" />
+        <LivingField variant="network" />
         <ContourSheet />
         <div className="field-graticule" aria-hidden="true" />
         <div className="network-corner eyebrow">
@@ -84,8 +85,9 @@ export function Network({
           {paths.map(({ agentId, d }) => {
             const status = agents.find((a) => a.id === agentId)?.runtimeStatus;
             return (
-              <g key={agentId}>
+              <g key={agentId} className={`connection connection-${agentId} ${state.selectedAgentId === agentId ? "connection-selected" : ""}`} >
                 <path className="connection-bed" d={d} />
+                {status === "running" && <path className="signal-trace" d={d} pathLength="100" />}
                 <path
                   className={`edge ${status === "running" ? "executing" : status === "completed" ? "settled" : status === "waiting_approval" ? "waiting-edge" : "dormant"}`}
                   d={d}
@@ -145,6 +147,7 @@ export function Network({
       </div>
       <div className="network-list">
         <div className="mobile-field-caption">
+          <LivingField variant="network" />
           <span className="eyebrow">
             ONE OBJECTIVE / {tasks.length} ASSIGNMENTS
           </span>

@@ -247,7 +247,7 @@ test("visual state guards: selection, pause, asset budget, and mobile inspection
     path: "docs/screenshots/inspector-mobile.png",
     fullPage: false,
   });
-  expect(assets.some((a) => a.url.includes("optical-field.webp"))).toBe(true);
+  expect(assets).toEqual([]); // Atmosphere is procedural; no bitmap requests.
   expect(
     assets.every((a) => !a.url.endsWith(".png") && a.bytes < 150_000),
   ).toBe(true);

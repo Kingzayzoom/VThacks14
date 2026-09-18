@@ -1,3 +1,5 @@
+> ARCHIVAL: the living-field pass replaced this material with procedural Canvas. These assets remain for provenance and are not requested by the app.
+
 # Original optical material
 
 Generated using the built-in imagegen tool for this refinement. No provider API key, CLI fallback or application integration was used.

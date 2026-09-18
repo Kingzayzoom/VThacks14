@@ -9,6 +9,14 @@
 - [x] Inspect actual 1440×900 and 390px screenshots; fix visible issues.
 - [x] Stop at Roheen's visual checkpoint.
 
+## Living visual refinement - complete, approval pending
+- [x] Inspect both real-prefixed references and Shadergradient direction.
+- [x] Replace raster atmosphere with original procedural optical ribbons.
+- [x] Refine node presence, execution traces, focus relations and inspector motion.
+- [x] Inspect desktop/mobile screenshots and make a second refinement pass.
+- [x] Verify reduced motion, visual pause and Canvas-unavailable fallback.
+- [x] Keep Phase B and live services out of scope.
+
 ## Phase B — requires visual approval
 Remaining routes, complete deterministic scenario, recruitment/admission, Guardian decisions, artifacts, command palette and voice states. Do not begin during Phase A.
 

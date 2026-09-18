@@ -2,15 +2,27 @@
 
 Environment: Windows PowerShell, Node 24.20.0, npm 11.19.0, Next.js 16.3.5, React 19.3.0. Browser: Playwright Chromium / Chrome for Testing 153.0.8010.12, headless. These checks do not establish physical-device performance.
 
-## Commands actually run
+## Commands actually run - living-field pass
 | Check | Result |
 | --- | --- |
-| npm.cmd run typecheck | PASS, strict TypeScript |
-| npm.cmd run lint | PASS, Next core-web-vitals / TypeScript rules |
-| npm.cmd test | PASS, 6 tests |
-| npm.cmd run build | PASS, production compilation and route generation |
-| npm.cmd run test:e2e against development server | PASS, existing 2 tests after visual refinement |
-| Final production browser run | PASS, 3 tests in 14.2 seconds against the optimized build on port 3001 |
+| npm.cmd run typecheck | PASS after final changes |
+| npm.cmd run lint | PASS, no warnings after final changes |
+| npm.cmd test | PASS, 6 tests; fixture/API semantics unchanged |
+| npm.cmd run build | PASS with PERIHELION_BUILD_DIR=.next/visual-review |
+| npx.cmd playwright test e2e/living-field.spec.ts on dev | PASS, 2 tests, 7.9s |
+| npm.cmd run test:e2e on production port 3001 | PASS, 5 tests, 46.7s |
+
+The normal production cache contained a read-only OneDrive reparse directory and failed with EPERM. It was preserved; production validation used the optional isolated output override. Next generated type includes for that directory. Keep the same override when running `next start` for this build.
+
+The first production run exposed dynamic reduced-motion subscription and hydration-label failures. Replaced the preference hook with a server-safe useSyncExternalStore media-query subscription. The final full production run passed with zero page errors.
+
+## New motion coverage
+- Canvas pixels actually change during ambient motion, freeze under visual pause, and change again on resume.
+- OS reduced-motion changes while the page is open immediately stop Canvas; pointer motion does not change the still scene.
+- Execution packets disappear when the mission pauses; reduced-motion disables their CSS animation.
+- Simulated unavailable Canvas context preserves the composer, SVG fallback and selectable inspector.
+- Runtime asset guard now asserts zero `/assets/` bitmap requests. No source/reference PNG or former optical WebP is loaded.
+- Fresh production screenshots: Entry/FIELD at 1440x900 and 390x844 (viewport and full-page mobile); a recorded WebM includes continuous Entry motion, Sage/Forge selection, inspector changes and mission pause. Time-separated Entry frames at 0/3/6 seconds were inspected.
 
 ## Unit/contract coverage
 1. Empty mode selects demo; invalid/live configurations fail closed, even with a provided key; HTTP adapter reports NOT_CONFIGURED.
@@ -30,10 +42,12 @@ Environment: Windows PowerShell, Node 24.20.0, npm 11.19.0, Next.js 16.3.5, Reac
 - axe WCAG 2 A/AA and WCAG 2.1 AA checks: desktop Entry, desktop FIELD, mobile Entry and mobile FIELD all returned zero violations in the final production run. This is automated coverage, not a full accessibility certification.
 
 ## Added refinement guard test
-The third browser test covers selected-agent semantics, a task-derived NOW/HOLD readout, removal of running signatures and heartbeat when paused, reduced-motion behavior for all three execution indicators, and focus/viewport access to the mobile inspector. Asset assertions prohibit runtime archival PNG requests and bound each optical material request below 150 KB. Actual optimized files: desktop 93,944 bytes; mobile 21,026 bytes. No new unit tests were added because contracts/reducer semantics did not change.
+The third browser test covers selected-agent semantics, a task-derived NOW/HOLD readout, removal of running signatures and heartbeat when paused, reduced-motion behavior for all three execution indicators, and focus/viewport access to the mobile inspector. Asset assertions now prohibit every runtime bitmap material request; the former optimized files remain archival. No new unit tests were added because contracts/reducer semantics did not change.
 
-## Visual QA
-Re-inspected all four supplied boards, then captured Entry/FIELD at 1440×900 and 390×844 for the refinement. Reviewed the first pass visually and made a second pass: enlarged the selected coordinator, separated Forge's review marker from its status, improved mobile state-label readability, adjusted the mobile optical crop, and paused off-screen animation. The original Phase A's keyboard-scroll/focus fixes remain intact. The authored optical material contains no UI or text; all operational controls remain real DOM/SVG.
+## Visual QA - current and prior passes
+Current pass: inspected both real-prefixed references and Shadergradient direction. Reviewed `living-pass1`, then refined concentrated gold ridges, softened node halos, and made the motion control immediately reachable. Inspected `living-pass2`, mobile viewport/full-page layouts, and time-separated motion frames. Final production captures are at the screenshot root.
+
+Re-inspected all four supplied boards, then captured Entry/FIELD at 1440×900 and 390×844 for the refinement. Reviewed the first pass visually and made a second pass: enlarged the selected coordinator, separated Forge's review marker from its status, improved mobile state-label readability, adjusted the mobile optical crop, and paused off-screen animation. The original Phase A's keyboard-scroll/focus fixes remain intact. The current procedural material contains no UI or text; all operational controls remain real DOM/SVG.
 
 Screenshots live in `docs/screenshots/`; desktop entry and FIELD are exactly 1440×900, mobile runs use a 390×844 viewport with full-page captures as well. `phase-a-initial/` preserves the previous foundation; `refinement-pass1/` and `refinement-pass2/` preserve both review iterations. Additional 1280×800 and 1920×1080 captures are produced by the browser layout check. Reference PNGs are not requested by the running application. Final screenshots are captured from the optimized production build.
 

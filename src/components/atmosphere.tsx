@@ -1,10 +1,11 @@
+import { LivingField } from "./living-field";
 export function SignalField({ compact = false }: { compact?: boolean }) {
   return (
     <div
       className={`atmosphere ${compact ? "compact" : ""}`}
       aria-hidden="true"
     >
-      <div className="optical-material" />
+      <LivingField variant={compact ? "workspace" : "entry"} />
       <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
         <defs>
           <linearGradient

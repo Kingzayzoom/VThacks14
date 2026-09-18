@@ -1,6 +1,6 @@
 import type { RuntimeStatus } from "@/contracts";
 
-/** Original, color-independent intelligence signatures. Animation is supplied only by execution state. */
+/** Original, color-independent signatures; ambient presence is separate from execution. */
 export function AgentSignature({
   id,
   status = "idle",

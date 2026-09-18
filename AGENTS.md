@@ -7,11 +7,14 @@ Read MASTER_PROMPT.md, docs/RESEARCH_NOTES.md, docs/BUILD_STATUS.md and the four
 ## Current boundary
 Phase A only: tokens, atmosphere, application shell, entry composer, interactive FIELD, shared fixtures and initial contracts. Stop for Roheen's visual approval before Phase B. Do not deploy or initialize paid services, providers or microphone capture. Demo must work with every environment value empty. Preserve existing .env.local values and teammate edits; never print secrets.
 
+## Living visual foundation
+Read `references/realstarterpage.png` and `references/realcontrolcenter.png` as well as the original boards. Ambient presence is allowed by the latest brief; execution motion still derives from mission state. Keep Canvas isolated from application logic, share the frame clock, honor visual pause/reduced motion, and preserve SVG/CSS fallbacks. Do not restore bitmap wallpaper.
+
 ## Ownership
 Roheen owns product, frontend, design and visual approval. Zabish and Ashraf own hosted agents/backend/ANS/credentials. Their exact integration split still needs agreement; no presumed assignments. One writer for shared contracts and lockfiles.
 
 ## Architecture / commands
-Next.js App Router, React, strict TypeScript; native CSS tokens; Zod application contracts. UI -> ControlApi -> MockControlApi. No provider calls in components. Run npm.cmd install, npm.cmd run dev. Checks: npm.cmd run typecheck, npm.cmd run lint, npm.cmd test, npm.cmd run build, npm.cmd run test:e2e (local server running). Use .cmd wrappers in PowerShell; do not change execution policy.
+Next.js App Router, React, strict TypeScript; native CSS tokens plus Tailwind utilities without preflight; Framer Motion; procedural Canvas atmosphere; Zod application contracts. UI -> ControlApi -> MockControlApi. No provider calls in components. Run npm.cmd install, npm.cmd run dev. Checks: npm.cmd run typecheck, npm.cmd run lint, npm.cmd test, npm.cmd run build, npm.cmd run test:e2e (local server running). Use .cmd wrappers in PowerShell; do not change execution policy.
 
 Original source package was nested under PERIHLEION_MASTER_PROMPT.md/, documents/ and references/. Canonical copies now live at the brief's expected paths; originals preserved. This workspace initially had no app/package configuration or git repository.
 

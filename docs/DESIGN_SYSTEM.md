@@ -31,14 +31,26 @@ Cormorant Garamond 400/italic for the wordmark and editorial headings; Geist 400
 At 1440px the desktop wordmark is 120px, entry heading 53px, FIELD heading 42px. Mobile entry/FIELD headings are 47px/45px. Important entry text and controls are 13–15px; operational rows are 12–14px; short technical labels are smaller. Decorative indices are intentionally subordinate and never the sole source of task information. Mobile agent names use a 24px editorial serif with task and state labels below/beside them. Do not shrink mobile into a desktop graph.
 
 ## Six layers
-0. Black base and static, low-opacity grain.
-1. Original photographic optical-field material under mathematical SVG contour sheets; responsive WebP assets.
+0. Obsidian base and barely visible, slowly shifting grain.
+1. Original procedural Canvas 2D ribbons and luminous volumes beneath mathematical SVG contour sheets. No runtime bitmap.
 2. Sparse registration ticks, a specimen plate, sector/figure indices, and asymmetric margin annotations. These are editorial identifiers, not fabricated science measurements.
 3. Opaque readable shell, task strip, and activity rail.
 4. Stable agent positions, distinct geometric signatures, acquisition brackets, execution packets and an active-process heartbeat.
 5. Event-keyed task transmission, state arrival, and native modal dialogs with focus restoration; mobile navigation with focus containment.
 
-The z-index scale lives beside color tokens. Decorative SVG is `aria-hidden`, pointer-inert, and never carries essential text. No canvas/WebGL or reference screenshot is used in the UI. The new bitmap is text-free original material, generated with the built-in imagegen tool and optimized to 93,944 bytes desktop / 21,026 bytes mobile. Its archival PNG is never requested by the app. See OPTICAL_ASSET.md for its exact prompt and paths.
+The z-index scale lives beside color tokens. Decorative Canvas/SVG is aria-hidden and pointer-inert. `LivingField` draws fluid optical ribbons, folded strands, narrow luminous ridges and surface-attached light grains. Existing generated WebP/PNG material is archived only; no raster background is requested. CSS radial fields and SVG contours survive Canvas failure.
+
+## Living motion / current direction
+The latest owner brief explicitly adds continuous, restrained ambient motion. It supersedes the original execution-only atmosphere rule. The four original boards and `references/realstarterpage.png` / `realcontrolcenter.png` inform composition. [Shadergradient](https://shadergradient.co/) informs gradual deformation and continuous motion, without importing its palette, assets, code or 3D engine.
+
+- Atmosphere: four gently deforming ribbon bundles, low-frequency gold/cyan volumes, attached light grains, opacity variation, subtle grain and eased pointer/scroll depth.
+- Presence: 8-second node breathing; 14-second coordinator aperture deformation. Presence does not mean task execution or verified identity.
+- Execution: cyan packet on the actual running relation, running waveform and task-derived heartbeat. Mission pause removes packet travel and running states; ambient presence remains calm.
+- Interaction: hover/focus highlights the corresponding relation and signature; selected brackets and a stronger halo identify focus. Framer Motion fades/translates inspector changes over 360ms. Surfaces receive subtle border/lift highlights.
+- Accessibility: top-bar FLUID/STILL control pauses visual motion independently of the mission; OS reduced-motion changes apply immediately, including Canvas and pointer depth. Server-safe preference hydration avoids label mismatches. A still scene preserves structure.
+- Performance: all visible canvases share one requestAnimationFrame scheduler, capped at 30 draws/second; DPR capped at 1.4, fewer strands/grains on mobile; document-hidden and intersection guards unsubscribe canvases. Frames mutate Canvas, never React/mission state. No 3D library, image decode or external visual request.
+
+Tune `src/lib/visual/field-config.ts`: speed, amplitude, density, glow, opacity, frame rate, DPR and parallax. CSS motion durations live in `src/styles/living.css`. Tailwind utilities are enabled without preflight so existing typography/layout remains stable. Motion remains an isolated presentation concern.
 
 ## Component grammar
 - `Brand`, `ModeBadge`, `Status`, `AgentGlyph`: one consistent visual vocabulary, Lucide icon family.
@@ -52,14 +64,14 @@ The z-index scale lives beside color tokens. Decorative SVG is `aria-hidden`, po
 
 At 1440×900 the primary FIELD composition fits the viewport. The 1920px layout expands its topology. Tablet stacks the activity rail. At 390px, a large-tap agent list replaces the graph; pending review is directly accessible from the heading and precedes the event stream. Mobile pages scroll naturally.
 
-Only running edges and the running agent's trace animate. The active-process heartbeat exists only during demo execution. Pause settles these states; selection gets one acquisition transition and event changes get one transmission arrival. Verified identity stays a labeled fixture, with no fabricated verification scan. Reduced motion disables all animation; document visibility and a cleaned-up IntersectionObserver pause animation when hidden/off-screen. No animation drives React state or invents progress, handoffs, verification, microphone activity or event success.
+Execution edges move only while their task is running; completed and pending relationships remain settled. Ambient curves are atmospheric, not task paths. Event updates never invent progress, handoffs, verification or success. Motion can be paused without changing the mission.
 
 ## Refined layout rules
-`src/styles/refinement.css`, loaded once after the original global stylesheet, owns this material/composition pass. Tokens remain centralized. New control corners are 1–2px; dialogs use 5px. Keep optical detail away from the composer and prose; keep workspace material substantially dimmer than Entry.
+`src/styles/refinement.css` owns the established composition; `src/styles/living.css` layers current procedural material and motion after it. Tokens remain centralized. New control corners are 1–2px; dialogs use 5px. Keep optical detail away from the composer and prose; keep workspace material substantially dimmer than Entry.
 
 Entry uses an institutional masthead, large title plate, a central readable composer and an asymmetric specimen/margin rail. The three principle summaries follow the first-screen composition instead of crowding the objective. FIELD keeps the existing shell and expands the significance of the graph through signatures, deliberate curved links, local contour structure and a task-derived NOW/HOLD strip.
 
-At 390px the same signature vocabulary appears in a vertically connected delegation list. Guardian has a separate dashed boundary. Tapping a row activates the existing inspector, scrolls it into view and moves keyboard focus to its labeled region. Pending review remains directly accessible in the heading. The mobile optical crop is authored independently from desktop.
+At 390px the same signature vocabulary appears in a vertically connected delegation list. Guardian has a separate dashed boundary. Tapping a row activates the existing inspector, scrolls it into view and moves keyboard focus to its labeled region. Pending review remains directly accessible in the heading. The mobile field uses a smaller procedural line budget and a deliberately wider composition.
 
 ## Reference mapping
 Original `references/ChatGPT Image Sep 18, 2026, 03_36_51 PM (1–4).png` maps, in order, to the four named `public/references/` boards. All four were visually inspected before implementation. The original files remain intact.

@@ -1,8 +1,28 @@
-# PERIHELION / Phase A visual checkpoint
+# PERIHELION / Phase A living visual checkpoint
 
 September 18, 2026. Phase A visual refinement completed through two screenshot inspection passes. Awaiting Roheen's visual review. Do not start Phase B or live integration without the next instruction.
 
-## Visual refinement checkpoint
+## Current living-field refinement
+
+**PHASE A VISUAL FOUNDATION READY FOR ROHEEN APPROVAL: YES** - review readiness, not a claim of owner approval.
+
+- Replaced runtime optical bitmaps with original procedural Canvas ribbons, fluid deformation, soft luminous ridges, gold/cyan volumes, surface grains and eased pointer/scroll parallax.
+- Added presence breathing, selected halos, running-only signal packets, hover/focus relation emphasis and Framer Motion inspector transitions. Existing task semantics and independent Guardian boundary remain intact.
+- Added a top-bar FLUID/STILL control, live OS reduced-motion subscription, hidden/off-screen suspension and Canvas-unavailable fallback. One shared frame scheduler; no React updates per frame.
+- Reviewed both `realstarterpage.png` and `realcontrolcenter.png` alongside the original boards. First screenshot review led to brighter concentrated ridges, softer halos, and a top-bar motion control. Mobile remains an authored agent list with inspector access.
+- No Phase B features, live provider calls, microphone capture, deployments or environment-value changes.
+
+Validation: strict typecheck, lint, 6 unit tests, production build and all 5 production browser tests passed. Automated axe checks returned zero violations across desktop/mobile Entry and FIELD. See TEST_RESULTS.md for limits and the resolved motion-preference failures.
+
+Current changed files: `src/components/living-field.tsx`, `motion-system.tsx`, `atmosphere.tsx`, `entry.tsx`, `network.tsx`, `field.tsx`, `shell.tsx`, `agent-signature.tsx`; `src/lib/visual/field-config.ts`, `frame-clock.ts`; `src/styles/living.css`, `utilities.css`, `refinement.css`; `src/app/layout.tsx`; `package.json`, `package-lock.json`, `postcss.config.mjs`, `next.config.ts`, `tsconfig.json`; `e2e/living-field.spec.ts`, `e2e/phase-a.spec.ts`; `scripts/capture-living-motion.mjs`; `AGENTS.md`, `PLAN.md`, `docs/DESIGN_SYSTEM.md`, `docs/TEST_RESULTS.md`, `docs/OPTICAL_ASSET.md`, this document and screenshot/video artifacts.
+
+Motion review: `docs/screenshots/living-motion/perihelion-living-field.webm`. Current desktop/mobile screenshots remain in `docs/screenshots/`; inspected iterations are `living-pass1/` and `living-pass2/`.
+
+Run development: `npm.cmd run dev`, open http://127.0.0.1:3000. For production QA in this OneDrive workspace: `$env:PERIHELION_BUILD_DIR='.next/visual-review'; npm.cmd run build; npm.cmd run start -- --port 3001`. The optional output override preserves an older generated cache that Windows/OneDrive marked read-only. Use the same override for build/start. No environment file was modified.
+
+Remaining: Roheen's visual approval; physical-mobile frame-rate/battery and Safari/Firefox checks. The long mobile field intentionally scrolls; selecting a node moves focus to its inspector. This is still an honest local demo.
+
+## Previous optical refinement (historical)
 **PHASE A VISUAL FOUNDATION READY FOR ROHEEN APPROVAL: YES**
 
 - Entry: larger institutional title plate, asymmetric specimen and margin notes, original optical caustic material, precise composer corners, warmer restrained action emphasis and more deliberate whitespace.
@@ -16,7 +36,7 @@ First refinement captures are retained in `docs/screenshots/refinement-pass1/`; 
 Files changed in this pass: `src/app/layout.tsx`; `src/components/agent-signature.tsx` (new), `atmosphere.tsx`, `entry.tsx`, `network.tsx`, `field.tsx`; `src/styles/tokens.css`, `refinement.css` (new); `public/assets/optical-field-source.png`, `optical-field.webp`, `optical-field-mobile.webp`; `scripts/capture-visual-review.mjs`, `scripts/optimize-optical-field.mjs`; `e2e/phase-a.spec.ts`; `ATTRIBUTIONS.md`; `docs/OPTICAL_ASSET.md`, `DESIGN_SYSTEM.md`, `TEST_RESULTS.md`, this file and screenshot artifacts. No routes, fixtures, contracts, environment values or provider integrations were added or changed.
 
 ## What works
-- Original layered SVG/CSS/optical-material atmosphere, self-hosted typography, centralized design tokens and responsive shell.
+- Procedural Canvas/SVG/CSS atmosphere, self-hosted typography, centralized design tokens and responsive shell.
 - Entry composer with three examples, blank-input feedback, length limit, keyboard submit and duplicate-submission protection.
 - Mission creation → `/missions/[id]` → FIELD, a minimal mission register and integration-readiness page.
 - Stable selectable Scout/Sage/Forge/coordinator network; independent Guardian boundary; graph/list switching and view reset.

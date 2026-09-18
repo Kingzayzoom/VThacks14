@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { MotionControl } from "./motion-system";
 import { SignalField } from "./atmosphere";
 import { Brand, ModeBadge, AgentGlyph } from "./ui";
 import { MissionComposer } from "./composer";
@@ -17,6 +18,7 @@ export function Entry() {
           <Link href="/field">Operations</Link>
         </nav>
         <div>
+          <MotionControl />
           <ModeBadge />
           <Link className="button subtle" href="/field">
             Enter workspace

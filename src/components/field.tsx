@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
+import { useFieldMotion } from "./motion-system";
 import {
   Aperture,
   List,
@@ -37,6 +39,7 @@ function eventText(event: ControlEvent) {
 }
 export function Field({ missionId }: { missionId?: string }) {
   const { state, api } = useControl();
+  const { still } = useFieldMotion();
   const mission = state.missions.find(
     (m) => m.id === (missionId ?? state.selectedMissionId),
   );
@@ -207,7 +210,10 @@ export function Field({ missionId }: { missionId?: string }) {
             </button>
           </div>
           {tab === "activity" ? (
-            <div
+            <motion.div
+              key="activity"
+              initial={still ? false : { opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
               className="activity-content"
               tabIndex={0}
               role="region"
@@ -243,9 +249,12 @@ export function Field({ missionId }: { missionId?: string }) {
               <p className="rail-footnote">
                 Local fixture events. No external agent is executing.
               </p>
-            </div>
+            </motion.div>
           ) : (
-            <div
+            <motion.div
+              key={agent.id}
+              initial={still ? false : { opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
               id="selected-agent-details"
               className="inspector-content"
               tabIndex={0}
@@ -293,7 +302,7 @@ export function Field({ missionId }: { missionId?: string }) {
                   {agent.parentAgentId ?? "Independent"} · No artifact yet
                 </dd>
               </dl>
-            </div>
+            </motion.div>
           )}
           <div className={`review-callout ${!pending ? "no-review" : ""}`}>
             <div className="eyebrow">

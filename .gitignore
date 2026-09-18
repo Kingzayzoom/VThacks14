@@ -24,6 +24,9 @@ out/
 dist/
 build/
 npm-debug.log*
+*.tsbuildinfo
+test-results/
+playwright-report/
 
 # OS / editor
 .DS_Store

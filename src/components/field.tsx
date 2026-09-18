@@ -74,16 +74,29 @@ export function Field({ missionId }: { missionId?: string }) {
   function select(id: string) {
     api.selectAgent(id);
     setTab("inspector");
+    if (window.matchMedia("(max-width: 760px)").matches) {
+      requestAnimationFrame(() => {
+        const inspector = document.getElementById("selected-agent-details");
+        inspector?.scrollIntoView({
+          behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
+            .matches
+            ? "instant"
+            : "smooth",
+          block: "center",
+        });
+        inspector?.focus({ preventScroll: true });
+      });
+    }
   }
   return (
     <div className="field-page">
       <div className="field-heading">
         <div>
-          <div className="eyebrow muted">01 / OPERATIONS</div>
+          <div className="eyebrow muted">OPERATIONS / SECTOR 01</div>
           <h1>
             FIELD<span className="heading-dot">.</span>
           </h1>
-          <p>Intelligence in motion. Progress in focus.</p>
+          <p>Independent minds. A common direction.</p>
         </div>
         <div className="field-summary">
           <span>
@@ -114,7 +127,7 @@ export function Field({ missionId }: { missionId?: string }) {
         <section className="field-network-panel" aria-label="Agent field">
           <div className="panel-toolbar">
             <span className="eyebrow">
-              <span className="signal-dot" /> THE AGENT FIELD
+              <span className="signal-dot" /> THE COORDINATION FIELD
             </span>
             <div className="view-controls">
               <button
@@ -233,6 +246,7 @@ export function Field({ missionId }: { missionId?: string }) {
             </div>
           ) : (
             <div
+              id="selected-agent-details"
               className="inspector-content"
               tabIndex={0}
               role="region"
@@ -286,6 +300,9 @@ export function Field({ missionId }: { missionId?: string }) {
               {pending ? <TriangleAlert size={14} /> : <Shield size={14} />}{" "}
               {pending ? "YOUR DECISION, NEXT" : "HUMAN AUTHORITY"}
             </div>
+            <span className="review-index" aria-hidden="true">
+              !
+            </span>
             <h3>
               {pending ? "A capability is missing." : "You set the boundary."}
             </h3>

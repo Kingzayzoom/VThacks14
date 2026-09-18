@@ -4,6 +4,7 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { SignalField } from "./atmosphere";
 import { Brand, ModeBadge, AgentGlyph } from "./ui";
 import { MissionComposer } from "./composer";
+import { AgentSignature } from "./agent-signature";
 
 export function Entry() {
   return (
@@ -32,10 +33,19 @@ export function Entry() {
           </span>
           <span className="annotation-line" />
           <span className="eyebrow muted">
-            VTHACKS 14
+            FIELD NOTES / 001
             <br />
-            DESIGN STUDY / 001
+            VTHACKS 14
           </span>
+          <div className="specimen-plate" aria-hidden="true">
+            <AgentSignature id="coordinator" />
+            <span className="eyebrow">FIG. 01 — CONVERGENCE</span>
+          </div>
+          <p className="plate-description">
+            Many independent minds.
+            <br />
+            One shared direction.
+          </p>
         </aside>
         <aside className="edge-note right">
           <span className="eyebrow">
@@ -46,6 +56,16 @@ export function Entry() {
             ADVANCE.
           </span>
           <span className="annotation-line" />
+          <p className="margin-statement">
+            Closer
+            <br />
+            to <em>intent.</em>
+          </p>
+          <span className="eyebrow margin-footnote">
+            AN INSTRUMENT FOR
+            <br />
+            COORDINATED INTELLIGENCE.
+          </span>
         </aside>
         <div className="hero-heading">
           <div className="eyebrow edition">
@@ -53,7 +73,10 @@ export function Entry() {
             <span className="tiny-rule" />
           </div>
           <p className="hero-wordmark">PERIHELION</p>
-          <p className="eyebrow system-title">AGENTIC OPERATIONS SYSTEM</p>
+          <p className="eyebrow system-title">
+            <span>AGENTIC OPERATIONS SYSTEM</span>
+            <span className="system-edition">VOL. 01 / FIELD INSTRUMENT</span>
+          </p>
           <div className="hero-divider">
             <span>+</span>
           </div>
@@ -65,6 +88,13 @@ export function Entry() {
           </p>
         </div>
         <MissionComposer />
+        <div className="entry-instrument-rule" aria-hidden="true">
+          <span>INTENT</span>
+          <i />
+          <span>COORDINATION</span>
+          <i />
+          <span>HUMAN AUTHORITY</span>
+        </div>
         <section
           className="entry-field-preview"
           aria-label="Demo agent field preview"
@@ -97,7 +127,7 @@ export function Entry() {
             <span>DISCOVER</span>
           </div>
           <div className="preview-agent coordinator">
-            <AgentGlyph id="coordinator" size={32} />
+            <AgentSignature id="coordinator" />
             <span>COORDINATE</span>
           </div>
           <div className="preview-agent forge">

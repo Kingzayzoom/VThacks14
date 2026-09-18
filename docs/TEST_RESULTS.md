@@ -1,4 +1,4 @@
-# Phase A verification
+# Phase A visual-refinement verification
 
 Environment: Windows PowerShell, Node 24.20.0, npm 11.19.0, Next.js 16.3.5, React 19.3.0. Browser: Playwright Chromium / Chrome for Testing 153.0.8010.12, headless. These checks do not establish physical-device performance.
 
@@ -9,8 +9,8 @@ Environment: Windows PowerShell, Node 24.20.0, npm 11.19.0, Next.js 16.3.5, Reac
 | npm.cmd run lint | PASS, Next core-web-vitals / TypeScript rules |
 | npm.cmd test | PASS, 6 tests |
 | npm.cmd run build | PASS, production compilation and route generation |
-| npm.cmd run test:e2e against development server | PASS, primary interaction/accessibility flow |
-| Production browser run plus 1280/1920 layout check | PASS, 2 browser tests in 9.7 seconds against local production server on port 3001 |
+| npm.cmd run test:e2e against development server | PASS, existing 2 tests after visual refinement |
+| Final production browser run | PASS, 3 tests in 14.2 seconds against the optimized build on port 3001 |
 
 ## Unit/contract coverage
 1. Empty mode selects demo; invalid/live configurations fail closed, even with a provided key; HTTP adapter reports NOT_CONFIGURED.
@@ -27,12 +27,15 @@ Environment: Windows PowerShell, Node 24.20.0, npm 11.19.0, Next.js 16.3.5, Reac
 - Voice-not-configured state and text-input focus handoff.
 - Reduced-motion behavior; no page exceptions and no requests outside the local app origin.
 - 390px horizontal-overflow check, list replacement for graph, direct pending-review access, mobile navigation Escape/focus and settings.
-- axe WCAG 2 A/AA and WCAG 2.1 AA checks: desktop FIELD, mobile entry and mobile FIELD, zero violations in the final passing run. This is automated coverage, not a full accessibility certification.
+- axe WCAG 2 A/AA and WCAG 2.1 AA checks: desktop Entry, desktop FIELD, mobile Entry and mobile FIELD all returned zero violations in the final production run. This is automated coverage, not a full accessibility certification.
+
+## Added refinement guard test
+The third browser test covers selected-agent semantics, a task-derived NOW/HOLD readout, removal of running signatures and heartbeat when paused, reduced-motion behavior for all three execution indicators, and focus/viewport access to the mobile inspector. Asset assertions prohibit runtime archival PNG requests and bound each optical material request below 150 KB. Actual optimized files: desktop 93,944 bytes; mobile 21,026 bytes. No new unit tests were added because contracts/reducer semantics did not change.
 
 ## Visual QA
-Inspected real entry and FIELD screenshots against the four input boards. Corrected initial excess desktop height, task/control hierarchy, dense rail scrolling, mobile review order and artwork opacity. Fixed an actual focus handoff defect and made scrolling regions keyboard-focusable. Initial test selector ambiguity with Next's route announcer was fixed in the test.
+Re-inspected all four supplied boards, then captured Entry/FIELD at 1440×900 and 390×844 for the refinement. Reviewed the first pass visually and made a second pass: enlarged the selected coordinator, separated Forge's review marker from its status, improved mobile state-label readability, adjusted the mobile optical crop, and paused off-screen animation. The original Phase A's keyboard-scroll/focus fixes remain intact. The authored optical material contains no UI or text; all operational controls remain real DOM/SVG.
 
-Screenshots live in `docs/screenshots/`; desktop entry and FIELD are exactly 1440×900, mobile runs use a 390×844 viewport with full-page captures as well. Additional 1280×800 and 1920×1080 viewport captures were inspected: no horizontal overflow; the 1280px page naturally scrolls vertically. Reference PNGs are not requested by the running application. The final primary flow was repeated against the optimized production build, not only the dev server.
+Screenshots live in `docs/screenshots/`; desktop entry and FIELD are exactly 1440×900, mobile runs use a 390×844 viewport with full-page captures as well. `phase-a-initial/` preserves the previous foundation; `refinement-pass1/` and `refinement-pass2/` preserve both review iterations. Additional 1280×800 and 1920×1080 captures are produced by the browser layout check. Reference PNGs are not requested by the running application. Final screenshots are captured from the optimized production build.
 
 ## Environment hygiene
 Verified `.env.example` contains 41 names with no populated values. `.env.local` contains all 41 required names; existing values were not printed or overwritten. Provider secrets have no NEXT_PUBLIC prefix. No provider SDK, paid call, microphone session or deployment was initiated.

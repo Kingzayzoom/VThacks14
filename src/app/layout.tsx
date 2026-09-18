@@ -6,6 +6,7 @@ import "@fontsource/geist/500.css";
 import "@fontsource/ibm-plex-mono/400.css";
 import "@/styles/tokens.css";
 import "@/styles/global.css";
+import "@/styles/refinement.css";
 import { ControlProvider } from "@/components/provider";
 import { runtimeConfig } from "@/lib/env/config";
 export const metadata: Metadata = {

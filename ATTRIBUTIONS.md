@@ -2,7 +2,7 @@
 
 This workspace began with the user-supplied master brief, research notes, four generated reference boards and an existing private environment file. It had no application source or package configuration. Originals were preserved; canonical copies were added at the brief's expected paths.
 
-The four boards are user-supplied AI-generated art-direction references. Their fabricated metrics/verification claims are not product data. Runtime uses original CSS/SVG contour artwork and real DOM components, not screenshots. APHELION is a creative reference; no protected APHELION code, artwork or deployed project was copied.
+The four boards are user-supplied AI-generated art-direction references. Their fabricated metrics/verification claims are not product data. Runtime uses original CSS/SVG contour artwork, original geometric agent signatures, a newly generated text-free optical material and real DOM components, not screenshots. The optical material was made with built-in imagegen; see docs/OPTICAL_ASSET.md for the exact prompt, files and optimization. APHELION is a creative reference; no protected APHELION code, artwork or deployed project was copied. A direct web fetch during refinement was unavailable; the four local boards remained the authoritative visual references.
 
 Implementation was AI-assisted with Codex for VTHacks 14. Team: Roheen (product/frontend/design approval); Zabish and Ashraf (future backend/agents/ANS integrations).
 

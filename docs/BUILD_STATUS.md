@@ -1,9 +1,22 @@
 # PERIHELION / Phase A visual checkpoint
 
-September 18, 2026. Frontend foundation implemented. Awaiting Roheen's visual review. Do not start Phase B or live integration without the next instruction.
+September 18, 2026. Phase A visual refinement completed through two screenshot inspection passes. Awaiting Roheen's visual review. Do not start Phase B or live integration without the next instruction.
+
+## Visual refinement checkpoint
+**PHASE A VISUAL FOUNDATION READY FOR ROHEEN APPROVAL: YES**
+
+- Entry: larger institutional title plate, asymmetric specimen and margin notes, original optical caustic material, precise composer corners, warmer restrained action emphasis and more deliberate whitespace.
+- FIELD: distinct original agent signatures, larger selected coordinator aperture, stable curved execution paths, clear waiting boundary, active-process heartbeat and state-derived NOW/HOLD transmission.
+- Mobile: authored optical crop, serif agent hierarchy, connected assignment list, separate Guardian boundary, larger state labels, automatic focus/scroll to the existing inspector.
+- Motion: execution-only signal traces; one-shot selection/event arrival; pause/reduced-motion/hidden-tab/off-screen guards. No invented verification, task completion or fake live telemetry.
+- Material: self-hosted optimized WebP (93,944 bytes desktop / 21,026 bytes mobile). Readable DOM surfaces sit above it. Source PNG is archival, not a runtime request.
+
+First refinement captures are retained in `docs/screenshots/refinement-pass1/`; second-pass captures in `refinement-pass2/`; the original Phase A captures in `phase-a-initial/`. Final fresh captures remain at the top of `docs/screenshots/`. The four supplied reference boards were re-inspected directly. The first screenshot review led to a larger coordinator, separated Forge status/review marker, clearer mobile status type and a deliberate mobile material crop.
+
+Files changed in this pass: `src/app/layout.tsx`; `src/components/agent-signature.tsx` (new), `atmosphere.tsx`, `entry.tsx`, `network.tsx`, `field.tsx`; `src/styles/tokens.css`, `refinement.css` (new); `public/assets/optical-field-source.png`, `optical-field.webp`, `optical-field-mobile.webp`; `scripts/capture-visual-review.mjs`, `scripts/optimize-optical-field.mjs`; `e2e/phase-a.spec.ts`; `ATTRIBUTIONS.md`; `docs/OPTICAL_ASSET.md`, `DESIGN_SYSTEM.md`, `TEST_RESULTS.md`, this file and screenshot artifacts. No routes, fixtures, contracts, environment values or provider integrations were added or changed.
 
 ## What works
-- Original layered SVG/CSS atmosphere, self-hosted typography, centralized design tokens and responsive shell.
+- Original layered SVG/CSS/optical-material atmosphere, self-hosted typography, centralized design tokens and responsive shell.
 - Entry composer with three examples, blank-input feedback, length limit, keyboard submit and duplicate-submission protection.
 - Mission creation → `/missions/[id]` → FIELD, a minimal mission register and integration-readiness page.
 - Stable selectable Scout/Sage/Forge/coordinator network; independent Guardian boundary; graph/list switching and view reset.
@@ -39,13 +52,14 @@ All four supplied boards were inspected before coding. Actual Chromium captures 
 - [Entry, 390px full page](screenshots/entry-mobile.png)
 - [FIELD, 390px full page](screenshots/field-mobile.png)
 - [FIELD, 390×844 viewport](screenshots/field-mobile-viewport.png)
+- [Entry, 390×844 viewport](screenshots/entry-mobile-viewport.png) and [mobile inspector](screenshots/inspector-mobile.png)
 - [Capability request preview](screenshots/review-desktop.png)
 - [Wide desktop, 1920px](screenshots/field-1920.png) and [compact desktop, 1280px](screenshots/field-1280.png)
 
-Verification: strict typecheck, lint, six unit tests, production build and two production browser tests passed. See TEST_RESULTS.md for actual coverage and limitations.
+Verification: strict typecheck, lint, six unit tests, production build and three production browser tests passed after refinement. The production browser suite took 14.2 seconds; automated accessibility checks found zero violations across the four Entry/FIELD viewport states. See TEST_RESULTS.md for limits.
 
 ## Remaining issues / boundaries
-No blocking Phase A issue found in the tested browser. The remaining product workflow is deliberately incomplete:
+No blocking visual issue found in the inspected Chromium desktop/mobile layouts. Final atmosphere intensity and fine annotation scale remain Roheen's subjective approval decisions. Safari/Firefox, physical devices, text-zoom and frame-time profiling still need broader validation; no hardware performance claim is made. The remaining product workflow is deliberately incomplete:
 
 - Custom objectives share the same explicit sample plan; no real planning or automatic progression occurs.
 - Recruitment is a pending request preview. Candidate discovery/admission, policy decisions and finished artifacts are Phase B work.

@@ -22,6 +22,7 @@ import { Brand, ModeBadge } from "./ui";
 import { useControl } from "./provider";
 import { Dialog } from "./dialog";
 import { MissionComposer } from "./composer";
+import { MotionControl } from "./motion-system";
 import { SignalField } from "./atmosphere";
 
 const nav = [
@@ -236,6 +237,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             <span>Personal field</span>
           </div>
           <div className="topbar-right">
+            <MotionControl />
             <ModeBadge />
             <span className="topbar-demo-note">No live integrations</span>
             <span className="avatar" title="Local demo operator">

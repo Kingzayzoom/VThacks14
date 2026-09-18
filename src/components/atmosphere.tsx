@@ -1,9 +1,11 @@
+import { LivingField } from "./living-field";
 export function SignalField({ compact = false }: { compact?: boolean }) {
   return (
     <div
       className={`atmosphere ${compact ? "compact" : ""}`}
       aria-hidden="true"
     >
+      <LivingField variant={compact ? "workspace" : "entry"} />
       <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
         <defs>
           <linearGradient
@@ -62,11 +64,23 @@ export function ContourSheet() {
       preserveAspectRatio="none"
       aria-hidden="true"
     >
-      <g fill="none" stroke="currentColor" strokeWidth=".6">
-        {Array.from({ length: 24 }, (_, i) => (
+      <g fill="none" stroke="currentColor" strokeWidth=".45">
+        {Array.from({ length: 38 }, (_, i) => (
           <path
             key={i}
-            d={`M -30 ${70 + i * 14} C ${170 + i * 4} ${-80 + i * 13}, ${80 + i * 13} ${360 - i * 7}, 400 ${210 + i * 4} S ${700 + i * 4} ${110 + i * 14}, 840 ${240 + i * 10}`}
+            d={`M -40 ${185 + i * 8} C ${100 + i * 3} ${50 + i * 8}, ${150 - i * 2} ${300 + i * 3}, ${355 + i * 2} ${250 + Math.sin(i * 0.18) * 32} S ${615 + i * 3} ${400 - i * 7}, 850 ${90 + i * 9}`}
+          />
+        ))}
+      </g>
+      <g fill="none" stroke="currentColor" strokeWidth=".4" opacity=".5">
+        {Array.from({ length: 12 }, (_, i) => (
+          <ellipse
+            key={i}
+            cx="440"
+            cy="273"
+            rx={115 + i * 17}
+            ry={22 + i * 5}
+            transform="rotate(-13 440 273)"
           />
         ))}
       </g>

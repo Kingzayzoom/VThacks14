@@ -92,12 +92,15 @@ class TrustGate:
         self.ans = ans
         self.me = me  # my own ANS name, used as the actor in events
 
-    async def _fetch_card(self, url: str) -> dict | None:
+    async def _fetch_card(self, url: str) -> tuple[dict | None, str | None]:
+        """Returns (card, presented status token). The token rides along on the same response."""
         try:
             r = await client().get(url, timeout=5)
-            return r.json() if r.status_code == 200 else None
+            if r.status_code != 200:
+                return None, None
+            return r.json(), r.headers.get(standing.STATUS_HEADER)
         except (httpx.HTTPError, ValueError):
-            return None
+            return None, None
 
     async def _cert_checks(self, ans_name: str, cert_pem: str | None) -> tuple[object | None, str | None]:
         """Returns (cert, problem). The cert must be issued by the ANS CA, unexpired, and name this agent."""
@@ -129,20 +132,39 @@ class TrustGate:
         except (AnsError, httpx.HTTPError, NotImplementedError) as exc:
             return "unverified", f"inclusion proof unavailable ({type(exc).__name__})", None, {}
 
-    async def _standing_evidence(self, record: dict) -> tuple[str, str, dict]:
+    async def _standing_evidence(self, record: dict, presented: str | None = None) -> tuple[str, str, dict]:
         """Is it in good standing *now*? Returns (state, detail, evidence).
 
-        Signed, short-lived and re-fetched every time. The registry's own status field is a
-        read of a database; this is a statement ANS put its name to, with an expiry on it.
+        Two ways to find out, and the first is the one ANS is designed around: the agent hands
+        us its own signed status token and we check it offline against root keys we already
+        hold. No registry round-trip, and it still works when the registry is unreachable.
+        Asking the registry ourselves is the fallback.
+
+        A presented token is pinned to the name we are asking about. It is otherwise a perfectly
+        genuine document — just possibly about someone else.
         """
         try:
+            public_key = await self.ans.status_public_key()
+        except (AnsError, httpx.HTTPError, NotImplementedError) as exc:
+            return "unverified", f"no ANS signing key to check standing against ({type(exc).__name__})", {}
+
+        if presented:
+            token = standing.decode_token(presented)
+            if token is None:
+                return "fail", "the presented status token is unreadable", {}
+            ok, detail, evidence = standing.verify_status_token(
+                token, public_key, expect_ans_name=record["ans_name"])
+            return ("pass" if ok else "fail"), f"{detail} (presented, verified offline)",                    {**evidence, "source": "presented by the agent"}
+
+        try:
             token = await self.ans.status_token(record["agent_id"])
-            ok, detail, evidence = standing.verify_status_token(token, await self.ans.status_public_key())
-            return ("pass" if ok else "fail"), detail, evidence
         except (AnsError, httpx.HTTPError, NotImplementedError) as exc:
             return "unverified", f"standing unproven ({type(exc).__name__})", {}
+        ok, detail, evidence = standing.verify_status_token(
+            token, public_key, expect_ans_name=record["ans_name"])
+        return ("pass" if ok else "fail"), f"{detail} (fetched from ANS)",                {**evidence, "source": "fetched from the registry"}
 
-    async def _status_check(self, record: dict) -> tuple[Check, int | None]:
+    async def _status_check(self, record: dict, presented: str | None = None) -> tuple[Check, int | None]:
         """Two questions, asked separately: was it registered, and is it still in good standing.
 
         Answering only the first is the classic mistake — a revoked agent's inclusion proof
@@ -154,7 +176,7 @@ class TrustGate:
             return Check("status", False, f"{status}{reason}", evidence={"registry_status": status}), None
 
         inclusion_state, inclusion_detail, index, inclusion_ev = await self._inclusion_evidence(record)
-        standing_state, standing_detail, standing_ev = await self._standing_evidence(record)
+        standing_state, standing_detail, standing_ev = await self._standing_evidence(record, presented)
         evidence = {"registry_status": status,
                     "inclusion": {"state": inclusion_state, "detail": inclusion_detail, **inclusion_ev},
                     "standing": {"state": standing_state, "detail": standing_detail, **standing_ev}}
@@ -176,7 +198,7 @@ class TrustGate:
 
         # 1. resolve
         record = await self.ans.resolve(ans_name)
-        card = await self._fetch_card(record["agent_card_url"]) if record else None
+        card, presented = (await self._fetch_card(record["agent_card_url"])) if record else (None, None)
         res.record, res.card = record, card
         if not record:
             checks.append(Check("resolve", False, "not registered in ANS"))
@@ -199,6 +221,9 @@ class TrustGate:
             try:
                 r = await client().post(f"{endpoint}/challenge", json={"nonce": challenge, "from": self.me}, timeout=5)
                 sig = r.json().get("signature") if r.status_code == 200 else None
+                # The endpoint we are actually talking to gets to present its own standing,
+                # which matters when it is not the one the registry lists.
+                presented = r.headers.get(standing.STATUS_HEADER) or presented
             except (httpx.HTTPError, ValueError):
                 pass
             if sig and crypto.verify(cert.public_key(), crypto.challenge_bytes(challenge), sig):
@@ -210,7 +235,7 @@ class TrustGate:
                                     "couldn't prove it holds this identity's private key" + note))
 
         # 3. status (+ transparency-log receipt)
-        status_check, res.log_index = await self._status_check(record)
+        status_check, res.log_index = await self._status_check(record, presented)
         checks.append(status_check)
 
         # 4. capability

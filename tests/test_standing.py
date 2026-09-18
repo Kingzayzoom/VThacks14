@@ -97,3 +97,31 @@ def test_a_malformed_token_fails_without_raising():
         ok, detail, _ = standing.verify_status_token(bad, PUB)
         assert not ok
         assert "malformed" in detail
+
+
+# --- tokens that are handed to us rather than fetched -------------------------------------
+
+def test_a_presented_token_must_be_about_the_agent_presenting_it():
+    """The attack: a revoked agent shows you a healthy neighbour's perfectly valid token."""
+    neighbour = token(ans_name="ans://v1.0.0.compliance.legalcheck.xyz")
+    ok, detail, _ = standing.verify_status_token(
+        neighbour, PUB, expect_ans_name="ans://v1.0.0.sitebuilder.sitesmith.xyz")
+    assert not ok
+    assert "is about" in detail
+    # ...and the same token is fine when it is about the right agent.
+    assert standing.verify_status_token(
+        neighbour, PUB, expect_ans_name="ans://v1.0.0.compliance.legalcheck.xyz")[0]
+
+
+def test_a_token_survives_the_round_trip_through_a_header():
+    encoded = standing.encode_token(token())
+    assert encoded.isascii() and not any(c.isspace() for c in encoded), "must be safe in a header"
+    assert standing.verify_status_token(standing.decode_token(encoded), PUB)[0]
+
+
+def test_header_garbage_decodes_to_nothing_rather_than_exploding():
+    """Anything an agent can put in a header, someone will put something else in."""
+    for bad in ("", "not-base64!!", "aGVsbG8=", "e30="):
+        decoded = standing.decode_token(bad)
+        # Either it is unreadable, or it decodes to something the verifier then refuses.
+        assert decoded is None or not standing.verify_status_token(decoded, PUB)[0]

@@ -145,8 +145,11 @@ evidence: {
 
 - **inclusion** — the registration is in the transparency log. History. Still verifies perfectly
   after the agent is revoked, which is why it can never be the whole answer.
-- **standing** — a signed, short-lived, re-fetched-every-time statement that the agent is in good
-  standing *now*. This is the one that catches a revocation.
+- **standing** — a signed, short-lived statement that the agent is in good standing *now*. This
+  is the one that catches a revocation. `source` says how we got it:
+  `"presented by the agent"` (it attached `X-ANS-Status-Token` to its own response and we
+  verified it offline, no registry call) or `"fetched from the registry"` (nothing was presented,
+  so we asked). Worth surfacing — offline verification is the point of the design, not a detail.
 
 If you show one number on the Trust Gate, show standing's `age_seconds`. "Verified 3 seconds ago"
 is a far stronger claim than "verified".

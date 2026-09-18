@@ -8,19 +8,20 @@ and it will tell you, endpoint by endpoint, which of these assumptions survive c
 
 Two things this backend cannot do yet, both deliberate:
 
-  status tokens and SCITT receipts are served by the ANS transparency log, whose hosted base
-  URL is not in the public REST pages. Until ANS_TLOG_URL is set, those raise NotImplementedError
-  and the Trust Gate records standing as *unverified* — which fails closed but is reported as
-  "we could not get the evidence", never as "the agent is fine".
+  the status-token retrieval path is still a guess. It should rarely matter: the intended flow
+  is that an agent presents its own token and we verify it offline, which is what the Trust Gate
+  tries first. If neither works, standing is recorded as *unverified* — which fails closed but
+  is reported as "we could not get the evidence", never as "the agent is fine".
 
   receipts are SCITT COSE_Sign1, not the JSON Merkle receipts the simulator serves. Do not
   point mc/merkle.py at them; verify with GoDaddy's ans-verify tooling instead.
 
 Env:
-  ANS_API_URL    https://api.ote-godaddy.com (OTE) or https://api.godaddy.com (production)
-  ANS_PAT        personal access token — sent as `Authorization: Bearer <pat>`
-  ANS_TLOG_URL   transparency-log base URL, once we know it
-  ANS_AUTH_MODE  pat (default) | sso-key, for the older KEY:SECRET scheme
+  ANS_API_URL             https://api.ote-godaddy.com (OTE) or https://api.godaddy.com
+  ANS_PAT                 personal access token — sent as `Authorization: Bearer <pat>`
+  ANS_TRANSPARENCY_URL    defaults from ANS_API_URL: transparency.ans[.ote]-godaddy.com
+  ANS_CA_BUNDLE_PATH      the identity CA root to pin
+  ANS_AUTH_MODE           pat (default) | sso-key, for the older KEY:SECRET scheme
 """
 from ..config import env, parse_ans_name
 from ..http import client
@@ -41,9 +42,24 @@ class GoDaddyAnsClient(AnsClient):
         if not self.base:
             raise AnsError("ANS_BACKEND=godaddy needs ANS_API_URL in .env "
                            "(https://api.ote-godaddy.com for OTE)")
-        self.tlog = (env("ANS_TLOG_URL") or "").rstrip("/")
+        self.tlog = self._transparency_url(self.base)
         self.headers = {"Accept": "application/json", **self._auth()}
         self._ca = None
+
+    @staticmethod
+    def _transparency_url(api_base: str) -> str:
+        """Where receipts, status tokens and root keys live.
+
+        Published alongside the SDK, and paired with the API environment — mixing OTE identities
+        with production proofs would verify nothing. Set ANS_TRANSPARENCY_URL to override.
+        """
+        explicit = env("ANS_TRANSPARENCY_URL") or env("ANS_TLOG_URL")
+        if explicit:
+            return explicit.rstrip("/")
+        return {
+            "https://api.godaddy.com": "https://transparency.ans.godaddy.com",
+            "https://api.ote-godaddy.com": "https://transparency.ans.ote-godaddy.com",
+        }.get(api_base, "")
 
     @staticmethod
     def _auth() -> dict:
@@ -208,7 +224,11 @@ class GoDaddyAnsClient(AnsClient):
             params["agentDomains"] = host
         if status:
             params["statuses"] = status
-        raw = await self._req("GET", "/v1/ans/registered-agents", params=params)
+        try:
+            raw = await self._req("GET", "/v1/ans/registered-agents", params=params)
+        except AnsError:
+            # POST /v1/ans/search-registered-agents is the documented search form of the same index.
+            raw = await self._req("POST", "/v1/ans/search-registered-agents", json=params)
         items = raw.get("agents") or raw.get("results") or raw if isinstance(raw, dict) else raw
         return [self._to_record(a) for a in (items or [])]
 
@@ -250,7 +270,14 @@ class GoDaddyAnsClient(AnsClient):
                 "The Trust Gate will report this as unverified rather than as good standing.")
 
     async def status_token(self, agent_id: str) -> dict:
-        """Hosted ANS serves standing as `X-ANS-Status-Token`; the retrieval URL is not public yet."""
+        """Fetching standing from the log is the fallback, not the intended path.
+
+        In GoDaddy's model the agent attaches its own `X-ANS-Status-Token` and you verify it
+        offline against cached root keys — that is what makes verification sub-millisecond and
+        survive the registry being unreachable. This exists for when nothing was presented.
+
+        The retrieval path here is still a guess; scripts/check_ans.py will say so.
+        """
         self._need_tlog()
         return await self._req("GET", f"/status-tokens/{agent_id}", base=self.tlog)
 

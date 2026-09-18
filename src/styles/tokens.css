@@ -34,9 +34,4 @@
   --z-overlay: 20;
   --duration-press: 150ms;
   --duration-panel: 220ms;
-  --material-ivory: #e5ddca;
-  --material-brass: #c9aa76;
-  --line-optical: rgba(203, 215, 210, 0.08);
-  --duration-arrival: 460ms;
-  --ease-instrument: cubic-bezier(0.16, 1, 0.3, 1);
 }

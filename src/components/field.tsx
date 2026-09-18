@@ -1,8 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { useFieldMotion } from "./motion-system";
 import {
   Aperture,
   List,
@@ -39,7 +37,6 @@ function eventText(event: ControlEvent) {
 }
 export function Field({ missionId }: { missionId?: string }) {
   const { state, api } = useControl();
-  const { still } = useFieldMotion();
   const mission = state.missions.find(
     (m) => m.id === (missionId ?? state.selectedMissionId),
   );
@@ -77,29 +74,16 @@ export function Field({ missionId }: { missionId?: string }) {
   function select(id: string) {
     api.selectAgent(id);
     setTab("inspector");
-    if (window.matchMedia("(max-width: 760px)").matches) {
-      requestAnimationFrame(() => {
-        const inspector = document.getElementById("selected-agent-details");
-        inspector?.scrollIntoView({
-          behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
-            .matches
-            ? "instant"
-            : "smooth",
-          block: "center",
-        });
-        inspector?.focus({ preventScroll: true });
-      });
-    }
   }
   return (
     <div className="field-page">
       <div className="field-heading">
         <div>
-          <div className="eyebrow muted">OPERATIONS / SECTOR 01</div>
+          <div className="eyebrow muted">01 / OPERATIONS</div>
           <h1>
             FIELD<span className="heading-dot">.</span>
           </h1>
-          <p>Independent minds. A common direction.</p>
+          <p>Intelligence in motion. Progress in focus.</p>
         </div>
         <div className="field-summary">
           <span>
@@ -130,7 +114,7 @@ export function Field({ missionId }: { missionId?: string }) {
         <section className="field-network-panel" aria-label="Agent field">
           <div className="panel-toolbar">
             <span className="eyebrow">
-              <span className="signal-dot" /> THE COORDINATION FIELD
+              <span className="signal-dot" /> THE AGENT FIELD
             </span>
             <div className="view-controls">
               <button
@@ -210,10 +194,7 @@ export function Field({ missionId }: { missionId?: string }) {
             </button>
           </div>
           {tab === "activity" ? (
-            <motion.div
-              key="activity"
-              initial={still ? false : { opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
+            <div
               className="activity-content"
               tabIndex={0}
               role="region"
@@ -249,13 +230,9 @@ export function Field({ missionId }: { missionId?: string }) {
               <p className="rail-footnote">
                 Local fixture events. No external agent is executing.
               </p>
-            </motion.div>
+            </div>
           ) : (
-            <motion.div
-              key={agent.id}
-              initial={still ? false : { opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              id="selected-agent-details"
+            <div
               className="inspector-content"
               tabIndex={0}
               role="region"
@@ -302,16 +279,13 @@ export function Field({ missionId }: { missionId?: string }) {
                   {agent.parentAgentId ?? "Independent"} · No artifact yet
                 </dd>
               </dl>
-            </motion.div>
+            </div>
           )}
           <div className={`review-callout ${!pending ? "no-review" : ""}`}>
             <div className="eyebrow">
               {pending ? <TriangleAlert size={14} /> : <Shield size={14} />}{" "}
               {pending ? "YOUR DECISION, NEXT" : "HUMAN AUTHORITY"}
             </div>
-            <span className="review-index" aria-hidden="true">
-              !
-            </span>
             <h3>
               {pending ? "A capability is missing." : "You set the boundary."}
             </h3>

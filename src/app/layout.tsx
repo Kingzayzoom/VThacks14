@@ -4,12 +4,8 @@ import "@fontsource/cormorant-garamond/400-italic.css";
 import "@fontsource/geist/400.css";
 import "@fontsource/geist/500.css";
 import "@fontsource/ibm-plex-mono/400.css";
-import "@/styles/utilities.css";
 import "@/styles/tokens.css";
 import "@/styles/global.css";
-import "@/styles/refinement.css";
-import "@/styles/living.css";
-import { MotionSystem } from "@/components/motion-system";
 import { ControlProvider } from "@/components/provider";
 import { runtimeConfig } from "@/lib/env/config";
 export const metadata: Metadata = {
@@ -28,7 +24,7 @@ export default function RootLayout({
           Skip to content
         </a>
         {config.available ? (
-          <MotionSystem><ControlProvider>{children}</ControlProvider></MotionSystem>
+          <ControlProvider>{children}</ControlProvider>
         ) : (
           <main id="main" className="setup-error">
             <h1>Live runtime is not configured.</h1>

@@ -11,9 +11,7 @@ test("entry and FIELD screenshots, core interactions, and accessibility", async 
   page.on("pageerror", (error) => errors.push(error.message));
   page.on("request", (request) => {
     if (
-      !request
-        .url()
-        .startsWith(process.env.TEST_BASE_URL || "http://127.0.0.1:3000") &&
+      !request.url().startsWith(process.env.TEST_BASE_URL || "http://127.0.0.1:3000") &&
       !request.url().startsWith("data:")
     )
       externalRequests.push(request.url());
@@ -160,95 +158,14 @@ test("entry and FIELD screenshots, core interactions, and accessibility", async 
   expect(externalRequests).toEqual([]);
 });
 
-test("wide and compact desktop layouts stay usable", async ({ page }) => {
-  for (const size of [
-    { width: 1920, height: 1080 },
-    { width: 1280, height: 800 },
-  ]) {
+test('wide and compact desktop layouts stay usable', async ({ page }) => {
+  for (const size of [{ width: 1920, height: 1080 }, { width: 1280, height: 800 }]) {
     await page.setViewportSize(size);
-    await page.goto("/field");
+    await page.goto('/field');
     await page.evaluate(() => document.fonts.ready);
-    await expect(page.locator(".network-visual")).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: "Review request", exact: true }),
-    ).toBeVisible();
-    expect(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth <= innerWidth,
-      ),
-    ).toBe(true);
-    await page.screenshot({
-      path: `docs/screenshots/field-${size.width}.png`,
-      fullPage: true,
-    });
+    await expect(page.locator('.network-visual')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Review request', exact: true })).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.screenshot({ path: `docs/screenshots/field-${size.width}.png`, fullPage: true });
   }
-});
-
-test("visual state guards: selection, pause, asset budget, and mobile inspection", async ({
-  page,
-}) => {
-  const assets: { url: string; bytes: number }[] = [];
-  page.on("response", async (response) => {
-    if (response.url().includes("/assets/"))
-      assets.push({
-        url: response.url(),
-        bytes: Number(response.headers()["content-length"] || 0),
-      });
-  });
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/");
-  const desktopEntry = await new AxeBuilder({ page })
-    .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
-    .analyze();
-  expect(desktopEntry.violations).toEqual([]);
-  await page.goto("/field");
-  await page
-    .getByRole("button", { name: "Inspect Sage", exact: true })
-    .first()
-    .click();
-  await expect(page.locator(".node-sage")).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
-  await expect(
-    page.locator(".node-sage .signature-registration"),
-  ).toBeVisible();
-  await expect(page.locator(".network-transmission")).toContainText(
-    "Sage / Shape the audience brief",
-  );
-  await page.getByRole("button", { name: "Pause demo mission" }).click();
-  await expect(page.locator(".network-heartbeat")).not.toHaveClass(/working/);
-  await expect(page.locator(".signature-running")).toHaveCount(0);
-  await expect(page.locator(".network-transmission")).toContainText(
-    "Mission paused",
-  );
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.getByRole("button", { name: "Resume demo mission" }).click();
-  for (const selector of [
-    ".edge.executing",
-    ".network-heartbeat .heartbeat-mark",
-    ".node-sage .signature-wave",
-  ]) {
-    expect(
-      await page
-        .locator(selector)
-        .evaluate((el) => getComputedStyle(el).animationName),
-    ).toBe("none");
-  }
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page
-    .getByRole("button", { name: "Inspect Forge", exact: true })
-    .last()
-    .click();
-  await expect(page.locator("#selected-agent-details")).toBeFocused();
-  await expect(page.locator("#selected-agent-details")).toBeInViewport();
-  await expect(page.locator("#selected-agent-details")).toContainText("Forge");
-  await page.screenshot({
-    path: "docs/screenshots/inspector-mobile.png",
-    fullPage: false,
-  });
-  expect(assets).toEqual([]); // Atmosphere is procedural; no bitmap requests.
-  expect(
-    assets.every((a) => !a.url.endsWith(".png") && a.bytes < 150_000),
-  ).toBe(true);
 });

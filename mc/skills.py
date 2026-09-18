@@ -1,0 +1,212 @@
+"""What each agent actually does: prompts for Gemini, plus offline fallbacks.
+
+The offline fallbacks are deliberately decent so the demo works with no API key.
+The offline site omits an allergen notice on the first draft, so the compliance
+review loop always has something real to catch.
+"""
+import html as html_lib
+import re
+
+from .llm import generate_json
+
+CAPABILITIES = ["brand.identity", "site.generate", "compliance.review"]
+FOOD_WORDS = ("food", "truck", "restaurant", "cafe", "café", "bakery", "coffee", "kitchen", "grill", "bar", "diner", "pizza", "taco")
+
+
+# --- mission planning (Commander) -------------------------------------------------
+
+def _guess_business(text: str) -> dict:
+    name = re.search(r"\bfor ([A-Z][\w'&.-]*(?:\s+[A-Z][\w'&.-]*)*)", text)
+    kind = re.search(r"\b(?:a|an)\s+([a-z][a-z -]{2,40}?)\s+(?:in|at|near|based)\s+([A-Z][\w .-]+)", text)
+    return {
+        "name": name.group(1).strip() if name else "Your Business",
+        "type": kind.group(1).strip() if kind else "small business",
+        "location": kind.group(2).strip(" .") if kind else "your town",
+        "audience": "local customers",
+    }
+
+
+def _fallback_plan(text: str) -> dict:
+    b = _guess_business(text)
+    return {
+        "business": b,
+        "jobs": [
+            {"capability": "brand.identity", "title": "Brand kit",
+             "brief": f"Create a brand kit for {b['name']}, a {b['type']} in {b['location']}."},
+            {"capability": "site.generate", "title": "Landing page",
+             "brief": f"Build a one-page site for {b['name']} using the brand kit."},
+            {"capability": "compliance.review", "title": "Compliance review",
+             "brief": "Check the site for missing disclaimers, accessibility basics and risky claims."},
+        ],
+    }
+
+
+PLAN_SYSTEM = """You are the Commander agent at LaunchPad. You plan missions for small businesses and hire
+specialist agents. Break the user's mission into exactly three jobs, in this order, using these capabilities:
+brand.identity, site.generate, compliance.review.
+Return JSON: {"business": {"name": str, "type": str, "location": str, "audience": str},
+"jobs": [{"capability": str, "title": str (2-4 words), "brief": str (one or two sentences)}]}"""
+
+
+async def plan_mission(text: str, **ctx) -> tuple[dict, str]:
+    plan, engine = await generate_json(PLAN_SYSTEM, f"Mission: {text}", lambda: _fallback_plan(text),
+                                       label="Mission plan", **ctx)
+    fallback = _fallback_plan(text)
+    jobs = {j.get("capability"): j for j in plan.get("jobs", []) if isinstance(j, dict)}
+    plan["jobs"] = [{**fallback["jobs"][i], **{k: v for k, v in jobs.get(cap, {}).items() if v}}
+                    for i, cap in enumerate(CAPABILITIES)]
+    plan["business"] = {**fallback["business"], **(plan.get("business") or {})}
+    return plan, engine
+
+
+# --- brand.identity -----------------------------------------------------------------
+
+BRAND_SYSTEM = """You are the Brand agent at BrandStudio. Create a practical brand kit for a small business.
+Return JSON: {"name": str, "tagline": str (max 8 words), "palette": {"primary": hex, "secondary": hex,
+"accent": hex, "background": hex, "text": hex}, "fonts": {"heading": Google Font name, "body": Google Font name},
+"tone": str, "voice_examples": [3 short lines], "highlights": [4 short offerings or menu items with a one-line description each, as "Item — description"]}
+Ensure text on background has strong contrast."""
+
+
+def _fallback_brand(inp: dict) -> dict:
+    b = inp.get("business", {})
+    name = b.get("name", "Your Business")
+    food = any(w in b.get("type", "").lower() for w in FOOD_WORDS)
+    return {
+        "name": name,
+        "tagline": f"Big flavor, rolling through {b.get('location', 'town')}" if food else f"Made for {b.get('location', 'you')}",
+        "palette": {"primary": "#861F41", "secondary": "#E5751F", "accent": "#F2C14E",
+                    "background": "#FFF8F0", "text": "#2A1A1F"},
+        "fonts": {"heading": "Bricolage Grotesque", "body": "Source Sans 3"},
+        "tone": "Warm, local and a little playful",
+        "voice_examples": ["Find us by the smell of the grill.", "Fresh, fast and made right here.",
+                           "Follow the truck, not the crowd."],
+        "highlights": [
+            "The Gobbler — smoked turkey melt with cranberry aioli",
+            "Maroon Fries — hand-cut fries, burnt-orange spice",
+            "Drillfield Tacos — three street tacos, rotating fillings",
+            "Lane Stadium Lemonade — fresh-squeezed, extra tart",
+        ] if food else ["Friendly service", "Local roots", "Fair prices", "Quality you can see"],
+    }
+
+
+async def make_brand(inp: dict, **ctx) -> tuple[dict, str]:
+    prompt = f"Business: {inp.get('business')}\nBrief: {inp.get('brief')}\nMission: {inp.get('mission')}"
+    return await generate_json(BRAND_SYSTEM, prompt, lambda: _fallback_brand(inp), label="Brand kit", **ctx)
+
+
+# --- site.generate --------------------------------------------------------------------
+
+SITE_SYSTEM = """You are the Site builder agent. Build a polished, responsive one-page landing site.
+Rules: a single self-contained HTML document with inline CSS; you may load the brand's fonts from
+fonts.googleapis.com; no JavaScript; no external images (use CSS shapes, gradients or emoji sparingly);
+include <html lang="en">, a hero with the name and tagline, the highlights, hours/location, and a contact section.
+Use the brand palette and fonts exactly. If "issues" are provided, fix every one of them.
+Return JSON: {"html": str, "summary": str (one sentence)}"""
+
+
+def _render_site(brand: dict, business: dict, fix_issues: list | None = None) -> str:
+    e = html_lib.escape
+    p = brand.get("palette", {})
+    f = brand.get("fonts", {})
+    food = any(w in business.get("type", "").lower() for w in FOOD_WORDS)
+    items = "".join(
+        f"<li><strong>{e(h.split('—')[0].strip())}</strong><span>{e(h.split('—', 1)[1].strip()) if '—' in h else ''}</span></li>"
+        for h in brand.get("highlights", []))
+    notices = ""
+    if fix_issues:
+        lines = []
+        if food:
+            lines.append("<strong>Allergen notice:</strong> Our kitchen handles wheat, dairy, eggs, soy, nuts and shellfish. "
+                         "Ask us about ingredients before ordering. Consuming undercooked meats may increase your risk of foodborne illness.")
+        lines.append("Prices and menu items may change. Hours depend on weather and events.")
+        notices = f'<section class="notice" aria-label="Important information"><p>{"</p><p>".join(lines)}</p></section>'
+    fonts = "+".join(f.get("heading", "Georgia").split()) + "&family=" + "+".join(f.get("body", "Arial").split())
+    return f"""<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{e(brand.get('name', 'Welcome'))}</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={fonts}&display=swap">
+<style>
+:root{{--p:{p.get('primary', '#333')};--s:{p.get('secondary', '#777')};--a:{p.get('accent', '#aaa')};--bg:{p.get('background', '#fff')};--t:{p.get('text', '#111')}}}
+*{{box-sizing:border-box}}body{{margin:0;background:var(--bg);color:var(--t);font:17px/1.6 '{e(f.get('body', 'Arial'))}',system-ui,sans-serif}}
+h1,h2{{font-family:'{e(f.get('heading', 'Georgia'))}',Georgia,serif;line-height:1.05;margin:0 0 .4em}}
+.hero{{background:var(--p);color:#fff;padding:72px 24px 88px;text-align:left}}
+.wrap{{max-width:920px;margin:0 auto;padding:0 24px}}
+.hero h1{{font-size:clamp(44px,9vw,92px);letter-spacing:-.02em}}.hero p{{font-size:22px;max-width:30ch;opacity:.92}}
+.badge{{display:inline-block;background:var(--s);color:#fff;border-radius:999px;padding:6px 14px;font-weight:700;margin-bottom:18px}}
+section{{padding:56px 0}}ul.menu{{list-style:none;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}}
+ul.menu li{{background:#fff;border:2px solid var(--p);border-radius:14px;padding:18px}}ul.menu strong{{display:block;color:var(--p);font-size:19px}}
+.info{{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px}}
+.contact{{background:var(--s);color:#fff;border-radius:18px;padding:28px}}.contact a{{color:#fff;font-weight:700}}
+.notice{{border-left:6px solid var(--a);background:#fff;padding:16px 20px;margin:0 0 40px;font-size:15px}}
+footer{{padding:28px 0 48px;font-size:14px;opacity:.75}}
+</style></head><body>
+<header class="hero"><div class="wrap"><span class="badge">{e(business.get('type', '').title())} · {e(business.get('location', ''))}</span>
+<h1>{e(brand.get('name', ''))}</h1><p>{e(brand.get('tagline', ''))}</p></div></header>
+<main class="wrap">
+<section><h2>{'On the menu' if food else 'What we offer'}</h2><ul class="menu">{items}</ul></section>
+<section class="info"><div><h2>Find us</h2><p>{e(business.get('location', ''))} — follow our socials for today's spot.</p>
+<p><strong>Hours:</strong> Tue–Sat, 11am–8pm</p></div>
+<div class="contact"><h2>Say hi</h2><p>Catering, events and big orders:<br><a href="mailto:hello@example.com">hello@example.com</a></p>
+<p>{e((brand.get('voice_examples') or [''])[0])}</p></div></section>
+{notices}
+</main>
+<footer class="wrap">© {e(brand.get('name', ''))}. Built by verified agents.</footer>
+</body></html>"""
+
+
+async def make_site(inp: dict, **ctx) -> tuple[dict, str]:
+    brand, business, issues = inp.get("brand_kit", {}), inp.get("business", {}), inp.get("issues")
+
+    def fallback():
+        return {"html": _render_site(brand, business, issues),
+                "summary": "Revised landing page with fixes applied." if issues else "One-page landing site."}
+
+    prompt = f"Brand kit: {brand}\nBusiness: {business}\nBrief: {inp.get('brief')}"
+    if issues:
+        prompt += f"\nIssues to fix from compliance review: {issues}\nPrevious HTML:\n{inp.get('previous_html', '')[:12000]}"
+    out, engine = await generate_json(SITE_SYSTEM, prompt, fallback, label="Landing page", **ctx)
+    if not isinstance(out.get("html"), str) or "<html" not in out["html"].lower():
+        return fallback(), "offline"
+    return out, engine
+
+
+# --- compliance.review ------------------------------------------------------------------
+
+REVIEW_SYSTEM = """You are the Compliance agent at LegalCheck. Review a small-business landing page (HTML).
+Check: food businesses must show an allergen / food-safety notice; a way to contact the business;
+<html lang> set; no unverifiable superlative claims ("best in the world", "#1"); obvious trademark risks.
+Only report real problems you can see in the HTML. Severity is "high" for legal/safety gaps, "low" otherwise.
+Return JSON: {"approved": bool (false if any high-severity issue), "issues": [{"severity": "high"|"low",
+"issue": str, "fix": str}], "summary": str (one sentence)}"""
+
+
+def _fallback_review(inp: dict) -> dict:
+    page = (inp.get("html") or "").lower()
+    business = inp.get("business", {})
+    issues = []
+    if any(w in business.get("type", "").lower() for w in FOOD_WORDS) and "allergen" not in page:
+        issues.append({"severity": "high", "issue": "No allergen or food-safety notice",
+                       "fix": "Add an allergen notice and the standard undercooked-food advisory."})
+    if "<html lang=" not in page:
+        issues.append({"severity": "low", "issue": "Page language not declared", "fix": "Add lang=\"en\" to <html>."})
+    if "mailto:" not in page and "tel:" not in page:
+        issues.append({"severity": "high", "issue": "No way to contact the business", "fix": "Add an email or phone link."})
+    high = [i for i in issues if i["severity"] == "high"]
+    return {"approved": not high, "issues": issues,
+            "summary": "Approved." if not high else f"{len(high)} required fix(es) before publishing."}
+
+
+async def review_site(inp: dict, **ctx) -> tuple[dict, str]:
+    prompt = f"Business: {inp.get('business')}\nHTML:\n{(inp.get('html') or '')[:20000]}"
+    out, engine = await generate_json(REVIEW_SYSTEM, prompt, lambda: _fallback_review(inp), label="Compliance review", **ctx)
+    out.setdefault("issues", [])
+    out["approved"] = bool(out.get("approved")) and not any(i.get("severity") == "high" for i in out["issues"])
+    return out, engine
+
+
+SKILLS = {
+    "brand.identity": make_brand,
+    "site.generate": make_site,
+    "compliance.review": review_site,
+}

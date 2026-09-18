@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mission Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <span class="logo">MISSION CONTROL</span>
+    <span class="tag">Hire AI agents you can actually trust · verified by GoDaddy ANS</span>
+  </div>
+  <div class="top-right">
+    <span class="badge" id="ansBadge">ANS: …</span>
+    <span class="badge" id="llmBadge">Brains: …</span>
+    <span class="badge" id="wsBadge">Live feed: connecting</span>
+    <button class="btn ghost" id="resetBtn" type="button">Reset demo</button>
+  </div>
+</header>
+
+<section class="launch" aria-label="Launch a mission">
+  <label class="field-label" for="missionText">Mission</label>
+  <div class="launch-row">
+    <textarea id="missionText" rows="2">Launch an online presence for Hokie Bites, a food truck in Blacksburg.</textarea>
+    <button class="btn primary" id="launchBtn" type="button">Launch mission</button>
+  </div>
+  <fieldset class="scenarios">
+    <legend>Demo scenarios</legend>
+    <label><input type="checkbox" id="scImpostor" checked> An impostor bids for the brand job</label>
+    <label><input type="checkbox" id="scRevoke" checked> WebForge is revoked mid-job</label>
+    <label><input type="checkbox" id="scUpgrade" checked> LegalCheck ships a surprise upgrade</label>
+  </fieldset>
+  <p class="err" id="launchError" role="alert"></p>
+</section>
+
+<main class="grid">
+  <section class="panel" aria-labelledby="agentsH">
+    <h2 id="agentsH">Agents</h2>
+    <div id="agents" class="agents"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="feedH">
+    <h2 id="feedH">Handshake feed</h2>
+    <div id="feed" class="feed" aria-live="polite"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="missionH">
+    <h2 id="missionH">Mission <span class="pill" id="missionStatus">idle</span></h2>
+    <div id="approval"></div>
+    <ol id="jobs" class="jobs"></ol>
+    <div class="stats">
+      <div><strong id="stChecks">0</strong><span>checks passed</span></div>
+      <div><strong id="stBlocked">0</strong><span>blocked or dropped</span></div>
+      <div><strong id="stSigned">0</strong><span>signed deliverables</span></div>
+    </div>
+    <p class="muted small" id="missionMeta"></p>
+  </section>
+</main>
+
+<section class="panel wide" aria-labelledby="resultH">
+  <h2 id="resultH">Result and trust report</h2>
+  <div class="result-grid">
+    <div class="frame-wrap"><iframe id="resultFrame" title="Finished website" sandbox=""></iframe>
+      <p class="placeholder" id="resultPlaceholder">The finished website appears here when the mission is delivered.</p></div>
+    <div id="report" class="report"></div>
+  </div>
+</section>
+
+<section class="panel wide" aria-labelledby="logH">
+  <h2 id="logH">Transparency log <span class="muted small">append-only · every entry provable</span></h2>
+  <div class="table-wrap"><table class="log">
+    <thead><tr><th>#</th><th>Time</th><th>Event</th><th>Agent</th><th>Proof</th></tr></thead>
+    <tbody id="logBody"></tbody>
+  </table></div>
+</section>
+
+<script src="app.js"></script>
+</body>
+</html>

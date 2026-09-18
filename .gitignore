@@ -7,6 +7,7 @@
 *.csr
 keys/
 secrets/
+data/
 
 # Python
 __pycache__/

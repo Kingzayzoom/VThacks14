@@ -1,0 +1,92 @@
+# Mission Control: who's who.
+# Each agent belongs to a (fictional) organization with its own domain.
+# ANS name format used here: ans://v<version>.<label>.<domain>
+
+services:
+  hub:
+    port: 8000
+  ans_sim:
+    port: 8100
+
+agents:
+  commander:
+    name: Commander
+    org: LaunchPad
+    label: commander
+    domain: launchpad.xyz
+    version: 1.0.0
+    port: 8001
+    role: commander
+    capabilities: [mission.plan]
+    description: Plans missions, hires verified specialist agents and assembles the result.
+
+  brand:
+    name: Brand agent
+    org: BrandStudio
+    label: brand
+    domain: brandstudio.xyz
+    version: 1.0.0
+    port: 8002
+    role: vendor
+    capabilities: [brand.identity]
+    description: Creates a brand kit with a tagline, color palette, fonts and tone of voice.
+
+  webforge:
+    name: Site builder
+    org: WebForge
+    label: sitebuilder
+    domain: webforge.xyz
+    version: 1.0.0
+    port: 8003
+    role: vendor
+    capabilities: [site.generate]
+    description: Turns a brand kit into a one-page landing site.
+
+  sitesmith:
+    name: Backup site builder
+    org: SiteSmith
+    label: sitebuilder
+    domain: sitesmith.xyz
+    version: 1.0.0
+    port: 8004
+    role: vendor
+    capabilities: [site.generate]
+    description: Turns a brand kit into a one-page landing site.
+
+  compliance:
+    name: Compliance agent
+    org: LegalCheck
+    label: compliance
+    domain: legalcheck.xyz
+    version: 1.0.0
+    port: 8005
+    role: vendor
+    capabilities: [compliance.review]
+    description: Reviews websites for missing disclaimers, accessibility basics and risky claims.
+
+  impostor:
+    name: Impostor
+    org: Unknown
+    port: 8006
+    role: impostor
+    impersonates: brand
+    pitch: Half price, delivered instantly.
+
+# Rules the Commander applies on top of ANS identity checks.
+policy:
+  # Only hire agents whose domain is on this list.
+  allowed_domains:
+    - launchpad.xyz
+    - brandstudio.xyz
+    - webforge.xyz
+    - sitesmith.xyz
+    - legalcheck.xyz
+  # Approved versions per agent host. A different version pauses the mission for approval.
+  version_pins:
+    compliance.legalcheck.xyz: "1.0"
+  # Order to try vendors in when several can do the same job.
+  preferred_vendors:
+    - brandstudio.xyz
+    - webforge.xyz
+    - sitesmith.xyz
+    - legalcheck.xyz

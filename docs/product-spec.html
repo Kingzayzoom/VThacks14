@@ -1,0 +1,550 @@
+<title>Mission Control Product Spec</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ground:#F3F6F7; --surface:#FFFFFF; --sunk:#E7EDEF; --line:#CBD5DA; --ink:#13202B; --muted:#56656F;
+  --accent:#0B6E80; --accent-soft:#DDEFF2; --ok:#2B7F52; --ok-soft:#DDF0E4; --bad:#B63B26; --bad-soft:#F7E1DB; --warn:#94620F; --warn-soft:#F6EACF;
+  --screen:#0F1A21; --screen-2:#16242D; --screen-line:#27394A; --screen-ink:#DCE6EB; --screen-muted:#8FA2AE;
+  --display:"Archivo","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#0D1419; --surface:#141F27; --sunk:#1B2831; --line:#2C3C47; --ink:#E3EAEE; --muted:#97A7B1;
+  --accent:#5DBFCF; --accent-soft:#16333A; --ok:#62C48D; --ok-soft:#173226; --bad:#EE8068; --bad-soft:#3A1E18; --warn:#E2AE55; --warn-soft:#3A2C12;
+  --screen:#081015; --screen-2:#0F1B22; --screen-line:#22333F;
+}}
+:root[data-theme="dark"]{
+  --ground:#0D1419; --surface:#141F27; --sunk:#1B2831; --line:#2C3C47; --ink:#E3EAEE; --muted:#97A7B1;
+  --accent:#5DBFCF; --accent-soft:#16333A; --ok:#62C48D; --ok-soft:#173226; --bad:#EE8068; --bad-soft:#3A1E18; --warn:#E2AE55; --warn-soft:#3A2C12;
+  --screen:#081015; --screen-2:#0F1B22; --screen-line:#22333F;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{background:var(--ground);color:var(--ink);font:16px/1.65 var(--body);padding-inline:16px;padding-block:0 64px}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.shell{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:220px minmax(0,1fr);gap:48px}
+@media (max-width:960px){.shell{grid-template-columns:minmax(0,1fr);gap:0}}
+nav.toc{position:sticky;top:env(safe-area-inset-top,0px);align-self:start;padding-block:40px 24px;max-height:100vh;overflow:auto}
+nav.toc p{font:600 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
+nav.toc ul{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+nav.toc a{display:block;text-decoration:none;color:var(--muted);font-size:14px;padding:4px 8px;border-radius:4px}
+nav.toc a:hover{color:var(--ink);background:var(--sunk)}
+@media (max-width:960px){nav.toc{position:static;max-height:none;padding-block:24px 0}nav.toc ul{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}}
+main{min-width:0;padding-block:40px 0}
+.masthead{padding-bottom:28px;border-bottom:1px solid var(--line)}
+.eyebrow{font:500 12px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin:0 0 14px}
+h1{font:800 clamp(36px,5.4vw,58px)/1 var(--display);font-stretch:78%;letter-spacing:-.01em;margin:0 0 14px;text-wrap:balance}
+.tagline{font:600 clamp(19px,2.2vw,23px)/1.35 var(--display);font-stretch:92%;margin:0 0 14px;color:var(--accent)}
+.lede{font-size:18px;line-height:1.6;color:var(--muted);max-width:64ch;margin:0}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0;margin-top:26px;border:1px solid var(--line);border-radius:6px;background:var(--surface);overflow:hidden}
+.facts div{padding:14px 16px;border-right:1px solid var(--line)}
+.facts div:last-child{border-right:0}
+.facts dt{font:600 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.facts dd{margin:0;font-size:15px;font-weight:500}
+@media (max-width:640px){.facts div{border-right:0;border-bottom:1px solid var(--line)}.facts div:last-child{border-bottom:0}}
+section{padding-block:44px 8px;border-bottom:1px solid var(--line)}
+section:last-of-type{border-bottom:0}
+h2{font:750 31px/1.1 var(--display);font-stretch:84%;margin:0 0 8px;text-wrap:balance}
+h3{font:700 19px/1.25 var(--display);font-stretch:92%;margin:30px 0 8px}
+p,ul,ol{max-width:68ch}
+.sub{color:var(--muted);margin-top:0}
+ul,ol{padding-left:22px}
+li{margin:4px 0}
+code{font-family:var(--mono);font-size:.88em;background:var(--sunk);padding:1px 5px;border-radius:3px;overflow-wrap:anywhere}
+.pill{display:inline-block;font:600 10.5px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:4px 7px;border-radius:3px;white-space:nowrap;vertical-align:2px}
+.p-mvp{background:var(--accent);color:var(--surface)}
+.p-should{background:var(--accent-soft);color:var(--accent)}
+.p-stretch{background:var(--sunk);color:var(--muted);border:1px solid var(--line)}
+.p-future{background:transparent;color:var(--muted);border:1px dashed var(--line)}
+.ok{background:var(--ok-soft);color:var(--ok)}
+.bad{background:var(--bad-soft);color:var(--bad)}
+.warn{background:var(--warn-soft);color:var(--warn)}
+.acc{background:var(--accent-soft);color:var(--accent)}
+.problem{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:18px 0}
+.problem div{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px}
+.problem h4{margin:0 0 6px;font:700 16px/1.3 var(--display);font-stretch:90%}
+.problem p{margin:0;font-size:14.5px;color:var(--muted)}
+.personas{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:18px 0}
+.persona{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:18px}
+.persona .role{font:600 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0 0 8px}
+.persona h4{margin:0 0 8px;font:700 18px/1.25 var(--display);font-stretch:88%}
+.persona p{font-size:14.5px;margin:0 0 8px}
+.persona q{display:block;font-style:italic;color:var(--muted);font-size:14.5px;quotes:"\201C" "\201D"}
+.flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin:20px 0;counter-reset:f;border:1px solid var(--line);border-radius:6px;background:var(--surface);overflow:hidden}
+.flow div{padding:16px;border-right:1px solid var(--line);counter-increment:f}
+.flow div:last-child{border-right:0}
+.flow div::before{content:counter(f);display:inline-block;font:600 13px/26px var(--mono);width:26px;height:26px;text-align:center;border-radius:50%;background:var(--accent-soft);color:var(--accent);margin-bottom:10px}
+.flow h4{margin:0 0 4px;font:700 17px/1.2 var(--display);font-stretch:90%}
+.flow p{margin:0;font-size:14px;color:var(--muted)}
+@media (max-width:760px){.flow{grid-template-columns:1fr 1fr}.flow div:nth-child(2){border-right:0}.flow div:nth-child(-n+2){border-bottom:1px solid var(--line)}}
+@media (max-width:440px){.flow{grid-template-columns:1fr}.flow div{border-right:0;border-bottom:1px solid var(--line)}.flow div:last-child{border-bottom:0}}
+/* mockup */
+.mock-wrap{margin:20px 0}
+.mock-label{font:500 12px/1 var(--mono);color:var(--muted);margin:0 0 8px;letter-spacing:.04em}
+.mock{background:var(--screen);color:var(--screen-ink);border-radius:10px;padding:14px;font-size:13px;line-height:1.45;border:1px solid var(--screen-line)}
+.m-top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:4px 4px 14px;border-bottom:1px solid var(--screen-line)}
+.m-brand{font:700 14px/1 var(--display);letter-spacing:.02em;font-stretch:85%;color:#5DBFCF}
+.m-mission{flex:1 1 260px;background:var(--screen-2);border:1px solid var(--screen-line);border-radius:5px;padding:8px 10px;color:var(--screen-ink);min-width:0;overflow-wrap:anywhere}
+.m-status{font:600 11px/1 var(--mono);color:#E2AE55;background:#3A2C12;padding:6px 8px;border-radius:4px;white-space:nowrap}
+.m-btn{font:600 12px/1 var(--body);background:transparent;color:var(--screen-ink);border:1px solid var(--screen-line);border-radius:5px;padding:7px 10px;cursor:default}
+.m-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:14px;padding-top:14px}
+@media (max-width:720px){.m-grid{grid-template-columns:1fr}}
+.m-h{font:600 10.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--screen-muted);margin:0 0 8px}
+.m-agents{display:grid;gap:8px}
+.m-agent{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;background:var(--screen-2);border:1px solid var(--screen-line);border-left:3px solid #62C48D;border-radius:0;padding:8px 10px}
+.m-agent.r{border-left-color:#EE8068}
+.m-agent.w{border-left-color:#E2AE55}
+.m-agent b{font-weight:600;font-size:13px}
+.m-agent small{grid-column:1;font:11.5px/1.3 var(--mono);color:var(--screen-muted);overflow-wrap:anywhere}
+.m-agent .tag{grid-row:1/3;grid-column:2;align-self:center;font:600 10px/1 var(--mono);letter-spacing:.05em;text-transform:uppercase;padding:4px 6px;border-radius:3px}
+.t-ok{background:#173226;color:#62C48D}.t-bad{background:#3A1E18;color:#EE8068}.t-warn{background:#3A2C12;color:#E2AE55}.t-acc{background:#16333A;color:#5DBFCF}
+.m-feed{display:grid;gap:0;background:var(--screen-2);border:1px solid var(--screen-line);border-radius:5px}
+.m-row{display:grid;grid-template-columns:52px minmax(0,1fr);gap:8px;padding:8px 10px;border-bottom:1px solid var(--screen-line)}
+.m-row:last-child{border-bottom:0}
+.m-row time{font:11.5px/1.45 var(--mono);color:var(--screen-muted);font-variant-numeric:tabular-nums}
+.m-row p{margin:0;overflow-wrap:anywhere}
+.m-row .ck{font:11px/1.6 var(--mono);color:var(--screen-muted)}
+.m-row .ck i{font-style:normal;color:#62C48D}
+.m-row .ck i.x{color:#EE8068}
+.m-bottom{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin-top:14px}
+@media (max-width:720px){.m-bottom{grid-template-columns:1fr}}
+.m-card{background:var(--screen-2);border:1px solid var(--screen-line);border-radius:5px;padding:12px}
+.m-card p{margin:0 0 10px}
+.m-actions{display:flex;flex-wrap:wrap;gap:8px}
+.m-actions .pri{background:#5DBFCF;color:#081015;border-color:#5DBFCF}
+.m-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:left}
+.m-stats div{border-top:1px solid var(--screen-line);padding-top:8px}
+.m-stats strong{display:block;font:700 22px/1 var(--display);font-variant-numeric:tabular-nums}
+.m-stats span{font-size:11.5px;color:var(--screen-muted)}
+/* features */
+.fgroup{margin:26px 0 0}
+.fgroup>h3{margin:0 0 4px}
+.fgroup>p{margin:0 0 12px;color:var(--muted)}
+.ftable{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:620px}
+th,td{text-align:left;vertical-align:top;padding:10px 14px;border-bottom:1px solid var(--line)}
+th{font:600 11.5px/1.3 var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);background:var(--sunk)}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:600;width:24%}
+td.pr{width:92px}
+td.ans{font-size:13.5px;color:var(--muted);width:26%}
+.legend{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;font-size:13.5px;color:var(--muted);margin:14px 0 0}
+.screens{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin:18px 0}
+.screen{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px}
+.screen h4{margin:0 0 2px;font:700 17px/1.25 var(--display);font-stretch:90%}
+.screen .path{font:12px/1.4 var(--mono);color:var(--accent);margin:0 0 8px}
+.screen ul{margin:0;padding-left:18px;font-size:14.5px}
+.states{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0 6px}
+.states .arrow{color:var(--muted);font-family:var(--mono)}
+.state{font:600 12px/1 var(--mono);padding:7px 10px;border-radius:4px;border:1px solid var(--line);background:var(--surface)}
+.state.ok{border-color:transparent}.state.bad{border-color:transparent}.state.warn{border-color:transparent}.state.acc{border-color:transparent}
+.def{display:grid;grid-template-columns:minmax(110px,160px) 1fr;border:1px solid var(--line);border-radius:6px;background:var(--surface);overflow:hidden;margin:14px 0;max-width:none}
+.def div{display:contents}
+.def dt,.def dd{margin:0;padding:10px 14px;border-bottom:1px solid var(--line);font-size:14.5px}
+.def dt{background:var(--sunk)}
+.def div:last-child dt,.def div:last-child dd{border-bottom:0}
+@media (max-width:520px){.def{grid-template-columns:1fr}.def dt{border-bottom:0;padding-bottom:2px}}
+.journey{counter-reset:j;list-style:none;padding:0;margin:12px 0 0;max-width:72ch}
+.journey li{counter-increment:j;display:grid;grid-template-columns:28px 1fr;gap:12px;padding:8px 0;border-bottom:1px dashed var(--line);margin:0}
+.journey li:last-child{border-bottom:0}
+.journey li::before{content:counter(j);font:600 12px/24px var(--mono);width:24px;height:24px;text-align:center;border-radius:50%;background:var(--accent-soft);color:var(--accent)}
+.journey em{color:var(--muted)}
+.jcard{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:18px 20px;margin:16px 0}
+.jcard h3{margin:0 0 2px}
+.jcard .who{margin:0;color:var(--muted);font-size:14.5px}
+.vs{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--surface);margin:16px 0}
+.vs td:first-child{width:22%}
+.vs td:nth-child(2){color:var(--muted)}
+.scope{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:18px 0}
+.scope>div{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px}
+.scope h4{margin:0 0 10px;display:flex;align-items:center;gap:8px;font:700 17px/1.2 var(--display);font-stretch:90%}
+.scope ul{margin:0;padding-left:18px;font-size:14.5px}
+.biz{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:18px 0}
+.biz div{border-top:2px solid var(--accent);padding-top:12px}
+.biz h4{margin:0 0 6px;font:700 16px/1.3 var(--display);font-stretch:90%}
+.biz p{margin:0;font-size:14.5px;color:var(--muted)}
+.metrics{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--surface);margin:16px 0}
+.note{background:var(--accent-soft);border-left:3px solid var(--accent);padding:14px 18px;margin:18px 0;max-width:68ch}
+.note p{margin:0}
+footer{color:var(--muted);font-size:13px;padding-block:32px 0}
+</style>
+
+<div class="shell">
+<nav class="toc" aria-label="Contents">
+  <p>Contents</p>
+  <ul>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#problem">The problem</a></li>
+    <li><a href="#users">Who it's for</a></li>
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#look">What it looks like</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#screens">Screens</a></li>
+    <li><a href="#states">States and rules</a></li>
+    <li><a href="#journeys">User journeys</a></li>
+    <li><a href="#why-ans">Why ANS is essential</a></li>
+    <li><a href="#scope">Scope</a></li>
+    <li><a href="#business">The GoDaddy angle</a></li>
+    <li><a href="#metrics">Success metrics</a></li>
+    <li><a href="#stack">Under the hood</a></li>
+  </ul>
+</nav>
+
+<main>
+<header class="masthead" id="overview">
+  <p class="eyebrow">Product spec · GoDaddy Best Use of ANS</p>
+  <h1>Mission Control</h1>
+  <p class="tagline">Hire AI agents you can actually trust.</p>
+  <p class="lede">Mission Control turns a plain-English goal into finished work by hiring specialist AI agents from across the web. Before any agent touches the job, Mission Control proves who it is through GoDaddy's Agent Name Service. Every hire, every rejection and every deliverable is visible, signed and traceable.</p>
+  <dl class="facts">
+    <div><dt>Category</dt><dd>Multi-agent orchestration with built-in trust</dd></div>
+    <div><dt>Primary user</dt><dd>Small business owners and the developers who serve them</dd></div>
+    <div><dt>Core technology</dt><dd>GoDaddy ANS + Gemini-powered agents</dd></div>
+    <div><dt>Demo mission</dt><dd>Launch Hokie Bites, a Blacksburg food truck, online</dd></div>
+  </dl>
+</header>
+
+<section id="problem">
+  <h2>The problem</h2>
+  <p class="sub">AI agents are starting to hire other AI agents. Nothing tells them who they're dealing with.</p>
+  <div class="problem">
+    <div><h4>Anyone can claim a name</h4><p>An agent says "I'm BrandStudio's design agent." Today there's no standard way to check. Impersonation is as easy as copying a JSON file.</p></div>
+    <div><h4>No accountability</h4><p>When work passes through five agents, nobody can prove afterwards which agent produced which part, or whether it was altered on the way.</p></div>
+    <div><h4>Silent changes</h4><p>A vendor can swap the model or logic behind its agent overnight. The agent you vetted on Monday isn't necessarily the one you're using on Friday.</p></div>
+    <div><h4>No off switch</h4><p>When an agent is compromised, there's no shared way to tell everyone "stop trusting this one, now."</p></div>
+  </div>
+</section>
+
+<section id="users">
+  <h2>Who it's for</h2>
+  <div class="personas">
+    <div class="persona"><p class="role">Mission owner</p><h4>The small business owner</h4><p>Runs a food truck, a salon, an Etsy shop. Wants results (a website, a menu, a marketing plan) without understanding AI internals.</p><q>I just want it done, and I don't want some random bot touching my business.</q></div>
+    <div class="persona"><p class="role">Builder</p><h4>The developer or agency</h4><p>Builds workflows that chain agents from multiple vendors. Needs verification, audit logs and failover without writing them from scratch.</p><q>I need to prove to my client exactly which agents touched their data.</q></div>
+    <div class="persona"><p class="role">Agent vendor</p><h4>The company selling an agent</h4><p>Offers a specialist agent (branding, legal review, translation). Wants to be discoverable and trusted by buyers.</p><q>How do customers know my agent is the real one and not a knock-off?</q></div>
+  </div>
+</section>
+
+<section id="how">
+  <h2>How it works</h2>
+  <p class="sub">The whole product in four steps.</p>
+  <div class="flow">
+    <div><h4>Describe</h4><p>You type a goal in plain English. The Commander agent breaks it into jobs.</p></div>
+    <div><h4>Find</h4><p>For each job, Mission Control finds specialist agents through the ANS registry.</p></div>
+    <div><h4>Verify</h4><p>Each candidate must pass five identity checks before it's hired. Impostors are blocked.</p></div>
+    <div><h4>Deliver</h4><p>Agents do the work and sign it. You get the result plus a trust report proving where every piece came from.</p></div>
+  </div>
+</section>
+
+<section id="look">
+  <h2>What it looks like</h2>
+  <p class="sub">The live mission view, mid-mission, right after a vendor was revoked and a new version is waiting for approval.</p>
+  <div class="mock-wrap">
+    <p class="mock-label">Mockup · example data</p>
+    <div class="mock" role="img" aria-label="Mockup of the Mission Control live mission view showing agent trust cards, a handshake feed, an approval request and trust statistics">
+      <div class="m-top">
+        <span class="m-brand">MISSION CONTROL</span>
+        <span class="m-mission">Launch an online presence for Hokie Bites, a food truck in Blacksburg</span>
+        <span class="m-status">Working · 3 of 4 jobs</span>
+        <span class="m-btn">Pause mission</span>
+      </div>
+      <div class="m-grid">
+        <div>
+          <p class="m-h">Agents on this mission</p>
+          <div class="m-agents">
+            <div class="m-agent"><b>Commander</b><span class="tag t-acc">You</span><small>launchpad.xyz · v1.0.0</small></div>
+            <div class="m-agent"><b>Brand agent</b><span class="tag t-ok">Done</span><small>brandstudio.xyz · v1.0.0 · signed</small></div>
+            <div class="m-agent r"><b>Site builder</b><span class="tag t-bad">Revoked</span><small>webforge.xyz · dropped at 14:03</small></div>
+            <div class="m-agent"><b>Backup site builder</b><span class="tag t-ok">Working</span><small>sitesmith.xyz · v1.0.0</small></div>
+            <div class="m-agent w"><b>Compliance agent</b><span class="tag t-warn">Needs approval</span><small>legalcheck.xyz · v1.0.0 → v1.1.0</small></div>
+            <div class="m-agent r"><b>"Brand agent"</b><span class="tag t-bad">Blocked</span><small>impostor · failed identity proof</small></div>
+          </div>
+        </div>
+        <div>
+          <p class="m-h">Handshake feed</p>
+          <div class="m-feed">
+            <div class="m-row"><time>14:05</time><p>legalcheck.xyz now presents <b>v1.1.0</b>. Policy pins v1.0.x. Mission paused for your approval.<br><span class="ck">resolve <i>✓</i> identity <i>✓</i> status <i>✓</i> capability <i>✓</i> policy <i class="x">✗</i></span></p></div>
+            <div class="m-row"><time>14:04</time><p>Hired <b>sitesmith.xyz</b> as replacement site builder.<br><span class="ck">resolve <i>✓</i> identity <i>✓</i> status <i>✓</i> capability <i>✓</i> policy <i>✓</i></span></p></div>
+            <div class="m-row"><time>14:03</time><p><b>webforge.xyz</b> revoked in ANS. Dropped before hand-off.<br><span class="ck">status <i class="x">✗ revoked</i></span></p></div>
+            <div class="m-row"><time>14:02</time><p>Blocked agent claiming to be <b>brandstudio.xyz</b>: couldn't sign the challenge.<br><span class="ck">resolve <i>✓</i> identity <i class="x">✗</i></span></p></div>
+            <div class="m-row"><time>14:01</time><p>Brand kit received from <b>brandstudio.xyz</b>. Signature valid.</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="m-bottom">
+        <div class="m-card">
+          <p class="m-h">Needs you</p>
+          <p>Compliance agent upgraded from v1.0.0 to v1.1.0 without notice. Continue with the new version?</p>
+          <div class="m-actions"><span class="m-btn pri">Approve v1.1.0</span><span class="m-btn">Find another agent</span></div>
+        </div>
+        <div class="m-card">
+          <p class="m-h">Trust so far</p>
+          <div class="m-stats">
+            <div><strong>14</strong><span>checks passed</span></div>
+            <div><strong>3</strong><span>blocked or dropped</span></div>
+            <div><strong>2</strong><span>signed deliverables</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <h2>Features</h2>
+  <p class="sub">Grouped by what they do for the user. Each is tagged with its priority for the hackathon and how it uses ANS.</p>
+  <div class="legend">
+    <span><span class="pill p-mvp">MVP</span> must ship for the demo</span>
+    <span><span class="pill p-should">Should</span> ship if on schedule</span>
+    <span><span class="pill p-stretch">Stretch</span> only with spare time</span>
+    <span><span class="pill p-future">Future</span> pitch it, don't build it</span>
+  </div>
+
+  <div class="fgroup">
+    <h3>Missions</h3>
+    <p>Turning a goal into a plan.</p>
+    <div class="ftable"><table>
+      <thead><tr><th>Feature</th><th>What it does</th><th>Priority</th><th>ANS role</th></tr></thead>
+      <tbody>
+        <tr><td>Mission launcher</td><td>A single text box: describe the goal, press Launch.</td><td class="pr"><span class="pill p-mvp">MVP</span></td><td class="ans">—</td></tr>
+        <tr><td>Automatic planning</td><td>The Commander splits the goal into jobs, tags each with the skill it needs, and orders them (brand before website before review).</td><td class="pr"><span class="pill p-mvp">MVP</span></td><td class="ans">Skills map to capabilities in agent cards.</td></tr>
+        <tr><td>Review loop</td><td>If the compliance agent flags a problem, the work goes back for one fix and is re-checked.</td><td class="pr"><span class="pill p-should">Should</span></td><td class="ans">—</td></tr>
+        <tr><td>Mission templates</td><td>One-click starters: "Launch my business online", "Write a menu", "Plan a grand opening."</td><td class="pr"><span class="pill p-stretch">Stretch</span></td><td class="ans">—</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="fgroup">
+    <h3>Finding and hiring agents</h3>
+    <p>Getting the right specialist for each job.</p>
+    <div class="ftable"><table>
+      <thead><tr><th>Feature</th><th>What it does</th><th>Priority</th><th>ANS role</th></tr></thead>
+      <tbody>
+        <tr><td>Agent discovery</td><td>Finds candidate agents for each job by the skill needed.</td><td class="pr"><span class="pill p-mvp">MVP</span></td><td class="ans">Resolves ANS names; reads agent cards from DNS pointers.</td></tr>
+        <tr><td>Backup agents</td><td>Keeps a second verified candidate ready for every job, so a revoked agent doesn't stop the mission.</td><td class="pr"><span class="pill p-mvp">MVP</span></td><td class="ans">Backups are verified the same way.</td></tr>
+        <tr><td>Candidate ranking</td><td>Prefers agents with longer registration history and clean status.</td><td class="pr"><span class="pill p-stretch">Stretch</span></td><td class="ans">Uses transparency log history.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="fgroup">
+    <h3>Trust and verification</h3>
+    <p>The core of the product: nobody gets hired without proving who they are.</p>
+    <div class="ftable"><table>
+      <thead><tr><th>Feature</th><th>What it does</th><th>Priority</th><th>ANS role</th></tr></thead>
+      <tbody>
+        <tr><td>Five-check Trust Gate</td><td>Before hiring: does the agent exist, can it prove its identity, is it in good standing, does it do this job, does it meet our rules?</td><td class="pr"><span class="pill p-mvp">MVP</span></td><td class="ans">Registry lookup, identity certificate, log status.</td></tr>
+        <tr><td>Two-way trust</td><td>Vendor agents verify the Commander too, and refuse unverified clients.</td><td class="pr"><span class="pill p-mvp">MVP</span></td><td class="ans">Same checks, reversed.</td></tr>
+        <tr><td>Re-check before every hand-off</td><td>Status is checked again each time work moves between agents, so revocations take effect mid-mission.</td><td class="pr"><span class="pill p-mvp">MVP</span></td><td class="ans">Live status from the transparency log.</td></tr>
+        <tr><td>Trust policies</td><td>Rules the owner sets: pin versions, allow only certain domains, require a minimum registration age.</td><td class="pr"><span class="pill p-should">Should</span></td><td class="ans">Versions come from the immutable ANS name.</td></tr>
+        <tr><td>Human approval</td><td>When a policy is broken (like a surprise version change), the mission pauses and asks the owner.</td><td class="pr"><span class="pill p-should">Should</span></td><td class="ans">Triggered by an ANS name change.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="fgroup">
+    <h3>Proof and accountability</h3>
+    <p>Showing, after the fact, exactly who did what.</p>
+    <div class="ftable"><table>
+      <thead><tr><th>Feature</th><th>What it does</th><th>Priority</th><th>ANS role</th></tr></thead>
+      <tbody>
+        <tr><td>Signed deliverables</td><td>Every result is signed by the agent that made it; tampered or unsigned results are rejected.</td><td class="pr"><span class="pill p-mvp">MVP</span></td><td class="ans">Signed with the ANS identity key.</td></tr>
+        <tr><td>Trust report</td><td>A summary delivered with the result: every agent, every check, every signature.</td><td class="pr"><span class="pill p-should">Should</span></td><td class="ans">Links to log receipts.</td></tr>
+        <tr><td>Click-to-trace</td><td>Click any part of the finished website to see which agent produced it and its proof.</td><td class="pr"><span class="pill p-stretch">Stretch</span></td><td class="ans">Signature + log receipt per section.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="fgroup">
+    <h3>Live visibility and control</h3>
+    <p>Watching and steering a mission as it runs.</p>
+    <div class="ftable"><table>
+      <thead><tr><th>Feature</th><th>What it does</th><th>Priority</th><th>ANS role</th></tr></thead>
+      <tbody>
+        <tr><td>Agent trust cards</td><td>Each agent's name, organization, version, status badge and certificate expiry.</td><td class="pr"><span class="pill p-mvp">MVP</span></td><td class="ans">Data from the registry.</td></tr>
+        <tr><td>Handshake feed</td><td>A live log of every check, hire, rejection and delivery, with the five checks shown individually.</td><td class="pr"><span class="pill p-mvp">MVP</span></td><td class="ans">Shows ANS working in real time.</td></tr>
+        <tr><td>Mission graph</td><td>A visual map of agents and jobs; nodes change color as they work, finish or get dropped.</td><td class="pr"><span class="pill p-should">Should</span></td><td class="ans">—</td></tr>
+        <tr><td>Revoke and pause</td><td>Revoke a vendor agent, or pause the whole mission, with one button.</td><td class="pr"><span class="pill p-mvp">MVP</span></td><td class="ans">Calls ANS revocation.</td></tr>
+        <tr><td>Demo mode</td><td>Buttons that stage attacks on purpose: send an impostor, revoke a vendor, push a surprise upgrade.</td><td class="pr"><span class="pill p-mvp">MVP</span></td><td class="ans">Exercises every ANS check.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="fgroup">
+    <h3>Agent directory</h3>
+    <p>Managing agents as a vendor or an organization.</p>
+    <div class="ftable"><table>
+      <thead><tr><th>Feature</th><th>What it does</th><th>Priority</th><th>ANS role</th></tr></thead>
+      <tbody>
+        <tr><td>My agents</td><td>List of your own registered agents with status and certificate expiry warnings.</td><td class="pr"><span class="pill p-stretch">Stretch</span></td><td class="ans">Registry and log data.</td></tr>
+        <tr><td>Get verified wizard</td><td>Register a new agent under your domain in a few clicks: pick domain, describe skills, done.</td><td class="pr"><span class="pill p-future">Future</span></td><td class="ans">Wraps ANS registration.</td></tr>
+        <tr><td>Impersonation alerts</td><td>Warns you when someone registers a lookalike of your agent's name.</td><td class="pr"><span class="pill p-future">Future</span></td><td class="ans">Watches the transparency log.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+<section id="screens">
+  <h2>Screens</h2>
+  <p class="sub">Build the first two for the demo. The rest are stretch or future.</p>
+  <div class="screens">
+    <div class="screen"><h4>Launch</h4><p class="path">/</p><ul><li>Mission text box and Launch button</li><li>Template chips</li><li>Recent missions</li></ul></div>
+    <div class="screen"><h4>Live mission</h4><p class="path">/mission/:id</p><ul><li>Agent trust cards</li><li>Handshake feed</li><li>Mission graph</li><li>"Needs you" approvals</li><li>Demo mode panel</li></ul></div>
+    <div class="screen"><h4>Result and trust report</h4><p class="path">/mission/:id/result</p><ul><li>The finished website</li><li>Trust summary numbers</li><li>Per-agent proof with log receipts</li></ul></div>
+    <div class="screen"><h4>Agent detail</h4><p class="path">/agent/:ansName</p><ul><li>Agent card and skills</li><li>Certificate and status</li><li>Log history timeline</li></ul></div>
+    <div class="screen"><h4>Trust policies</h4><p class="path">/policies</p><ul><li>Version pinning</li><li>Domain allowlist</li><li>Approval rules</li></ul></div>
+  </div>
+</section>
+
+<section id="states">
+  <h2>States and rules</h2>
+  <p class="sub">The labels the product uses everywhere. Agree on these so the dashboard, agents and pitch all say the same thing.</p>
+  <h3>Mission lifecycle</h3>
+  <div class="states">
+    <span class="state">Planning</span><span class="arrow">→</span>
+    <span class="state">Hiring</span><span class="arrow">→</span>
+    <span class="state acc">Working</span><span class="arrow">→</span>
+    <span class="state">Reviewing</span><span class="arrow">→</span>
+    <span class="state ok">Delivered</span>
+  </div>
+  <p>Any active state can move to <span class="pill warn">Paused</span> (waiting for owner approval) or <span class="pill bad">Failed</span> (no verified agent available for a job).</p>
+  <h3>Agent trust states</h3>
+  <dl class="def">
+    <div><dt><span class="pill acc">Unchecked</span></dt><dd>Found but not yet verified. Can't be hired.</dd></div>
+    <div><dt><span class="pill ok">Verified</span></dt><dd>Passed all five checks. Can be hired.</dd></div>
+    <div><dt><span class="pill warn">Needs approval</span></dt><dd>Identity is fine, but it broke one of the owner's rules (e.g. new version). Waiting on a human.</dd></div>
+    <div><dt><span class="pill bad">Blocked</span></dt><dd>Failed an identity check. Never hired. Usually an impostor.</dd></div>
+    <div><dt><span class="pill bad">Revoked</span></dt><dd>Was verified, then revoked in ANS. Dropped immediately and replaced.</dd></div>
+  </dl>
+  <h3>Rules the product always follows</h3>
+  <ul>
+    <li>No agent receives any work before passing all five checks.</li>
+    <li>Status is re-checked before every hand-off, not just at hiring.</li>
+    <li>Unsigned or wrongly signed results are thrown away, never shown.</li>
+    <li>A version change always counts as a new agent.</li>
+    <li>Private keys are never sent to the AI model or shown in the UI.</li>
+  </ul>
+</section>
+
+<section id="journeys">
+  <h2>User journeys</h2>
+  <div class="jcard">
+    <h3>1. The happy path</h3>
+    <p class="who">Mission owner · Hokie Bites</p>
+    <ol class="journey">
+      <li><span>Types "Launch an online presence for Hokie Bites, a food truck in Blacksburg" and presses Launch.</span></li>
+      <li><span>Sees the plan appear: brand kit, landing page, compliance review.</span></li>
+      <li><span>Watches three vendor agents get verified, each with five green checks.</span></li>
+      <li><span>Gets a finished landing page in the Hokie Bites brand, plus a trust report. <em>Time: about a minute.</em></span></li>
+    </ol>
+  </div>
+  <div class="jcard">
+    <h3>2. The impostor</h3>
+    <p class="who">Attacker tries to take a job</p>
+    <ol class="journey">
+      <li><span>A fake agent copies BrandStudio's public agent card and claims its name.</span></li>
+      <li><span>It passes the lookup checks, because the public information is real.</span></li>
+      <li><span>Mission Control asks it to sign a random challenge. It can't, because it doesn't have BrandStudio's private key.</span></li>
+      <li><span>It's blocked, and the feed says exactly why. <em>The real BrandStudio agent gets the job.</em></span></li>
+    </ol>
+  </div>
+  <div class="jcard">
+    <h3>3. The compromised vendor</h3>
+    <p class="who">Mission owner, mid-mission</p>
+    <ol class="journey">
+      <li><span>WebForge's site builder is revoked in ANS (in the demo, by pressing Revoke).</span></li>
+      <li><span>Before the next hand-off, Mission Control re-checks status and sees "revoked."</span></li>
+      <li><span>It drops WebForge, verifies the backup SiteSmith agent, and hands it the job.</span></li>
+      <li><span>The mission finishes. The trust report records the switch. <em>The owner didn't have to do anything.</em></span></li>
+    </ol>
+  </div>
+  <div class="jcard">
+    <h3>4. The surprise upgrade</h3>
+    <p class="who">Mission owner gets a decision</p>
+    <ol class="journey">
+      <li><span>LegalCheck ships v1.1.0 of its compliance agent without notice.</span></li>
+      <li><span>Because the version is part of the ANS name, Mission Control notices the change.</span></li>
+      <li><span>The owner's policy pins v1.0.x, so the mission pauses and asks.</span></li>
+      <li><span>The owner approves, or picks another agent. <em>The decision is recorded.</em></span></li>
+    </ol>
+  </div>
+</section>
+
+<section id="why-ans">
+  <h2>Why ANS is essential</h2>
+  <p class="sub">What each feature would look like without ANS. This table is the heart of the pitch.</p>
+  <div class="vs"><table>
+    <thead><tr><th>Need</th><th>Without ANS</th><th>With ANS</th></tr></thead>
+    <tbody>
+      <tr><td>Find an agent</td><td>Hard-coded URLs, or trust whatever a search returns.</td><td>Look up a name anchored to a real domain, with its agent card published in DNS.</td></tr>
+      <tr><td>Know it's the real one</td><td>Trust a JSON file anyone could copy.</td><td>The agent proves it holds the private key behind its identity certificate.</td></tr>
+      <tr><td>Know it's still OK</td><td>No way to know it was compromised.</td><td>Revocation is recorded in the transparency log and checked before every hand-off.</td></tr>
+      <tr><td>Know it hasn't changed</td><td>Silent swaps go unnoticed.</td><td>The version is part of the permanent name; any change is a new identity.</td></tr>
+      <tr><td>Prove who did what</td><td>Logs you'd have to take on faith.</td><td>Results signed with ANS identity keys, backed by tamper-evident log receipts.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="scope">
+  <h2>Scope</h2>
+  <div class="scope">
+    <div><h4><span class="pill p-mvp">MVP</span> Hackathon demo</h4><ul><li>Mission launcher and planning</li><li>5 agents on 5 domains, registered in ANS</li><li>Five-check Trust Gate, both directions</li><li>Signed deliverables</li><li>Trust cards and handshake feed</li><li>Demo mode: impostor, revoke</li><li>Backup agent failover</li></ul></div>
+    <div><h4><span class="pill p-should">Should</span> If on schedule</h4><ul><li>Surprise upgrade + human approval</li><li>Trust policies screen</li><li>Mission graph</li><li>Trust report page</li><li>Compliance review loop</li></ul></div>
+    <div><h4><span class="pill p-stretch">Stretch</span> Spare time</h4><ul><li>Click-to-trace on the result</li><li>Mission templates</li><li>Candidate ranking</li><li>Hire a real agent from GoDaddy's public registry</li></ul></div>
+    <div><h4><span class="pill p-future">Future</span> Pitch only</h4><ul><li>Get verified wizard for vendors</li><li>Impersonation alerts</li><li>Agent marketplace with reviews</li><li>Team accounts and shared policies</li></ul></div>
+  </div>
+</section>
+
+<section id="business">
+  <h2>The GoDaddy angle</h2>
+  <p class="sub">Why this matters to the company judging it. Use one or two of these in the pitch.</p>
+  <div class="biz">
+    <div><h4>Domains become agent identities</h4><p>Every domain GoDaddy sells could anchor a verified agent. Mission Control shows the demand side: buyers who will only hire verified agents.</p></div>
+    <div><h4>Small businesses, served by agents</h4><p>GoDaddy's core customers are small businesses. Mission Control lets them use AI agents without having to judge which ones are trustworthy.</p></div>
+    <div><h4>Vendors get a reason to register</h4><p>If buyers like Mission Control only hire ANS-verified agents, every agent vendor has a reason to register, which grows the ANS ecosystem.</p></div>
+  </div>
+</section>
+
+<section id="metrics">
+  <h2>Success metrics</h2>
+  <div class="metrics"><table>
+    <thead><tr><th>For the demo</th><th>Target</th></tr></thead>
+    <tbody>
+      <tr><td>Full mission completes live</td><td>Under 90 seconds</td></tr>
+      <tr><td>Impostor blocked, with reason shown</td><td>Every time</td></tr>
+      <tr><td>Revocation to failover</td><td>Next hand-off, no manual steps</td></tr>
+      <tr><td>Deliverables with valid signatures</td><td>100%</td></tr>
+      <tr><td>Judge can explain ANS after the demo</td><td>That's the real goal</td></tr>
+    </tbody>
+  </table></div>
+  <div class="metrics"><table>
+    <thead><tr><th>If it were a real product</th><th>What it shows</th></tr></thead>
+    <tbody>
+      <tr><td>Missions completed with zero unverified agents</td><td>The trust promise holds</td></tr>
+      <tr><td>Impostor attempts blocked</td><td>The threat is real and handled</td></tr>
+      <tr><td>Median time from revocation to replacement</td><td>Resilience</td></tr>
+      <tr><td>Vendors registering in ANS to become hireable</td><td>Ecosystem growth for GoDaddy</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="stack">
+  <h2>Under the hood</h2>
+  <p class="sub">The short version. The engineering field guide has the full detail.</p>
+  <ul>
+    <li><strong>Agents:</strong> Python + FastAPI. One shared codebase; each agent differs only by prompt, skills and keys.</li>
+    <li><strong>Agent brains:</strong> Gemini API (free tier) with JSON output. Each teammate uses their own key during development; one key is reserved for the demo.</li>
+    <li><strong>Identity:</strong> GoDaddy ANS API for registration, lookup, status and revocation. Local fallback: GoDaddy's open-source ANS build.</li>
+    <li><strong>Dashboard:</strong> Next.js + React, live updates over WebSocket from a small event hub.</li>
+    <li><strong>Hosting:</strong> One service per agent on Render, Railway or Fly.io, each on its own domain.</li>
+  </ul>
+  <div class="note"><p>Honest framing for judges: the five companies are fictional and built by the team. Every ANS registration, identity check, signature and revocation is real.</p></div>
+</section>
+
+<footer>Mission Control · product spec for the GoDaddy "Best Use of ANS" track. Mockup data is illustrative.</footer>
+</main>
+</div>

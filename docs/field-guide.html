@@ -1,0 +1,584 @@
+<title>Mission Control Field Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#F3F6F7; --surface:#FFFFFF; --sunk:#E7EDEF; --line:#CBD5DA; --ink:#13202B; --muted:#56656F;
+  --accent:#0B6E80; --accent-soft:#DDEFF2; --ok:#2B7F52; --ok-soft:#DDF0E4; --bad:#B63B26; --bad-soft:#F7E1DB; --warn:#94620F; --warn-soft:#F6EACF;
+  --code-bg:#EEF2F4;
+  --display:"Archivo","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#0D1419; --surface:#141F27; --sunk:#1B2831; --line:#2C3C47; --ink:#E3EAEE; --muted:#97A7B1;
+  --accent:#5DBFCF; --accent-soft:#16333A; --ok:#62C48D; --ok-soft:#173226; --bad:#EE8068; --bad-soft:#3A1E18; --warn:#E2AE55; --warn-soft:#3A2C12; --code-bg:#101A21;
+}}
+:root[data-theme="dark"]{
+  --ground:#0D1419; --surface:#141F27; --sunk:#1B2831; --line:#2C3C47; --ink:#E3EAEE; --muted:#97A7B1;
+  --accent:#5DBFCF; --accent-soft:#16333A; --ok:#62C48D; --ok-soft:#173226; --bad:#EE8068; --bad-soft:#3A1E18; --warn:#E2AE55; --warn-soft:#3A2C12; --code-bg:#101A21;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{background:var(--ground);color:var(--ink);font:16px/1.65 var(--body);padding-inline:16px;padding-block:0 64px}
+a{color:var(--accent)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+.shell{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:230px minmax(0,1fr);gap:48px}
+@media (max-width:900px){.shell{grid-template-columns:minmax(0,1fr);gap:0}}
+nav.toc{position:sticky;top:env(safe-area-inset-top,0px);align-self:start;padding-block:40px 24px;max-height:100vh;overflow:auto}
+nav.toc p{font:600 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
+nav.toc ol{list-style:none;margin:0;padding:0;display:grid;gap:2px;counter-reset:t}
+nav.toc li{counter-increment:t}
+nav.toc a{display:flex;gap:10px;text-decoration:none;color:var(--muted);font-size:14px;padding:4px 8px;border-radius:4px}
+nav.toc a::before{content:counter(t,decimal-leading-zero);font:500 12px/1.8 var(--mono);color:var(--line)}
+nav.toc a:hover{color:var(--ink);background:var(--sunk)}
+@media (max-width:900px){nav.toc{position:static;max-height:none;padding-block:24px 0}nav.toc ol{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}}
+main{min-width:0;padding-block:40px 0}
+.masthead{border-bottom:1px solid var(--line);padding-bottom:28px;margin-bottom:8px}
+.eyebrow{font:500 12px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin:0 0 14px}
+h1{font:800 clamp(34px,5vw,52px)/1.02 var(--display);font-stretch:80%;letter-spacing:-.01em;margin:0 0 16px;text-wrap:balance}
+.lede{font-size:19px;line-height:1.55;color:var(--muted);max-width:62ch;margin:0}
+.lede strong{color:var(--ink);font-weight:600}
+section{padding-block:40px 8px;border-bottom:1px solid var(--line)}
+section:last-of-type{border-bottom:0}
+h2{font:750 30px/1.1 var(--display);font-stretch:85%;margin:0 0 6px;text-wrap:balance}
+h2 .num{font:500 13px/1 var(--mono);color:var(--accent);display:block;margin-bottom:10px;letter-spacing:.08em}
+h3{font:700 19px/1.25 var(--display);font-stretch:92%;margin:32px 0 8px}
+p,ul,ol,dl{max-width:68ch}
+.sub{color:var(--muted);margin-top:0}
+ul,ol{padding-left:22px}
+li{margin:4px 0}
+li::marker{color:var(--muted)}
+code,.mono{font-family:var(--mono);font-size:.88em}
+p code,li code,td code,dd code{background:var(--code-bg);padding:1px 5px;border-radius:3px;overflow-wrap:anywhere}
+pre{background:var(--code-bg);border:1px solid var(--line);border-radius:6px;padding:14px 16px;overflow-x:auto;font:13px/1.6 var(--mono);max-width:100%;margin:14px 0}
+pre .c{color:var(--muted)}
+.plain{background:var(--accent-soft);border-left:3px solid var(--accent);padding:14px 18px;margin:18px 0;max-width:68ch}
+.plain b{display:block;font:600 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.plain p{margin:0}
+.warn{background:var(--warn-soft);border-left:3px solid var(--warn)}
+.warn b{color:var(--warn)}
+.tbl{overflow-x:auto;margin:16px 0;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:560px}
+th,td{text-align:left;vertical-align:top;padding:10px 14px;border-bottom:1px solid var(--line)}
+th{font:600 12px/1.3 var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);background:var(--sunk)}
+tr:last-child td{border-bottom:0}
+dl.gloss{display:grid;grid-template-columns:minmax(120px,190px) 1fr;gap:0;max-width:none;border:1px solid var(--line);border-radius:6px;background:var(--surface);overflow:hidden}
+dl.gloss dt,dl.gloss dd{margin:0;padding:12px 16px;border-bottom:1px solid var(--line)}
+dl.gloss dt{font-weight:600;background:var(--sunk)}
+dl.gloss dt:nth-last-of-type(1),dl.gloss dd:last-of-type{border-bottom:0}
+@media (max-width:560px){dl.gloss{grid-template-columns:1fr}dl.gloss dt{border-bottom:0;padding-bottom:4px}}
+.plate{display:inline-block;font:500 14px/1.4 var(--mono);background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:8px 12px;margin:6px 0;overflow-wrap:anywhere;max-width:100%}
+.plate span{color:var(--accent)}
+.cast{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:18px 0;max-width:none}
+.agent{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px}
+.agent h4{font:700 17px/1.2 var(--display);font-stretch:90%;margin:0 0 4px}
+.agent .dom{font:500 12.5px/1.3 var(--mono);color:var(--accent);margin:0 0 10px;overflow-wrap:anywhere}
+.agent p{font-size:14.5px;margin:0;color:var(--muted)}
+.agent.bad{border-color:var(--bad);border-style:dashed}
+.agent.bad .dom{color:var(--bad)}
+.pill{display:inline-block;font:600 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:4px 7px;border-radius:3px;vertical-align:2px}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.acc{background:var(--accent-soft);color:var(--accent)}
+.fig{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px;margin:18px 0}
+.fig svg{display:block;min-width:680px;width:100%;height:auto}
+.fig svg .box{fill:var(--sunk);stroke:var(--line)}
+.fig svg .box-acc{fill:var(--accent-soft);stroke:var(--accent)}
+.fig svg .box-ok{fill:var(--ok-soft);stroke:var(--ok)}
+.fig svg .box-bad{fill:var(--bad-soft);stroke:var(--bad);stroke-dasharray:5 4}
+.fig svg .t{fill:var(--ink);font:600 14px var(--body)}
+.fig svg .s{fill:var(--muted);font:12px var(--mono)}
+.fig svg .l{stroke:var(--muted);stroke-width:1.3;fill:none}
+.fig svg .l-bad{stroke:var(--bad);stroke-width:1.3;fill:none;stroke-dasharray:5 4}
+.fig svg .l-acc{stroke:var(--accent);stroke-width:1.5;fill:none}
+.fig figcaption{font-size:13px;color:var(--muted);margin-top:8px}
+.steps{counter-reset:s;list-style:none;padding:0;max-width:72ch}
+.steps>li{counter-increment:s;position:relative;padding:0 0 18px 46px;margin:0}
+.steps>li::before{content:counter(s);position:absolute;left:0;top:0;width:30px;height:30px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font:600 14px/30px var(--mono);text-align:center}
+.steps>li:not(:last-child)::after{content:"";position:absolute;left:14.5px;top:34px;bottom:4px;width:1px;background:var(--line)}
+.steps>li>strong{display:block;font-family:var(--display);font-size:17px;font-stretch:92%}
+.timeline{display:grid;gap:12px;margin:18px 0;max-width:none}
+.slot{display:grid;grid-template-columns:150px 1fr;gap:16px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px 16px}
+.slot h4{margin:0;font:700 16px/1.3 var(--display);font-stretch:90%}
+.slot h4 small{display:block;font:500 12px/1.4 var(--mono);color:var(--muted);font-stretch:100%}
+.slot ul{margin:0;padding-left:18px;font-size:15px}
+@media (max-width:560px){.slot{grid-template-columns:1fr;gap:6px}}
+.script{display:grid;gap:10px;margin:18px 0;max-width:none}
+.beat{display:grid;grid-template-columns:70px 1fr;gap:14px;align-items:baseline;border-bottom:1px dashed var(--line);padding-bottom:10px}
+.beat:last-child{border-bottom:0}
+.beat .time{font:600 13px var(--mono);color:var(--accent);font-variant-numeric:tabular-nums}
+.beat p{margin:0}
+.beat em{color:var(--muted)}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;max-width:none;margin:16px 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px}
+.card h4{margin:0 0 6px;font:700 16px/1.3 var(--display);font-stretch:90%}
+.card p,.card ul{font-size:14.5px;margin:0}
+footer{color:var(--muted);font-size:13px;padding-block:32px 0}
+</style>
+
+<div class="shell">
+<nav class="toc" aria-label="Contents">
+  <p>Contents</p>
+  <ol>
+    <li><a href="#pitch">The project in one breath</a></li>
+    <li><a href="#concepts">Concepts you need first</a></li>
+    <li><a href="#ans">How ANS works</a></li>
+    <li><a href="#story">The story and the cast</a></li>
+    <li><a href="#arch">Architecture</a></li>
+    <li><a href="#register">Flow: registering agents</a></li>
+    <li><a href="#mission">Flow: running a mission</a></li>
+    <li><a href="#gate">The Trust Gate</a></li>
+    <li><a href="#chaos">Chaos scenarios</a></li>
+    <li><a href="#dashboard">The dashboard</a></li>
+    <li><a href="#data">Data formats</a></li>
+    <li><a href="#stack">Tech stack and repo</a></li>
+    <li><a href="#team">Who does what</a></li>
+    <li><a href="#plan">Weekend plan</a></li>
+    <li><a href="#demo">Demo script</a></li>
+    <li><a href="#risks">Risks and fallbacks</a></li>
+    <li><a href="#honest">What's real vs simulated</a></li>
+    <li><a href="#questions">Questions for Scott</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="masthead">
+  <p class="eyebrow">GoDaddy track · Best Use of ANS</p>
+  <h1>Mission Control: agents that check each other's ID before they work together</h1>
+  <p class="lede">A complete field guide to the project: <strong>what ANS is</strong>, <strong>what we're building</strong>, <strong>how every piece works</strong>, and <strong>how we ship it by Sunday morning</strong>. Read it top to bottom once; after that, use the contents to jump around.</p>
+</header>
+
+<section id="pitch">
+  <h2><span class="num">01</span>The project in one breath</h2>
+  <p>A user gives <strong>Mission Control</strong> a goal, like "launch an online presence for Hokie Bites, a food truck in Blacksburg." Our <strong>Commander agent</strong> breaks it into jobs and hires <strong>specialist agents from other companies</strong> on the open web: a branding agent, a website builder, a compliance checker. Before hiring any of them, it uses <strong>GoDaddy's Agent Name Service (ANS)</strong> to prove each agent is who it claims to be, is still in good standing, and actually does the job. A live dashboard shows every identity check, every hire, every rejection, and a tamper-proof trail of who did what.</p>
+  <div class="plain"><b>Why this wins the track</b><p>The track lead, Scott Courtney, said he cares about "agents talking to other agents across the open web." ANS is only meaningful when agents belong to <em>different</em> owners who have no reason to trust each other. Our whole project is built around that exact moment: a stranger agent asking to be trusted.</p></div>
+</section>
+
+<section id="concepts">
+  <h2><span class="num">02</span>Concepts you need first</h2>
+  <p class="sub">You can't understand ANS without these. Each one gets a plain-English explanation.</p>
+  <dl class="gloss">
+    <dt>AI agent</dt><dd>A program that uses an LLM (like Claude) to decide what to do, and can take actions: call APIs, write files, talk to other agents. In our project each agent is a small web server with an LLM "brain" and a specific job.</dd>
+    <dt>Domain name</dt><dd>A human-readable address you own, like <code>webforge.xyz</code>. Owning a domain is proof of identity on the internet: only the owner can change its settings.</dd>
+    <dt>DNS</dt><dd>The internet's phone book. You ask "where is <code>webforge.xyz</code>?" and DNS answers with an address. DNS can also hold small text notes (<em>TXT records</em>) — ANS uses these to publish facts about agents.</dd>
+    <dt>Public/private key pair</dt><dd>Two linked keys. The <strong>private key</strong> stays secret with its owner; the <strong>public key</strong> is shared with everyone. Anything signed with the private key can be checked with the public key. If the signature checks out, only the private-key holder could have made it.</dd>
+    <dt>Certificate</dt><dd>A digital ID card: "this public key belongs to this name," signed by a trusted issuer (a <em>Certificate Authority</em>, CA). The padlock in your browser is a certificate at work.</dd>
+    <dt>PKI</dt><dd>Public Key Infrastructure: the whole system of CAs, certificates and keys that lets strangers trust each other online.</dd>
+    <dt>CSR</dt><dd>Certificate Signing Request. You generate a key pair, then send the CA a CSR saying "please certify this public key for this name." You never send your private key.</dd>
+    <dt>ACME</dt><dd>The automated protocol for proving you control a domain (usually by adding a DNS record the CA asks for) and getting a certificate. It's how Let's Encrypt works, and ANS reuses it.</dd>
+    <dt>TLS / mTLS</dt><dd>TLS is the encryption behind HTTPS; normally only the <em>server</em> shows a certificate. <strong>mTLS</strong> (mutual TLS) means <em>both sides</em> show certificates, so both know who they're talking to. Ideal for agent-to-agent.</dd>
+    <dt>Transparency log</dt><dd>A public, append-only record. New entries can be added, but old ones can never be edited or deleted without everyone noticing. It uses a <em>Merkle tree</em> (a chain of hashes) to make tampering mathematically detectable.</dd>
+    <dt>Agent card</dt><dd>A JSON file an agent publishes describing itself: name, what it can do, how to call it. Like a business card for software.</dd>
+    <dt>MCP / A2A</dt><dd>Protocols for how agents talk. <strong>MCP</strong> (Anthropic) connects agents to tools; <strong>A2A</strong> (Google) connects agents to agents. ANS works <em>with</em> both — it handles identity, not the conversation itself.</dd>
+  </dl>
+</section>
+
+<section id="ans">
+  <h2><span class="num">03</span>How ANS works</h2>
+  <p class="sub">ANS = DNS + certificates + a public log, applied to AI agents instead of websites.</p>
+  <div class="plain"><b>The analogy</b><p>Agents are employees. The <strong>ANS name</strong> is their name badge. The <strong>identity certificate</strong> is an ID card that can't be forged. <strong>DNS records</strong> are the company phone directory. The <strong>transparency log</strong> is an HR file of every hire and firing that nobody can quietly edit. The <strong>Registration Authority</strong> (run by GoDaddy) is HR, checking your papers before issuing a badge.</p></div>
+
+  <h3>The ANS name</h3>
+  <p>Every registered agent gets an official name anchored to a domain its owner controls. GoDaddy's published format packs protocol, agent, capability, owner and version into one name:</p>
+  <div class="plate"><span>mcp://</span>sentimentAnalyzer.textAnalysis.AcmeCorp.<span>v1.0</span>.example.com</div>
+  <p>GoDaddy's open-source reference implementation uses a shorter form:</p>
+  <div class="plate"><span>ans://</span><span>v1.0.0</span>.my-agent.example.com</div>
+  <p>The spec is still evolving, so use whatever format the ANS API docs show. <strong>The key rule:</strong> the name, including its version, is permanent. Shipping v1.0.1 means a new name, retiring the old one, and a permanent log entry for both. That rule powers one of our demo scenarios.</p>
+
+  <h3>The two certificates</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Certificate</th><th>What it proves</th><th>Used for</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Server certificate</strong> (public)</td><td>"This web address really is <code>agent.webforge.xyz</code>."</td><td>Normal HTTPS to the agent's endpoint.</td></tr>
+      <tr><td><strong>Identity certificate</strong> (private CA)</td><td>"This key belongs to the agent with this exact ANS name."</td><td>Agent-to-agent trust: mTLS, and signing messages and results.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>The DNS records ANS publishes</h3>
+  <p>These are examples from GoDaddy's design write-up; exact records may differ in the live API.</p>
+<pre><span class="c">; where to find the agent card</span>
+_ans.sentiment       IN TXT   "url=https://sentiment.example.com/agent-card.json"
+<span class="c">; how to connect (protocol, port)</span>
+_mcp._tcp.sentiment  IN HTTPS 1 . alpn=h2 port=443
+<span class="c">; pin the expected certificate so an impostor cert is caught (DANE)</span>
+_443._tcp.sentiment  IN TLSA  3 1 1 [cert_hash]
+<span class="c">; link to the Registration Authority's proof in the transparency log</span>
+_ra-badge.sentiment  IN TXT   "v=ra-badge1; url=https://transparency..."</pre>
+
+  <h3>The three ANS services</h3>
+  <div class="two">
+    <div class="card"><h4>Registration Authority (RA)</h4><p>Checks you control the domain, issues the identity certificate, publishes DNS records, and handles renewals and revocations.</p></div>
+    <div class="card"><h4>Transparency log</h4><p>Records every lifecycle event: registered, renewed, revoked. Gives out cryptographic receipts anyone can check.</p></div>
+    <div class="card"><h4>Verifier</h4><p>Checks those receipts, even offline. The open-source version ships a CLI called <code>ans-verify</code>.</p></div>
+  </div>
+
+  <div class="plain warn"><b>ANS checks identity, not quality</b><p>ANS answers "is this really the Compliance agent, and is it still in good standing?" It does <strong>not</strong> answer "did the Compliance agent do a good job?" That second question is our own LLM logic. The project uses both, and in the pitch we should say clearly which is which.</p></div>
+</section>
+
+<section id="story">
+  <h2><span class="num">04</span>The story and the cast</h2>
+  <p>The demo mission: <strong>"Launch an online presence for Hokie Bites, a food truck in Blacksburg."</strong> It's easy for judges to follow, it's local (Scott went to Virginia Tech), and it points straight at GoDaddy's core customer: small businesses getting online.</p>
+  <p>We build <strong>five fictional organizations</strong>, each with its own cheap domain and its own ANS-registered agent, plus one impostor.</p>
+  <div class="cast">
+    <div class="agent"><h4>Commander</h4><p class="dom">launchpad.xyz · that's us</p><p>Reads the mission, plans the jobs, finds and verifies vendors, hires them, and assembles the result.</p></div>
+    <div class="agent"><h4>Brand agent</h4><p class="dom">brandstudio.xyz</p><p>Produces name treatment, tagline, color palette and tone of voice.</p></div>
+    <div class="agent"><h4>Site builder</h4><p class="dom">webforge.xyz</p><p>Turns the brand kit into a one-page landing site (HTML).</p></div>
+    <div class="agent"><h4>Backup site builder</h4><p class="dom">sitesmith.xyz</p><p>Same code as the site builder, different organization. Hired when the main one is revoked.</p></div>
+    <div class="agent"><h4>Compliance agent</h4><p class="dom">legalcheck.xyz</p><p>Reviews the site for missing disclaimers, trademark risk, and accessibility basics. Can send work back.</p></div>
+    <div class="agent bad"><h4>Impostor</h4><p class="dom">claims brandstudio.xyz</p><p>Copies the real Brand agent's public card and claims its name, but doesn't hold its private key. Must be caught.</p></div>
+  </div>
+</section>
+
+<section id="arch">
+  <h2><span class="num">05</span>Architecture</h2>
+  <p class="sub">Every box is its own small service. Every agent carries the same Trust Gate module.</p>
+  <figure class="fig" style="margin-inline:0">
+    <svg viewBox="0 0 760 500" role="img" aria-labelledby="archT archD">
+      <title id="archT">Mission Control architecture</title>
+      <desc id="archD">The dashboard sends a mission to the Commander agent. The Commander verifies and hires four vendor agents. An impostor is rejected. Every agent emits events to an event hub feeding the dashboard, and every agent verifies through GoDaddy ANS.</desc>
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5"/></marker></defs>
+      <rect class="box" x="250" y="20" width="260" height="56" rx="5"/>
+      <text class="t" x="380" y="44" text-anchor="middle">Dashboard (browser)</text>
+      <text class="s" x="380" y="63" text-anchor="middle">mission input · live feed</text>
+      <rect class="box" x="40" y="120" width="200" height="56" rx="5"/>
+      <text class="t" x="140" y="144" text-anchor="middle">Event hub</text>
+      <text class="s" x="140" y="163" text-anchor="middle">WebSocket server</text>
+      <rect class="box-acc" x="290" y="120" width="220" height="56" rx="5"/>
+      <text class="t" x="400" y="144" text-anchor="middle">Commander agent</text>
+      <text class="s" x="400" y="163" text-anchor="middle">launchpad.xyz</text>
+      <rect class="box-bad" x="560" y="120" width="180" height="56" rx="5"/>
+      <text class="t" x="650" y="144" text-anchor="middle">Impostor</text>
+      <text class="s" x="650" y="163" text-anchor="middle">no private key</text>
+      <path class="l" d="M380 76 L390 118" marker-end="url(#ah)"/>
+      <path class="l" d="M290 148 L242 148" marker-end="url(#ah)"/>
+      <path class="l" d="M140 120 L250 60" marker-end="url(#ah)"/>
+      <path class="l-bad" d="M560 148 L512 148" marker-end="url(#ah)"/>
+      <rect class="box-ok" x="40" y="260" width="160" height="56" rx="5"/>
+      <text class="t" x="120" y="284" text-anchor="middle">Brand</text>
+      <text class="s" x="120" y="303" text-anchor="middle">brandstudio.xyz</text>
+      <rect class="box-ok" x="220" y="260" width="160" height="56" rx="5"/>
+      <text class="t" x="300" y="284" text-anchor="middle">Site builder</text>
+      <text class="s" x="300" y="303" text-anchor="middle">webforge.xyz</text>
+      <rect class="box-ok" x="400" y="260" width="160" height="56" rx="5"/>
+      <text class="t" x="480" y="284" text-anchor="middle">Backup builder</text>
+      <text class="s" x="480" y="303" text-anchor="middle">sitesmith.xyz</text>
+      <rect class="box-ok" x="580" y="260" width="160" height="56" rx="5"/>
+      <text class="t" x="660" y="284" text-anchor="middle">Compliance</text>
+      <text class="s" x="660" y="303" text-anchor="middle">legalcheck.xyz</text>
+      <path class="l-acc" d="M360 176 L130 258" marker-end="url(#ah)"/>
+      <path class="l-acc" d="M385 176 L305 258" marker-end="url(#ah)"/>
+      <path class="l-acc" d="M415 176 L475 258" marker-end="url(#ah)"/>
+      <path class="l-acc" d="M440 176 L650 258" marker-end="url(#ah)"/>
+      <path class="l" d="M120 316 L120 388" marker-end="url(#ah)"/>
+      <path class="l" d="M300 316 L300 388" marker-end="url(#ah)"/>
+      <path class="l" d="M480 316 L480 388" marker-end="url(#ah)"/>
+      <path class="l" d="M660 316 L660 388" marker-end="url(#ah)"/>
+      <rect class="box" x="40" y="390" width="700" height="72" rx="5"/>
+      <text class="t" x="390" y="418" text-anchor="middle">GoDaddy ANS</text>
+      <text class="s" x="390" y="440" text-anchor="middle">Registration Authority · Transparency log · DNS records</text>
+      <text class="s" x="390" y="488" text-anchor="middle">teal = verified hire · red dashed = rejected · every agent runs the Trust Gate</text>
+    </svg>
+    <figcaption>All agents (not just the Commander) send events to the event hub and resolve each other through ANS. Arrows to ANS are drawn from vendors only to keep the picture readable.</figcaption>
+  </figure>
+
+  <div class="tbl"><table>
+    <thead><tr><th>Component</th><th>What it is</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Dashboard</strong></td><td>React / Next.js web app</td><td>Mission input, mission graph, trust cards, handshake feed, audit trail, chaos panel.</td></tr>
+      <tr><td><strong>Event hub</strong></td><td>Tiny WebSocket server</td><td>Every agent POSTs events here; the hub broadcasts them to the dashboard in real time.</td></tr>
+      <tr><td><strong>Commander</strong></td><td>Agent service + LLM</td><td>Plans, discovers, verifies, hires, re-verifies before each step, assembles the final result.</td></tr>
+      <tr><td><strong>Vendor agents</strong></td><td>Agent services + LLM</td><td>Each does one job, verifies the Commander back (trust goes both ways), and signs its output.</td></tr>
+      <tr><td><strong>Trust Gate</strong></td><td>Shared library</td><td>The five identity checks. The heart of our ANS integration. <a href="#gate">Details below.</a></td></tr>
+      <tr><td><strong>GoDaddy ANS</strong></td><td>External service (or local reference build)</td><td>Registration, certificates, DNS records, transparency log, status lookups.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="register">
+  <h2><span class="num">06</span>Flow: registering agents</h2>
+  <p class="sub">Done once per agent, before the demo. We automate it with a script so we can re-run it.</p>
+  <ol class="steps">
+    <li><strong>Buy the domain</strong>Get the organization's domain (for example <code>webforge.xyz</code>) and point a subdomain like <code>agent.webforge.xyz</code> at the hosted agent service.</li>
+    <li><strong>Generate a key pair and CSR</strong>The agent's private key is created and kept by us, never uploaded. The CSR carries the public key and the requested ANS name. The SDKs do this for you; from Python it's a few lines with the <code>cryptography</code> library.</li>
+    <li><strong>Submit the registration</strong>Call the ANS API with the ANS name, endpoint, agent card URL, capabilities, and CSR, authenticated with our GoDaddy API key.</li>
+    <li><strong>Prove domain control</strong>The RA asks us to publish a challenge (typically a DNS TXT record) on the domain. We add it; the RA checks it. This is the step most likely to eat time, so do it Friday night.</li>
+    <li><strong>Receive certificates</strong>The RA issues the identity certificate (and a server certificate if requested). We store it next to the private key in the agent's secrets.</li>
+    <li><strong>DNS records and log entry appear</strong>The discovery records are published and the transparency log gets a "registered, verified" entry with a timestamp. The agent is now findable and verifiable by anyone.</li>
+  </ol>
+  <div class="plain"><b>Automate it</b><p>Write <code>scripts/register_agents.py</code> that loops over a config file of our five agents and runs steps 2–5. Then re-registering after a mistake takes one command instead of an hour.</p></div>
+</section>
+
+<section id="mission">
+  <h2><span class="num">07</span>Flow: running a mission</h2>
+  <p class="sub">What happens, in order, after the user types the mission and presses Launch.</p>
+  <ol class="steps">
+    <li><strong>Mission arrives</strong>The dashboard sends the mission text to the Commander. The event hub logs <code>mission.started</code>.</li>
+    <li><strong>Plan</strong>The Commander's LLM breaks it into jobs, each tagged with a required capability: <code>brand.identity</code>, then <code>site.generate</code> (needs the brand kit), then <code>compliance.review</code>.</li>
+    <li><strong>Discover</strong>For each capability, the Commander finds candidate agents. Best case: a registry search by capability. Fallback: a list of known ANS names it resolves one by one. Ask Scott which the API supports.</li>
+    <li><strong>Verify</strong>The Trust Gate runs its five checks on each candidate. Every check result streams to the dashboard. Candidates that fail are rejected with a reason.</li>
+    <li><strong>Mutual check</strong>When the Commander contacts a vendor, the vendor runs the same Trust Gate on the Commander. A vendor won't work for an unverified client. Trust goes both ways.</li>
+    <li><strong>Hire and work</strong>The Commander sends the job. The vendor's LLM does the work.</li>
+    <li><strong>Signed delivery</strong>The vendor signs its result with its identity key. The Commander checks the signature before using it, so every artifact traces to a verified agent.</li>
+    <li><strong>Hand-off</strong>The brand kit goes to the site builder; the site goes to compliance. Before each hand-off, the Commander re-checks the agent's status, which is what makes live revocation work.</li>
+    <li><strong>Review loop</strong>If compliance flags a problem (say, no allergen disclaimer), the Commander sends it back to the site builder once, then re-reviews.</li>
+    <li><strong>Deliver</strong>The dashboard shows the finished landing page plus a <em>trust report</em>: every agent involved, every check, every signature, with links to transparency log receipts.</li>
+  </ol>
+  <h3>The same flow as a sequence diagram</h3>
+  <div class="fig" style="padding:16px">
+<pre class="mermaid" style="background:none;border:0;margin:0">
+sequenceDiagram
+    participant U as Dashboard
+    participant C as Commander
+    participant A as ANS
+    participant B as Brand agent
+    U->>C: Launch mission
+    C->>A: Resolve brandstudio agent
+    A-->>C: Agent card URL, cert, status ACTIVE
+    C->>B: Challenge (random nonce)
+    B->>A: Resolve Commander (mutual check)
+    B-->>C: Nonce signed with identity key
+    Note over C: 5 checks pass, TRUSTED
+    C->>B: Job: brand identity
+    B-->>C: Brand kit + signature
+    Note over C: Signature valid, accept
+    C-->>U: Events stream to dashboard
+</pre>
+  </div>
+</section>
+
+<section id="gate">
+  <h2><span class="num">08</span>The Trust Gate</h2>
+  <p class="sub">The five checks every agent runs before trusting another. This is where judges see ANS actually doing work.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>#</th><th>Check</th><th>Question it answers</th><th>How</th><th>Fails when</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><strong>Resolve</strong></td><td>Does this agent exist in ANS?</td><td>Look up the ANS name via the API or DNS; fetch the agent card.</td><td>Unregistered name, lookalike domain.</td></tr>
+      <tr><td>2</td><td><strong>Authenticate</strong></td><td>Is the thing I'm talking to the real holder of that identity?</td><td>mTLS, or a signed challenge: send a random nonce, verify the signature with the public key in its identity certificate, and confirm the cert chains to the ANS CA and names this exact agent.</td><td>Impostor copied the card but lacks the private key.</td></tr>
+      <tr><td>3</td><td><strong>Status</strong></td><td>Is it still in good standing?</td><td>Check the transparency log / registry status.</td><td>Revoked or expired.</td></tr>
+      <tr><td>4</td><td><strong>Capability</strong></td><td>Does it actually do this job?</td><td>Compare the job's required capability to the agent card.</td><td>A real agent hired for the wrong task.</td></tr>
+      <tr><td>5</td><td><strong>Policy</strong></td><td>Does it meet <em>our</em> rules?</td><td>Our own rules, e.g. version pinned to 1.x, domain on allowlist, registered more than a day.</td><td>Silent version change, brand-new registration.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Pseudocode. Function names like <code>ans.resolve</code> stand in for whatever the real API calls are.</p>
+<pre><span class="c"># trustgate/gate.py — pseudocode</span>
+async def check_agent(ans_name, capability, policy):
+    checks = {}
+
+    <span class="c"># 1. Resolve: does it exist? what does it claim?</span>
+    record = await ans.resolve(ans_name)
+    card = await fetch_json(record.agent_card_url) if record else None
+    checks["resolve"] = record is not None
+
+    <span class="c"># 2. Authenticate: prove it holds the private key</span>
+    nonce = secrets.token_hex(16)
+    sig = await post(card["endpoint"] + "/challenge", {"nonce": nonce})
+    cert = load_cert(record.identity_cert)
+    checks["authenticate"] = (
+        chains_to_ans_ca(cert)
+        and cert_names(cert) == ans_name
+        and verify_signature(cert.public_key(), nonce, sig)
+    )
+
+    <span class="c"># 3. Status: not revoked or expired</span>
+    checks["status"] = (await ans.status(ans_name)) == "ACTIVE"
+
+    <span class="c"># 4. Capability: it does this job</span>
+    checks["capability"] = capability in card["capabilities"]
+
+    <span class="c"># 5. Policy: our own rules</span>
+    checks["policy"] = policy.allows(record)
+
+    verdict = "TRUSTED" if all(checks.values()) else "REJECTED"
+    await emit("trust.check", subject=ans_name, verdict=verdict, checks=checks)
+    return verdict</pre>
+  <div class="plain"><b>Make it visible</b><p>Emit an event for every individual check, not just the verdict. On the dashboard, five ticks lighting up one by one, or one turning red with a reason, is the moment judges will remember.</p></div>
+</section>
+
+<section id="chaos">
+  <h2><span class="num">09</span>Chaos scenarios</h2>
+  <p class="sub">Buttons in the dashboard that break things on purpose, live, to prove ANS works.</p>
+  <div class="two">
+    <div class="card"><h4><span class="pill bad">rejected</span> The impostor</h4><p>The impostor copies the real Brand agent's public agent card and claims its ANS name. Checks 1, 3 and 4 pass, because it's pointing at real public data. <strong>Check 2 fails</strong>: it can't sign the nonce without the private key. The dashboard shows exactly which check caught it. This teaches the audience the core idea: public information can be copied, private keys can't.</p></div>
+    <div class="card"><h4><span class="pill bad">revoked</span> Live revocation</h4><p>Mid-mission, click "Revoke" on the site builder. We call the ANS API to revoke it. Before the next hand-off the Commander re-checks status, <strong>check 3 fails</strong>, and it drops webforge.xyz, discovers sitesmith.xyz, verifies it, and carries on. The mission still finishes.</p></div>
+    <div class="card"><h4><span class="pill warn">paused</span> Silent upgrade</h4><p>The compliance vendor ships v1.1 without telling anyone. Because the version is part of the ANS name, the name changes. <strong>Check 5 fails</strong> (our policy pins v1.0), and the Commander pauses with an "Approve new version?" prompt on the dashboard. A human clicks approve; the change is recorded in the log.</p></div>
+    <div class="card"><h4><span class="pill acc">stretch</span> Lookalike domain</h4><p>An agent registers on <code>brandstudi0.xyz</code> (zero, not o). It passes identity checks, since it really owns that domain, but fails our allowlist policy. Shows that ANS makes identity certain, and policy decides whom to trust.</p></div>
+  </div>
+</section>
+
+<section id="dashboard">
+  <h2><span class="num">10</span>The dashboard</h2>
+  <p class="sub">What's on screen and what each panel is for.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Panel</th><th>Shows</th><th>Why it matters</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Mission bar</strong></td><td>Text input and Launch button; mission status.</td><td>The starting point of the demo.</td></tr>
+      <tr><td><strong>Mission graph</strong></td><td>Agent nodes and the jobs between them; nodes glow while working, turn green when done, red when rejected.</td><td>Judges see the whole story at a glance.</td></tr>
+      <tr><td><strong>Trust cards</strong></td><td>One per agent: ANS name, domain, version, <span class="pill ok">verified</span> / <span class="pill bad">revoked</span> badge, certificate expiry.</td><td>Makes identity tangible.</td></tr>
+      <tr><td><strong>Handshake feed</strong></td><td>Scrolling log: "Commander → webforge.xyz · resolve ✓ auth ✓ status ✓ capability ✓ policy ✓ · TRUSTED".</td><td>Shows ANS working in real time.</td></tr>
+      <tr><td><strong>Audit trail</strong></td><td>Transparency log entries and signature checks; click one to see its receipt.</td><td>Proves who did what, after the fact.</td></tr>
+      <tr><td><strong>Chaos panel</strong></td><td>Buttons: Launch impostor, Revoke agent, Ship silent upgrade.</td><td>The live demo moments.</td></tr>
+      <tr><td><strong>Result view</strong></td><td>The finished landing page next to its trust report.</td><td>The payoff: real output, fully accounted for.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="data">
+  <h2><span class="num">11</span>Data formats</h2>
+  <p class="sub">Agree on these shapes Friday night so everyone can build in parallel.</p>
+  <h3>Agent card (published by each agent)</h3>
+<pre>{
+  "name": "Site builder",
+  "ansName": "ans://v1.0.0.sitebuilder.webforge.xyz",
+  "organization": "WebForge",
+  "endpoint": "https://agent.webforge.xyz",
+  "capabilities": ["site.generate"],
+  "protocols": ["https-json"],
+  "description": "Turns a brand kit into a one-page landing site."
+}</pre>
+  <h3>Job request (Commander → vendor)</h3>
+<pre>{
+  "jobId": "job_7f3a",
+  "missionId": "m_001",
+  "from": "ans://v1.0.0.commander.launchpad.xyz",
+  "capability": "site.generate",
+  "input": { "brandKit": { "...": "..." } }
+}</pre>
+  <h3>Signed result (vendor → Commander)</h3>
+<pre>{
+  "jobId": "job_7f3a",
+  "from": "ans://v1.0.0.sitebuilder.webforge.xyz",
+  "output": { "html": "&lt;!doctype html&gt;..." },
+  "outputSha256": "9c1e...",
+  "signature": "MEUCIQ...",          <span class="c">// signs outputSha256 + jobId</span>
+  "certFingerprint": "sha256:4b2d...",
+  "signedAt": "2026-09-20T14:02:11Z"
+}</pre>
+  <h3>Dashboard event (any agent → event hub)</h3>
+<pre>{
+  "type": "trust.check",           <span class="c">// or mission.started, job.sent, job.done, agent.revoked...</span>
+  "at": "2026-09-20T14:01:58Z",
+  "actor": "ans://v1.0.0.commander.launchpad.xyz",
+  "subject": "ans://v1.0.0.sitebuilder.webforge.xyz",
+  "verdict": "TRUSTED",
+  "checks": { "resolve": true, "authenticate": true, "status": true,
+              "capability": true, "policy": true }
+}</pre>
+</section>
+
+<section id="stack">
+  <h2><span class="num">12</span>Tech stack and repo</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Layer</th><th>Choice</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Agents</td><td>Python + FastAPI</td><td>Fast to write; <code>cryptography</code> library handles keys, CSRs, signatures.</td></tr>
+      <tr><td>Agent brains</td><td>Claude API</td><td>One system prompt per agent; the Commander uses tool calling to plan.</td></tr>
+      <tr><td>ANS</td><td>GoDaddy ANS REST API</td><td>SDKs are Go/Java/Rust only, so call REST from Python. Local fallback: the open-source reference build.</td></tr>
+      <tr><td>Event hub</td><td>FastAPI WebSocket endpoint</td><td>Receives events over HTTP, broadcasts over WebSocket.</td></tr>
+      <tr><td>Dashboard</td><td>Next.js + React</td><td>Fast UI; a graph library like React Flow for the mission graph.</td></tr>
+      <tr><td>Hosting</td><td>Render, Railway or Fly.io</td><td>One service per agent, each on its own custom domain.</td></tr>
+      <tr><td>Domains</td><td>5 cheap domains (.xyz)</td><td>One per fictional organization. Ask GoDaddy about hackathon credits first.</td></tr>
+    </tbody>
+  </table></div>
+<pre>mission-control/
+├── trustgate/            <span class="c"># shared: the 5 checks, signing, ANS client</span>
+│   ├── gate.py
+│   ├── ans_client.py     <span class="c"># wraps the ANS REST API (swap for local build)</span>
+│   └── signing.py
+├── agents/
+│   ├── base.py           <span class="c"># shared FastAPI app: /card, /challenge, /job</span>
+│   ├── commander/
+│   ├── brand/
+│   ├── sitebuilder/      <span class="c"># deployed twice: webforge + sitesmith</span>
+│   ├── compliance/
+│   └── impostor/
+├── hub/                  <span class="c"># event hub (WebSocket)</span>
+├── dashboard/            <span class="c"># Next.js app</span>
+├── scripts/
+│   └── register_agents.py
+├── agents.yaml           <span class="c"># names, domains, capabilities for all agents</span>
+└── docker-compose.yml    <span class="c"># run everything locally, incl. local ANS</span></pre>
+  <div class="plain"><b>One codebase, many agents</b><p>Every vendor is the same <code>base.py</code> service with a different system prompt, capability list and key. That's why five agents is realistic in a weekend.</p></div>
+</section>
+
+<section id="team">
+  <h2><span class="num">13</span>Who does what</h2>
+  <p class="sub">Assuming four people. Merge roles if you're fewer.</p>
+  <div class="two">
+    <div class="card"><h4>ANS + Trust Gate</h4><ul><li>API key, domains, DNS</li><li>Registration script</li><li>The five checks and signing</li><li>Revocation call for the chaos panel</li></ul></div>
+    <div class="card"><h4>Agents + prompts</h4><ul><li><code>base.py</code> service</li><li>Brand, site builder, compliance prompts</li><li>The impostor</li><li>Deploying each agent</li></ul></div>
+    <div class="card"><h4>Dashboard</h4><ul><li>Event hub</li><li>Mission graph, trust cards, feed</li><li>Chaos panel and result view</li></ul></div>
+    <div class="card"><h4>Commander + pitch</h4><ul><li>Planning, discovery, hand-offs, review loop</li><li>Integration testing</li><li>Demo script, slides, backup video</li></ul></div>
+  </div>
+</section>
+
+<section id="plan">
+  <h2><span class="num">14</span>Weekend plan</h2>
+  <div class="timeline">
+    <div class="slot"><h4>Friday night<small>after opening ceremony</small></h4><ul><li>Get the ANS API key; buy domains.</li><li>Agree on the <a href="#data">data formats</a>.</li><li>Register <strong>one</strong> hello-world agent end to end.</li><li>Attend the 9:30 PM workshop with our <a href="#questions">questions</a>.</li></ul></div>
+    <div class="slot"><h4>Saturday morning<small>core loop</small></h4><ul><li>Trust Gate working against real ANS.</li><li>Commander verifies and hires one vendor; signed result verified.</li><li>Event hub up; events visible in a bare page.</li></ul></div>
+    <div class="slot"><h4>Saturday afternoon<small>full cast</small></h4><ul><li>All vendors registered, deployed, with LLM prompts.</li><li>Full mission runs end to end.</li><li>Dashboard v1. <strong>Show Scott at the sponsor expo</strong> and take notes.</li></ul></div>
+    <div class="slot"><h4>Saturday night<small>chaos + polish</small></h4><ul><li>Impostor, revocation, silent upgrade.</li><li>Audit trail with log receipts.</li><li>Apply Scott's feedback; visual polish.</li></ul></div>
+    <div class="slot"><h4>Sunday morning<small>before judging</small></h4><ul><li>Code freeze.</li><li>Rehearse the demo five times.</li><li>Record a backup video of a perfect run.</li></ul></div>
+  </div>
+</section>
+
+<section id="demo">
+  <h2><span class="num">15</span>Demo script</h2>
+  <p class="sub">Three minutes. One person drives, one person talks.</p>
+  <div class="script">
+    <div class="beat"><span class="time">0:00</span><p><strong>The problem.</strong> "AI agents are starting to hire other AI agents across the web. When an agent you've never met says 'I'm the Brand agent from BrandStudio,' how do you know it's telling the truth?"</p></div>
+    <div class="beat"><span class="time">0:20</span><p><strong>Launch.</strong> Type the Hokie Bites mission. Narrate the handshake feed as five ticks light up for each vendor. <em>"Every hire is verified through GoDaddy ANS."</em></p></div>
+    <div class="beat"><span class="time">1:00</span><p><strong>Impostor.</strong> Click Launch impostor. It's rejected at the authenticate check. <em>"It copied everything public. It couldn't copy the private key."</em></p></div>
+    <div class="beat"><span class="time">1:30</span><p><strong>Revoke.</strong> Revoke the site builder mid-mission. The Commander drops it and hires the backup. <em>"Revocation in ANS takes effect everywhere, immediately."</em></p></div>
+    <div class="beat"><span class="time">2:10</span><p><strong>Result + proof.</strong> Show the landing page. Click one section and trace it to a signed result and a transparency log receipt.</p></div>
+    <div class="beat"><span class="time">2:40</span><p><strong>Why it matters.</strong> "Every GoDaddy customer with a domain could have a verified agent like these. ANS is what makes the agent web trustworthy."</p></div>
+  </div>
+</section>
+
+<section id="risks">
+  <h2><span class="num">16</span>Risks and fallbacks</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Risk</th><th>Fallback</th></tr></thead>
+    <tbody>
+      <tr><td>ANS API or domain verification stalls</td><td>Run GoDaddy's open-source ANS (<code>docker compose up</code>) locally and point <code>ans_client.py</code> at it. The demo is identical.</td></tr>
+      <tr><td>mTLS is painful to configure on hosting platforms</td><td>Use the signed-challenge approach in check 2. It proves the same thing at the application layer.</td></tr>
+      <tr><td>No registry search by capability</td><td>Commander keeps a list of known ANS names and resolves each. Still real ANS lookups.</td></tr>
+      <tr><td>LLM calls are slow on stage</td><td>Keep prompts short; cache a known-good run; have the backup video ready.</td></tr>
+      <tr><td>Venue Wi-Fi fails</td><td>Local docker-compose version with local ANS, plus the video.</td></tr>
+      <tr><td>Domains cost money</td><td>Ask GoDaddy for credits; otherwise .xyz is usually a dollar or two each.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="honest">
+  <h2><span class="num">17</span>What's real vs simulated</h2>
+  <p>Judges respect honesty. Say this up front in the pitch.</p>
+  <div class="two">
+    <div class="card"><h4><span class="pill ok">real</span></h4><ul><li>ANS registrations, certificates, DNS records, log entries</li><li>Every identity check and signature</li><li>Revocation through the ANS API</li><li>LLM agents doing real work</li><li>Separate domains, separately hosted</li></ul></div>
+    <div class="card"><h4><span class="pill warn">simulated</span></h4><ul><li>The five "companies" are fictional and all built by us</li><li>The impostor is an attacker we wrote</li><li>Hokie Bites is a pretend customer</li></ul></div>
+  </div>
+  <p>The line to use: <em>"We simulated five independent organizations. ANS has no idea they share an author — to the protocol, they're strangers, and that's the point."</em> If a real agent from GoDaddy's public registry is callable, hiring it live would remove the caveat entirely.</p>
+</section>
+
+<section id="questions">
+  <h2><span class="num">18</span>Questions for Scott</h2>
+  <p class="sub">Bring these to the Friday 9:30 PM workshop.</p>
+  <ol>
+    <li>Is there a sandbox or test environment for the ANS API, and are there rate limits?</li>
+    <li>Which ANS name format should we use for registrations this weekend?</li>
+    <li>Can we search the registry by capability, or only resolve known names?</li>
+    <li>What's the fastest way to check an agent's status (active / revoked) from the API?</li>
+    <li>Does GoDaddy provide domains or credits for hackathon teams?</li>
+    <li>Is using the open-source reference implementation locally acceptable as a fallback?</li>
+    <li>Are any agents in the public registry callable, so we could hire a real outside agent?</li>
+    <li>What would make a project stand out to you for "Best Use of ANS"?</li>
+  </ol>
+</section>
+
+<footer>Sources: GoDaddy ANS registry blog post, the godaddy/ans reference implementation on GitHub, ansinfo.ai, and GoDaddy's ANS developer pages. API details may change; confirm against the live docs.</footer>
+</main>
+</div>

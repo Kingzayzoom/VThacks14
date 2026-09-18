@@ -8,6 +8,7 @@ import html as html_lib
 import re
 
 from .llm import generate_json
+from .planning import Plan, Task, validate_plan
 
 CAPABILITIES = ["brand.identity", "site.generate", "compliance.review"]
 FOOD_WORDS = ("food", "truck", "restaurant", "cafe", "café", "bakery", "coffee", "kitchen", "grill", "bar", "diner", "pizza", "taco")
@@ -26,37 +27,70 @@ def _guess_business(text: str) -> dict:
     }
 
 
-def _fallback_plan(text: str) -> dict:
+def _fallback_plan(text: str) -> Plan:
+    """The whole-job plan, for when there is no model or the model cannot produce a usable one."""
     b = _guess_business(text)
-    return {
-        "business": b,
-        "jobs": [
-            {"capability": "brand.identity", "title": "Brand kit",
-             "brief": f"Create a brand kit for {b['name']}, a {b['type']} in {b['location']}."},
-            {"capability": "site.generate", "title": "Landing page",
-             "brief": f"Build a one-page site for {b['name']} using the brand kit."},
-            {"capability": "compliance.review", "title": "Compliance review",
-             "brief": "Check the site for missing disclaimers, accessibility basics and risky claims."},
-        ],
-    }
+    return Plan(business=b, tasks=[
+        Task(id="brand", title="Brand kit", capability="brand.identity",
+             brief=f"Create a brand kit for {b['name']}, a {b['type']} in {b['location']}."),
+        Task(id="site", title="Landing page", capability="site.generate", depends_on=["brand"],
+             brief=f"Build a one-page site for {b['name']} using the brand kit."),
+        Task(id="review", title="Compliance review", capability="compliance.review", depends_on=["site"],
+             brief="Check the site for missing disclaimers, accessibility basics and risky claims."),
+    ])
 
 
-PLAN_SYSTEM = """You are the Commander agent at LaunchPad. You plan missions for small businesses and hire
-specialist agents. Break the user's mission into exactly three jobs, in this order, using these capabilities:
-brand.identity, site.generate, compliance.review.
-Return JSON: {"business": {"name": str, "type": str, "location": str, "audience": str},
-"jobs": [{"capability": str, "title": str (2-4 words), "brief": str (one or two sentences)}]}"""
+PLAN_SYSTEM = """You are the Commander agent at LaunchPad. You plan a mission for a small business and
+then hire specialist agents to carry it out.
+
+Break the mission into the tasks it actually needs — as few as one, never more than six. Do not pad
+a small request into a big plan, and do not drop work the mission clearly asks for.
+
+The only capabilities that exist are:
+  brand.identity     a brand kit: tagline, colours, fonts, tone, key offerings
+  site.generate      a one-page website, built from a brand kit
+  compliance.review  reviewing a finished page for legal and accessibility problems
+
+Use depends_on for real dependencies: a site needs its brand kit, a review needs its page. Tasks that
+do not depend on each other will run in the order you list them.
+
+If the mission asks for something outside that list, leave it out — do not invent a capability and do
+not pretend another one covers it.
+
+Return JSON:
+{"business": {"name": str, "type": str, "location": str, "audience": str},
+ "tasks": [{"id": str (short, unique), "title": str (2-4 words), "capability": str,
+            "brief": str (one or two sentences), "depends_on": [str]}]}"""
 
 
-async def plan_mission(text: str, **ctx) -> tuple[dict, str]:
-    plan, engine = await generate_json(PLAN_SYSTEM, f"Mission: {text}", lambda: _fallback_plan(text),
-                                       label="Mission plan", **ctx)
+async def plan_mission(text: str, **ctx) -> tuple[Plan, str]:
+    """Ask for a plan, check it is runnable, and give the model one chance to fix it.
+
+    A plan that survives validation may still be a *bad* plan — that is a judgement no amount of
+    checking will make for us. What it cannot be is an unrunnable one: no cycles, no dangling
+    dependencies, no capability we have no way to source.
+    """
     fallback = _fallback_plan(text)
-    jobs = {j.get("capability"): j for j in plan.get("jobs", []) if isinstance(j, dict)}
-    plan["jobs"] = [{**fallback["jobs"][i], **{k: v for k, v in jobs.get(cap, {}).items() if v}}
-                    for i, cap in enumerate(CAPABILITIES)]
-    plan["business"] = {**fallback["business"], **(plan.get("business") or {})}
-    return plan, engine
+    prompt = f"Mission: {text}"
+
+    for attempt in (1, 2):
+        raw, engine = await generate_json(PLAN_SYSTEM, prompt, lambda: fallback.as_dict(),
+                                          label="Mission plan", **ctx)
+        if engine == "offline":
+            return fallback, engine
+        plan, problems = validate_plan(raw, known_capabilities=CAPABILITIES)
+        if plan:
+            # The model is good at reading a sentence, less reliable about filling every field.
+            plan.business = {**fallback.business, **{k: v for k, v in plan.business.items() if v}}
+            return plan, engine
+        if attempt == 2:
+            break
+        # Hand the specific complaints back rather than asking again and hoping.
+        complaints = "\n".join(f"- {p}" for p in problems)
+        prompt = (f"Mission: {text}\n\nYour previous plan could not be run:\n{complaints}"
+                  "\n\nReturn a corrected plan in the same JSON shape.")
+
+    return fallback, "offline"
 
 
 # --- brand.identity -----------------------------------------------------------------

@@ -9,6 +9,7 @@ Routes:
 """
 import asyncio
 import datetime as dt
+import time
 from contextlib import asynccontextmanager
 from typing import Awaitable, Callable
 
@@ -16,12 +17,17 @@ import httpx
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-from . import config, crypto
+from . import config, crypto, standing
 from .ans import AnsError, get_ans_client
 from .events import emit
 from .http import client
 from .identity import Identity, ensure_identity, register_identity
-from .trustgate import TrustGate
+from .trustgate import TrustGate, signed_result_body
+
+# How long an agent holds on to its own status token before asking ANS for a fresh one.
+# Hosted ANS issues them with roughly an hour's life; re-fetching sooner means a revocation
+# shows up sooner, at the cost of a call nobody notices.
+STATUS_REFRESH_SECONDS = 60
 
 JobHandler = Callable[[str, dict, dict], Awaitable[tuple[dict, str]]]
 
@@ -37,6 +43,29 @@ class AgentState:
     def set_identity(self, ident: Identity):
         self.identity = ident
         self.gate = TrustGate(self.ans, ident.ans_name)
+        self._status_token = None
+        self._status_fetched_at = 0.0
+
+    async def status_token_header(self) -> str | None:
+        """This agent's own proof of good standing, to hand to whoever it is talking to.
+
+        Carrying our own evidence is what lets the other side verify us offline, against root
+        keys it already holds, without calling the registry. If ANS is unreachable we keep
+        presenting the last token we were given — it expires on its own, and a stale token is
+        refused by the verifier rather than quietly accepted.
+        """
+        if not self.identity:
+            return None
+        age = time.monotonic() - self._status_fetched_at
+        if self._status_token and age < STATUS_REFRESH_SECONDS:
+            return self._status_token
+        try:
+            token = await self.ans.status_token(self.identity.agent_id)
+            self._status_token = standing.encode_token(token)
+            self._status_fetched_at = time.monotonic()
+        except Exception:  # noqa: BLE001 — never fail a request over this; the old token expires safely
+            pass
+        return self._status_token
 
     def card(self) -> dict:
         return {
@@ -112,6 +141,15 @@ def create_agent_app(agent_key: str, handle_job: JobHandler | None = None) -> tu
 
     app = FastAPI(title=f"{cfg['org']} {cfg['name']}", lifespan=lifespan)
 
+    @app.middleware("http")
+    async def attach_standing(request, call_next):
+        """Every answer this agent gives carries its current proof of good standing."""
+        response = await call_next(request)
+        token = await state.status_token_header()
+        if token:
+            response.headers[standing.STATUS_HEADER] = token
+        return response
+
     @app.get("/health")
     def health():
         return {"ok": True, "ans_name": state.identity.ans_name if state.identity else None}
@@ -152,7 +190,7 @@ def create_agent_app(agent_key: str, handle_job: JobHandler | None = None) -> tu
                 "output": output, "output_sha256": crypto.sha256_hex(crypto.canonical(output)),
                 "engine": engine, "signed_at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
             }
-            signed = {k: result[k] for k in ("job_id", "from", "output_sha256", "signed_at")}
+            signed = signed_result_body(result)
             await emit("job.done", f"{cfg['org']} delivered {capability} (signed)", actor=me.ans_name,
                        mission_id=mission_id, job_id=payload.get("job_id"), engine=engine)
             return {"payload": result, "signature": me.sign_obj(signed), "cert_fingerprint": me.fingerprint}

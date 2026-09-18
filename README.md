@@ -4,6 +4,9 @@
 
 Mission Control turns a plain-English goal into finished work by hiring specialist AI agents from different organizations. Before any agent touches the job, it proves who it is through GoDaddy's [Agent Name Service (ANS)](https://www.godaddy.com/ans). Every hire, rejection and deliverable is visible, signed and traceable.
 
+- **[Project status](docs/status.md): what this is, what works, what is still open — start here**
+- [Frontend contract](docs/contracts.md): every route, event and object the dashboard needs
+- [Questions for GoDaddy](docs/godaddy-questions.md): what the public ANS docs do not settle
 - [Product spec](docs/product-spec.html): what it does, for whom, and why
 - [Field guide](docs/field-guide.html): ANS concepts, architecture and the build plan
 
@@ -65,11 +68,13 @@ Every agent runs the **Trust Gate** (`mc/trustgate.py`) before trusting another 
 |---|---|---|
 | resolve | Is it registered? | ANS lookup and agent card fetch |
 | identity | Is it really that agent? | It signs a random challenge; we verify with the public key in its ANS identity certificate, which must chain to the ANS CA and name this exact ANS name. This challenge is ours, not ANS's — GoDaddy's documented mechanisms are mTLS and DPoP, which prove possession of the same key against the same certificate |
-| status | Still in good standing? | two separate things: a Merkle inclusion proof that it was registered, and a freshly fetched, signed, short-lived status token saying it is ACTIVE *now*. The inclusion proof still verifies after a revocation — only the token catches one |
+| status | Still in good standing? | two separate things: a Merkle inclusion proof that it was registered, and a signed, short-lived status token saying it is ACTIVE *now*. The inclusion proof still verifies after a revocation — only the token catches one. Agents attach their own token to every response, so we verify it offline against keys we already hold, and only ask the registry if nothing was presented |
 | capability | Does it do this job? | Agent card and ANS record |
-| policy | Does it meet our rules? | Domain allowlist and approved versions (`config/agents.yaml`) |
+| policy | Does it meet our rules? | Domain allowlist, approved versions (`config/agents.yaml`), and that it is answering from the address ANS lists for it |
 
 Trust goes both ways: vendors verify the Commander's signed job request before doing any work.
+And a signed deliverable is bound to the job that asked for it — signature, job and mission are
+signed together, so yesterday's perfectly valid work cannot be handed back as today's.
 
 Passing the Trust Gate gets an agent through the door. It says nothing about what the agent may
 touch once inside, so hiring and authorizing are separate steps. When the Commander hires, it asks
@@ -139,12 +144,15 @@ token, so nothing in it has ever run. That is what step 2 is for.
 4. Set `ANS_BACKEND=godaddy` and run `python scripts/register_agents.py`. It prints the DNS-01 TXT
    record to add per host, then completes ACME validation.
 
+Open questions for the sponsor are written up in [docs/godaddy-questions.md](docs/godaddy-questions.md) —
+six of them, in the order that unblocks the most code.
+
 Two things do not work on the hosted backend yet, and both fail loudly rather than quietly:
 
-- **Standing and inclusion proofs** come from the ANS transparency log, whose hosted base URL is
-  not in the public REST pages. Until `ANS_TLOG_URL` is set, the Trust Gate reports the status
-  check as `unverified` — it refuses the hire and says *we could not get the evidence*, which is
-  a different sentence from *the agent is fine*.
+- **The status-token fallback path** is the one endpoint still guessed. It should seldom matter:
+  agents present their own token and we verify it offline. If neither works, the Trust Gate
+  reports the status check as `unverified` — it refuses the hire and says *we could not get the
+  evidence*, which is a different sentence from *the agent is fine*.
 - **Receipts are SCITT COSE_Sign1**, not the JSON Merkle receipts the simulator serves.
   `mc/merkle.py` cannot read them; use GoDaddy's `ans-verify` tooling rather than reimplementing
   COSE in a weekend.

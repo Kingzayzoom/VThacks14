@@ -1,10 +1,17 @@
 """The Commander: plans a mission, finds agents, verifies them through ANS, hires them,
 checks every signed deliverable, and assembles the result.
 
-Demo scenarios (flags sent with a mission) trigger chaos at exactly the right moment:
-  impostor  — before the brand job, an impostor offers to do it
-  revoke    — while WebForge builds the site, WebForge is revoked in ANS
-  upgrade   — before the review, LegalCheck ships a new version without notice
+The plan is a small dependency graph, not a fixed script — one task or six, in whatever order
+the dependencies allow. Running it is a walk over that graph, handing each task the output of
+the things it declared it needed.
+
+Demo scenarios (flags sent with a mission) fire off the kind of work being done rather than a
+position in a script, so they still land in the right place when the plan changes:
+  impostor  — before the first hire, an impostor offers to do the job
+  revoke    — while the first site build runs, that vendor is revoked in ANS
+  upgrade   — before the first compliance review, LegalCheck ships a new version
+  exfil     — the site builder tries to send the brand kit off-site
+  publish   — the site builder asks to put the page on the public web
 """
 import asyncio
 import datetime as dt
@@ -22,6 +29,7 @@ from mc.agent_base import create_agent_app
 from mc.events import emit
 from mc.guardian import job_scopes
 from mc.http import client
+from mc.planning import Task as PlanTask
 from mc.skills import plan_mission
 from mc.trustgate import NEEDS_APPROVAL, TRUSTED, Policy, verify_result
 
@@ -97,6 +105,7 @@ class Mission:
         self.jobs: list[dict] = []
         self.hires: list[dict] = []
         self.recruitments: list[Recruitment] = []
+        self.plan = None
         # Who is already working on this mission, by ANS name. Being on it gets you the next
         # job of the same kind; it does not carry any authority — that is granted per job.
         self.roster: dict[str, dict] = {}
@@ -123,6 +132,7 @@ class Mission:
             "id": self.id, "text": self.text, "scenario": self.scenario, "status": self.status,
             "business": self.business, "jobs": self.jobs, "hires": self.hires, "approval": self.approval,
             "recruitments": [r.public() for r in self.recruitments],
+            "plan": self.plan.as_dict() if self.plan else None,
             "roster": [{"ans_name": e["ans_name"], "org": e["org"], "version": e["version"],
                         "capabilities": e["capabilities"]} for e in self.roster.values()],
             "stats": self.stats, "review": self.review, "error": self.error, "has_result": bool(self.result_html),
@@ -416,7 +426,8 @@ async def run_job(m: Mission, job: dict, job_input: dict, *, revoke_during: str 
         result = r.json()
         if revoke_task:
             await revoke_task
-        ok, why = verify_result(result, cand["ans_name"], trust.cert_pem)
+        ok, why = verify_result(result, cand["ans_name"], trust.cert_pem,
+                                job_id=job_id, mission_id=m.id)
         if ok:
             status = await state.gate.recheck_status(cand["ans_name"])
             if not status.ok:
@@ -444,8 +455,37 @@ async def run_job(m: Mission, job: dict, job_input: dict, *, revoke_during: str 
 
 # --- the mission -------------------------------------------------------------------------
 
-def _job(title: str, capability: str, brief: str = "") -> dict:
-    return {"title": title, "capability": capability, "brief": brief, "status": "pending", "agent": None, "org": None}
+def _job(title: str, capability: str, brief: str = "", *, task_id: str = "",
+         depends_on: list[str] | None = None) -> dict:
+    return {"id": task_id, "title": title, "capability": capability, "brief": brief,
+            "depends_on": list(depends_on or []), "status": "pending", "agent": None, "org": None}
+
+
+def build_inputs(m: Mission, task, outputs: dict) -> dict:
+    """What a task gets to work with: the mission, its brief, and what it depends on.
+
+    Keyed by the capability that produced it rather than by task id, because an agent is hired
+    to do a kind of work and should not have to know what the planner called the step before it.
+    A task is given the output of its dependencies and nothing else — the plan decides who sees
+    what, which is the same principle as the Guardian's scopes, one level up.
+    """
+    inputs = {"mission": m.text, "business": m.business, "brief": task.brief}
+    for dep in task.depends_on:
+        produced = outputs.get(dep)
+        if not isinstance(produced, dict):
+            continue
+        if "html" in produced:
+            inputs["html"] = produced["html"]
+            inputs["previous_html"] = produced["html"]
+        elif "approved" in produced:
+            inputs["issues"] = produced.get("issues") or []
+        else:
+            inputs["brand_kit"] = produced
+    # A site builder needs the brand kit even when the plan only wired it to something else.
+    if task.capability == "site.generate" and "brand_kit" not in inputs:
+        inputs["brand_kit"] = next((o for o in outputs.values()
+                                    if isinstance(o, dict) and "palette" in o), {})
+    return inputs
 
 
 async def run(m: Mission):
@@ -453,49 +493,86 @@ async def run(m: Mission):
         await say(m, "mission.started", f"Mission received: {m.text}")
         plan, engine = await plan_mission(m.text, actor=me(), mission_id=m.id)
         m.engines.add(engine)
-        m.business = plan["business"]
-        m.jobs = [_job(j["title"], j["capability"], j["brief"]) for j in plan["jobs"]]
-        await say(m, "mission.planned", f"Planned {len(m.jobs)} jobs for {m.business['name']}", engine=engine,
+        m.business = plan.business
+        m.plan = plan
+        m.jobs = [_job(t.title, t.capability, t.brief, task_id=t.id, depends_on=t.depends_on)
+                  for t in plan.tasks]
+        await say(m, "mission.planned",
+                  f"Planned {len(m.jobs)} job(s) for {m.business.get('name', 'this business')}",
+                  engine=engine, tasks=[t.as_dict() for t in plan.tasks],
                   jobs=[{"title": j["title"], "capability": j["capability"]} for j in m.jobs])
+        if plan.unsupported:
+            # Say what we cannot do rather than quietly doing something adjacent.
+            await say(m, "mission.unsupported",
+                      "Out of scope for this crew: " + ", ".join(plan.unsupported),
+                      capabilities=plan.unsupported)
         m.status = "working"
         await asyncio.sleep(config.pace())
-
-        brand_job, site_job, review_job = m.jobs
 
         if m.scenario.get("impostor"):
             await hub_post("/api/chaos/impostor")
             await asyncio.sleep(config.pace() / 2)
-        brand = await run_job(m, brand_job, {"mission": m.text, "business": m.business, "brief": brand_job["brief"]})
 
-        site = await run_job(m, site_job, {"brand_kit": brand, "business": m.business, "brief": site_job["brief"],
-                                           "attempt_exfil": bool(m.scenario.get("exfil")),
-                                           "attempt_publish": bool(m.scenario.get("publish"))},
-                             revoke_during="webforge" if m.scenario.get("revoke") else None)
+        outputs: dict[str, dict] = {}
+        fired: set[str] = set()
+        # The plan is already in dependency order, so running it is a walk, not a scheduler.
+        queue = list(zip(plan.tasks, m.jobs))
+        while queue:
+            task, job = queue.pop(0)
 
-        if m.scenario.get("upgrade"):
-            await hub_post("/api/chaos/upgrade/compliance")
-            await asyncio.sleep(config.pace())
-        review = await run_job(m, review_job, {"html": site["html"], "business": m.business})
+            # Chaos is keyed to the kind of work, not to a position in a fixed script.
+            if task.capability == "compliance.review" and m.scenario.get("upgrade") and "upgrade" not in fired:
+                fired.add("upgrade")
+                await hub_post("/api/chaos/upgrade/compliance")
+                await asyncio.sleep(config.pace())
 
-        if not review.get("approved") and review.get("issues"):
-            m.status = "reviewing"
-            issues = review["issues"]
-            await say(m, "mission.revision",
-                      f"Compliance flagged {len(issues)} issue(s). Sending the site back for fixes.", issues=issues)
-            fix_job = _job("Fix review issues", "site.generate")
-            final_job = _job("Final review", "compliance.review")
-            m.jobs += [fix_job, final_job]
-            site = await run_job(m, fix_job, {"brand_kit": brand, "business": m.business, "brief": site_job["brief"],
-                                              "issues": issues, "previous_html": site["html"]})
-            review = await run_job(m, final_job, {"html": site["html"], "business": m.business})
+            inputs = build_inputs(m, task, outputs)
+            if task.capability == "site.generate" and "site" not in fired:
+                fired.add("site")
+                inputs["attempt_exfil"] = bool(m.scenario.get("exfil"))
+                inputs["attempt_publish"] = bool(m.scenario.get("publish"))
 
-        m.result_html = site["html"]
-        m.review = review
+            revoke_during = None
+            if task.capability == "site.generate" and m.scenario.get("revoke") and "revoke" not in fired:
+                revoke_during = "webforge"
+
+            outputs[task.id] = await run_job(m, job, inputs, revoke_during=revoke_during)
+
+            # A failed review sends the work back. The plan did not know it would be needed, so
+            # the tasks are added now, wired to the ones that already ran.
+            review = outputs[task.id]
+            if task.capability == "compliance.review" and not review.get("approved") and review.get("issues") \
+                    and not any(j["title"] == "Fix review issues" for j in m.jobs):
+                m.status = "reviewing"
+                issues = review["issues"]
+                await say(m, "mission.revision",
+                          f"Compliance flagged {len(issues)} issue(s). Sending the work back for fixes.",
+                          issues=issues)
+                source = next((t for t in plan.tasks if t.capability == "site.generate"), None)
+                if source:
+                    fix = PlanTask(id=f"{task.id}.fix", title="Fix review issues",
+                                   capability="site.generate", brief=source.brief,
+                                   depends_on=[source.id, task.id])
+                    again = PlanTask(id=f"{task.id}.recheck", title="Final review",
+                                     capability="compliance.review", brief=task.brief,
+                                     depends_on=[fix.id])
+                    for extra in (fix, again):
+                        plan.tasks.append(extra)
+                        new_job = _job(extra.title, extra.capability, extra.brief,
+                                       task_id=extra.id, depends_on=extra.depends_on)
+                        m.jobs.append(new_job)
+                        queue.append((extra, new_job))
+                    m.status = "working"
+
+        m.result_html = next((o["html"] for o in reversed(list(outputs.values()))
+                              if isinstance(o, dict) and "html" in o), None)
+        m.review = next((o for o in reversed(list(outputs.values()))
+                         if isinstance(o, dict) and "approved" in o), None)
         m.status = "delivered"
         m.finished_at = now()
         orgs = sorted({h["org"] for h in m.hires})
         await say(m, "mission.delivered",
-                  f"Delivered the {m.business['name']} landing page, built by {len(orgs)} verified agents",
+                  f"Delivered {m.business.get('name', 'the mission')}, built by {len(orgs)} verified agents",
                   stats=m.stats, orgs=orgs)
     except MissionFailed as exc:
         m.status, m.error, m.finished_at = "failed", str(exc), now()

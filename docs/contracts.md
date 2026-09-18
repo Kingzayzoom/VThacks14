@@ -32,6 +32,7 @@ pattern: events tell you something changed, the REST call tells you what it chan
 | GET | `/api/log?limit=` | the ANS transparency log |
 | GET | `/api/receipt/{index}` | `{verified, detail, receipt}` — proof an entry is in the signed log |
 | GET | `/api/offers?capability=` | unverified open-web offers (this is where the impostor bids) |
+| GET | `/api/integrations/status` | what is actually working, probed live |
 | GET | `/api/dns` | the simulated DNS zone |
 | POST | `/api/reset` | back to a clean demo |
 | POST | `/api/chaos/revoke/{key}` | revoke a vendor in ANS |
@@ -145,8 +146,11 @@ evidence: {
 
 - **inclusion** — the registration is in the transparency log. History. Still verifies perfectly
   after the agent is revoked, which is why it can never be the whole answer.
-- **standing** — a signed, short-lived, re-fetched-every-time statement that the agent is in good
-  standing *now*. This is the one that catches a revocation.
+- **standing** — a signed, short-lived statement that the agent is in good standing *now*. This
+  is the one that catches a revocation. `source` says how we got it:
+  `"presented by the agent"` (it attached `X-ANS-Status-Token` to its own response and we
+  verified it offline, no registry call) or `"fetched from the registry"` (nothing was presented,
+  so we asked). Worth surfacing — offline verification is the point of the design, not a detail.
 
 If you show one number on the Trust Gate, show standing's `age_seconds`. "Verified 3 seconds ago"
 is a far stronger claim than "verified".
@@ -246,6 +250,32 @@ authority: 3 scopes       (what it may actually do)
 runtime:  working         (what it is doing)
 ```
 
+### Integration status — `/api/integrations/status`
+
+```js
+{ overall: "CONNECTED",
+  checked_at: "...",
+  components: [ { name: "ANS", state: "CONNECTED",
+                  detail: "ANS simulator (local) · 6 registered agent(s)",
+                  checked_at: "...", /* plus per-component extras */ } ] }
+```
+
+Five states, and the distinction between the first two is the point:
+
+| state | meaning |
+|---|---|
+| `NOT_CONFIGURED` | nothing set up. Often fine — the demo runs without Gemini |
+| `CONFIGURED_UNTESTED` | credentials exist; **nothing has proved they work** |
+| `CONNECTED` | we made a real call, or saw real traffic, and it worked |
+| `DEGRADED` | working, but falling back or partially available |
+| `ERROR` | configured and failing |
+
+**Never draw `CONFIGURED_UNTESTED` as green.** An API key in a file proves someone pasted a
+string; it says nothing about whether the service answers. Every state here is probed live or
+observed from traffic — none is inferred from configuration, and the UI shouldn't infer either.
+
+Components are `ANS`, `Agent runtime`, `Gemini`, `Event stream`. No secrets are ever returned.
+
 ### Guardian incident — `/api/guardian/incidents`
 
 ```js
@@ -274,5 +304,7 @@ control. It expires after 180s and silence counts as no.
 4. **Don't fake progress.** A node appears because `agent.admitted` arrived, not on a timer.
 5. **Demo vs live is not cosmetic.** `ans_backend` tells you which is real. If ANS is unreachable,
    say "ANS unavailable" — never show a green check you didn't get.
+6. **A deliverable's signature is bound to its job.** `hires[].output_sha256` belongs to one
+   `job_id` on one mission; it is not a general "this agent's work is fine" badge.
 
 Questions, or a shape that doesn't fit what you're building: ask before working around it.

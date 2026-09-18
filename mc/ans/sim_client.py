@@ -66,6 +66,14 @@ class SimAnsClient(AnsClient):
     async def receipt(self, index):
         return await self._req("GET", f"/v1/log/{index}/receipt")
 
+    async def status_token(self, agent_id):
+        return await self._req("GET", f"/v1/agents/{agent_id}/status-token")
+
+    async def status_public_key(self):
+        # The simulator signs status tokens and log checkpoints with one ANS key; a hosted
+        # registry may separate them, which is why this is its own method.
+        return await self.log_public_key()
+
     async def dev_set_status(self, agent_id, status, reason):
         return await self._req("POST", f"/v1/dev/agents/{agent_id}/status", json={"status": status, "reason": reason})
 

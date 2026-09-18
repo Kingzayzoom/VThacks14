@@ -64,8 +64,8 @@ Every agent runs the **Trust Gate** (`mc/trustgate.py`) before trusting another 
 | Check | Question | How |
 |---|---|---|
 | resolve | Is it registered? | ANS lookup and agent card fetch |
-| identity | Is it really that agent? | It signs a random challenge; we verify with the public key in its ANS identity certificate, which must chain to the ANS CA and name this exact ANS name |
-| status | Still in good standing? | ACTIVE in ANS, plus a Merkle inclusion proof from the transparency log |
+| identity | Is it really that agent? | It signs a random challenge; we verify with the public key in its ANS identity certificate, which must chain to the ANS CA and name this exact ANS name. This challenge is ours, not ANS's — GoDaddy's documented mechanisms are mTLS and DPoP, which prove possession of the same key against the same certificate |
+| status | Still in good standing? | two separate things: a Merkle inclusion proof that it was registered, and a freshly fetched, signed, short-lived status token saying it is ACTIVE *now*. The inclusion proof still verifies after a revocation — only the token catches one |
 | capability | Does it do this job? | Agent card and ANS record |
 | policy | Does it meet our rules? | Domain allowlist and approved versions (`config/agents.yaml`) |
 
@@ -123,10 +123,31 @@ Each teammate should use their own Gemini key during development. Keep one key j
 
 ## Switching to GoDaddy's real ANS
 
-1. Get an API key at [AgentNameRegistry.org](https://www.AgentNameRegistry.org).
-2. Open `mc/ans/godaddy_client.py` and check every `TODO(verify)` against GoDaddy's API docs. The endpoint paths and field names there are educated guesses. Nothing else in the codebase needs to change.
-3. Buy or borrow a domain per organization, deploy each agent to it, and set `AGENT_ENDPOINT_<KEY>` in `.env`.
-4. Set `ANS_BACKEND=godaddy` and run `python scripts/register_agents.py`. It prints the DNS TXT record to add for each domain.
+`mc/ans/godaddy_client.py` is written against GoDaddy's published ANS REST reference — paths,
+field names and revocation reasons are documented, not guessed. What none of it has had is a
+token, so nothing in it has ever run. That is what step 2 is for.
+
+1. Get a PAT and confirm whether it is enabled for OTE, production, or both. Set `ANS_API_URL`
+   (`https://api.ote-godaddy.com` for OTE) and `ANS_PAT`.
+2. Run `python scripts/check_ans.py`. It resolves, searches and reads — registering and revoking
+   nothing — and prints, endpoint by endpoint, which assumptions survived contact. Anything that
+   fails is a question for the sponsor, with the exact call attached.
+3. One domain is enough. `agentHost` is a fully-qualified name, so give each agent a subdomain of
+   something you already own (`brand.yourteam.xyz`, `sitebuilder.yourteam.xyz`) rather than buying
+   five domains. They can all point at the same deployment; what has to be distinct is the ANS
+   identity, not the hardware.
+4. Set `ANS_BACKEND=godaddy` and run `python scripts/register_agents.py`. It prints the DNS-01 TXT
+   record to add per host, then completes ACME validation.
+
+Two things do not work on the hosted backend yet, and both fail loudly rather than quietly:
+
+- **Standing and inclusion proofs** come from the ANS transparency log, whose hosted base URL is
+  not in the public REST pages. Until `ANS_TLOG_URL` is set, the Trust Gate reports the status
+  check as `unverified` — it refuses the hire and says *we could not get the evidence*, which is
+  a different sentence from *the agent is fine*.
+- **Receipts are SCITT COSE_Sign1**, not the JSON Merkle receipts the simulator serves.
+  `mc/merkle.py` cannot read them; use GoDaddy's `ans-verify` tooling rather than reimplementing
+  COSE in a weekend.
 
 Note: real ANS can't un-revoke an agent, so on the real backend **Reset demo** can't restore a revoked vendor. Register a new version instead.
 

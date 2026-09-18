@@ -115,12 +115,41 @@ tell me.
 ```js
 data.verdict = "TRUSTED" | "REJECTED" | "NEEDS_APPROVAL"
 data.checks  = [ { name: "resolve"|"authenticate"|"status"|"capability"|"policy",
-                   ok: true | false | null,     // null = skipped, an earlier check failed
-                   detail: "registered to BrandStudio · card fetched" } ]
+                   ok: true | false | null,     // the yes/no the mission acted on
+                   state: "pass"|"fail"|"unverified"|"not_run",
+                   detail: "registered to BrandStudio · card fetched",
+                   evidence: { ... } } ]        // per check; safe to display, never secret
 data.source  = "ANS registry" | "open-web offer" | "incoming job"
 ```
 
-Render all five rows always. `ok: null` is "NOT RUN" and is meaningful — it shows the gate stopped.
+Render all five rows always. `not_run` is meaningful — it shows the gate stopped early.
+
+**`state` has four values, not two, and `unverified` is the one people get wrong.**
+It means *we could not obtain the evidence* — ANS unreachable, no transparency log configured.
+It fails closed (`ok: false`) but it is not the agent's fault, and it must not be drawn the same
+way as `fail`. Suggested: `fail` red, `unverified` amber with "evidence unavailable".
+**Never draw `unverified` as a pass.**
+
+The `status` check carries two independent pieces of evidence, and the difference is the whole
+point of that row:
+
+```js
+evidence: {
+  registry_status: "ACTIVE",
+  inclusion: { state: "pass", detail: "entry #1 is in the signed log (size 8)", log_index: 1 },
+  standing:  { state: "pass", detail: "ANS says ACTIVE, signed 0s ago",
+               status: "ACTIVE", version: "1.0.0",
+               issued_at: "...", expires_at: "...", age_seconds: 0 }
+}
+```
+
+- **inclusion** — the registration is in the transparency log. History. Still verifies perfectly
+  after the agent is revoked, which is why it can never be the whole answer.
+- **standing** — a signed, short-lived, re-fetched-every-time statement that the agent is in good
+  standing *now*. This is the one that catches a revocation.
+
+If you show one number on the Trust Gate, show standing's `age_seconds`. "Verified 3 seconds ago"
+is a far stronger claim than "verified".
 
 ### Guardian
 | type | when | useful `data` |

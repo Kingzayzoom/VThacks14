@@ -233,6 +233,32 @@ def dev_set_status(agent_id: str, body: StatusBody):
         return _public(rec)
 
 
+# --- current standing ------------------------------------------------------------
+
+# GoDaddy documents roughly an hour for hosted ANS status tokens, which is also the window
+# in which a revocation becomes visible to anyone holding a fresh one. Same shape here.
+STATUS_TOKEN_TTL = 3600
+
+
+@app.get("/v1/agents/{agent_id}/status-token")
+def status_token(agent_id: str):
+    """A short-lived signed statement that this agent is in good standing *now*.
+
+    Deliberately separate from the transparency-log receipt: that one proves the registration
+    happened and stays true after a revocation, which is exactly why it cannot be the thing
+    you check before handing over work.
+    """
+    rec = _get(agent_id)
+    issued = dt.datetime.now(dt.timezone.utc)
+    body = {
+        "agent_id": agent_id, "ans_name": rec["ans_name"], "version": rec["version"],
+        "status": rec["status"], "status_reason": rec.get("status_reason"),
+        "issued_at": issued.isoformat(timespec="seconds"),
+        "expires_at": (issued + dt.timedelta(seconds=STATUS_TOKEN_TTL)).isoformat(timespec="seconds"),
+    }
+    return {**body, "signature": crypto.sign(TL_KEY, crypto.canonical(body))}
+
+
 # --- certificate authority -------------------------------------------------------
 
 @app.get("/v1/ca")

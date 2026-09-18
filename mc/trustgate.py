@@ -2,17 +2,25 @@
 
   1. resolve       — does this ANS name exist, and where is its agent card?
   2. authenticate  — does the agent we're talking to hold the private key for that identity?
-  3. status        — is it still ACTIVE, backed by a verified transparency-log receipt?
+  3. status        — is it still in good standing? Two separate pieces of evidence: an
+                     inclusion proof that it was registered, and a fresh signed status token
+                     saying it is ACTIVE right now. The first one survives a revocation.
   4. capability    — does it actually do the job we need?
   5. policy        — does it meet our own rules (domain allowlist, approved versions)?
 
 Every run is streamed to the dashboard as a "trust.check" event.
+
+On the `authenticate` check: the nonce-and-signature exchange below is Mission Control's own
+proof-of-possession protocol, not an ANS one. GoDaddy's documented mechanisms are mTLS (the
+identity certificate presented in the handshake) and DPoP (a per-request signed proof). Ours
+verifies the same key against the same ANS-issued certificate, so it answers the same question
+— but call it what it is, and swap to mTLS or DPoP when talking to a real deployment.
 """
 from dataclasses import dataclass, field
 
 import httpx
 
-from . import crypto, merkle
+from . import crypto, merkle, standing
 from .ans import AnsClient, AnsError
 from .config import parse_ans_name
 from .events import emit
@@ -26,9 +34,20 @@ class Check:
     name: str
     ok: bool | None  # None = skipped because an earlier check failed
     detail: str
+    # `ok` is the yes/no the mission acts on. `state` says *why*, and keeps the two kinds of
+    # no apart: evidence that says no, and evidence we could not obtain. Both stop the hire —
+    # we fail closed — but only one of them means the agent did something wrong, and an
+    # operator staring at a screen at 2am needs to be able to tell which.
+    state: str = ""  # pass | fail | unverified | not_run
+    evidence: dict = field(default_factory=dict)
+
+    def __post_init__(self):
+        if not self.state:
+            self.state = {True: "pass", False: "fail", None: "not_run"}[self.ok]
 
     def as_dict(self):
-        return {"name": self.name, "ok": self.ok, "detail": self.detail}
+        return {"name": self.name, "ok": self.ok, "detail": self.detail,
+                "state": self.state, "evidence": self.evidence}
 
 
 @dataclass
@@ -94,22 +113,61 @@ class TrustGate:
             return None, "certificate names a different agent"
         return cert, None
 
-    async def _status_check(self, record: dict) -> tuple[Check, int | None]:
-        status = record.get("status")
-        if status != "ACTIVE":
-            reason = f" ({record['status_reason']})" if record.get("status_reason") else ""
-            return Check("status", False, f"{status}{reason}"), None
+    async def _inclusion_evidence(self, record: dict) -> tuple[str, str, int | None, dict]:
+        """Is this registration in the transparency log? Returns (state, detail, index, evidence).
+
+        This is history. It proves the registration happened and it keeps proving that after a
+        revocation, which is exactly why it is not enough on its own.
+        """
         try:
             entries = await self.ans.log(agent_id=record["agent_id"], limit=1)
             if not entries:
-                return Check("status", False, "ACTIVE, but no transparency-log entry found"), None
+                return "fail", "no transparency-log entry", None, {}
             index = entries[-1]["index"]
             ok, detail = merkle.verify_receipt(await self.ans.receipt(index), await self.ans.log_public_key())
-            if not ok:
-                return Check("status", False, f"log receipt invalid: {detail}"), None
-            return Check("status", True, f"ACTIVE · log entry #{index} verified"), index
+            return ("pass" if ok else "fail"), detail, (index if ok else None), {"log_index": index}
         except (AnsError, httpx.HTTPError, NotImplementedError) as exc:
-            return Check("status", False, f"ACTIVE, but log receipt unavailable ({exc})"), None
+            return "unverified", f"inclusion proof unavailable ({type(exc).__name__})", None, {}
+
+    async def _standing_evidence(self, record: dict) -> tuple[str, str, dict]:
+        """Is it in good standing *now*? Returns (state, detail, evidence).
+
+        Signed, short-lived and re-fetched every time. The registry's own status field is a
+        read of a database; this is a statement ANS put its name to, with an expiry on it.
+        """
+        try:
+            token = await self.ans.status_token(record["agent_id"])
+            ok, detail, evidence = standing.verify_status_token(token, await self.ans.status_public_key())
+            return ("pass" if ok else "fail"), detail, evidence
+        except (AnsError, httpx.HTTPError, NotImplementedError) as exc:
+            return "unverified", f"standing unproven ({type(exc).__name__})", {}
+
+    async def _status_check(self, record: dict) -> tuple[Check, int | None]:
+        """Two questions, asked separately: was it registered, and is it still in good standing.
+
+        Answering only the first is the classic mistake — a revoked agent's inclusion proof
+        verifies perfectly and always will.
+        """
+        status = record.get("status")
+        if status != "ACTIVE":
+            reason = f" ({record['status_reason']})" if record.get("status_reason") else ""
+            return Check("status", False, f"{status}{reason}", evidence={"registry_status": status}), None
+
+        inclusion_state, inclusion_detail, index, inclusion_ev = await self._inclusion_evidence(record)
+        standing_state, standing_detail, standing_ev = await self._standing_evidence(record)
+        evidence = {"registry_status": status,
+                    "inclusion": {"state": inclusion_state, "detail": inclusion_detail, **inclusion_ev},
+                    "standing": {"state": standing_state, "detail": standing_detail, **standing_ev}}
+
+        if "fail" in (inclusion_state, standing_state):
+            failed = inclusion_detail if inclusion_state == "fail" else standing_detail
+            return Check("status", False, failed, state="fail", evidence=evidence), None
+        if "unverified" in (inclusion_state, standing_state):
+            unproven = inclusion_detail if inclusion_state == "unverified" else standing_detail
+            # Fail closed, but say which kind of no this is.
+            return Check("status", False, unproven, state="unverified", evidence=evidence), index
+        return Check("status", True, f"ACTIVE · {standing_detail} · log entry #{index} verified",
+                     evidence=evidence), index
 
     async def check_agent(self, ans_name: str, endpoint: str, capability: str, policy: Policy | None = None,
                           *, mission_id: str | None = None, source: str = "ANS registry") -> TrustResult:

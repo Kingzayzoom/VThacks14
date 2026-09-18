@@ -49,6 +49,20 @@ class AnsClient:
         raise NotImplementedError
 
     async def receipt(self, index: int) -> dict:
+        """Proof that a registration is in the transparency log. History; stays true forever."""
+        raise NotImplementedError
+
+    async def status_token(self, agent_id: str) -> dict:
+        """Short-lived signed proof of current good standing. A different question to `receipt`.
+
+        On GoDaddy-hosted ANS this arrives as `X-ANS-Status-Token`; the simulator serves the
+        same fields as JSON. Raise NotImplementedError if a backend cannot supply one — the
+        Trust Gate reports that as unverified standing rather than as good standing.
+        """
+        raise NotImplementedError
+
+    async def status_public_key(self) -> str:
+        """PEM of the key ANS signs status tokens with."""
         raise NotImplementedError
 
     async def dev_set_status(self, agent_id: str, status: str, reason: str) -> dict:

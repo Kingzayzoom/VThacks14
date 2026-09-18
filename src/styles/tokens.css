@@ -1,0 +1,37 @@
+:root {
+  color-scheme: dark;
+  --canvas: #050607;
+  --surface: #0c1012;
+  --raised: #141a1d;
+  --text: #efece4;
+  --secondary: #a6adb3;
+  --metadata: #768189;
+  --border: rgba(220, 230, 235, 0.14);
+  --border-strong: rgba(220, 230, 235, 0.28);
+  --amber: #ffb65b;
+  --energy: #eb8a48;
+  --cyan: #83d9e8;
+  --mint: #71e2af;
+  --warning: #e7b864;
+  --error: #f17b78;
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-sans: "Geist", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", Consolas, monospace;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --radius-panel: 6px;
+  --radius-dialog: 12px;
+  --z-atmosphere: 0;
+  --z-registration: 1;
+  --z-surface: 2;
+  --z-signal: 3;
+  --z-overlay: 20;
+  --duration-press: 150ms;
+  --duration-panel: 220ms;
+}

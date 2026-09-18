@@ -90,7 +90,7 @@ def _fallback_brand(inp: dict) -> dict:
     }
 
 
-async def make_brand(inp: dict, **ctx) -> tuple[dict, str]:
+async def make_brand(inp: dict, *, ask=None, **ctx) -> tuple[dict, str]:
     prompt = f"Business: {inp.get('business')}\nBrief: {inp.get('brief')}\nMission: {inp.get('mission')}"
     return await generate_json(BRAND_SYSTEM, prompt, lambda: _fallback_brand(inp), label="Brand kit", **ctx)
 
@@ -103,6 +103,13 @@ fonts.googleapis.com; no JavaScript; no external images (use CSS shapes, gradien
 include <html lang="en">, a hero with the name and tagline, the highlights, hours/location, and a contact section.
 Use the brand palette and fonts exactly. If "issues" are provided, fix every one of them.
 Return JSON: {"html": str, "summary": str (one sentence)}"""
+
+
+def _fonts_url(brand: dict) -> str:
+    """The stylesheet the finished page will load — asked for and used from the same place."""
+    f = brand.get("fonts", {})
+    families = "+".join(f.get("heading", "Georgia").split()) + "&family=" + "+".join(f.get("body", "Arial").split())
+    return f"https://fonts.googleapis.com/css2?family={families}&display=swap"
 
 
 def _render_site(brand: dict, business: dict, fix_issues: list | None = None) -> str:
@@ -121,11 +128,10 @@ def _render_site(brand: dict, business: dict, fix_issues: list | None = None) ->
                          "Ask us about ingredients before ordering. Consuming undercooked meats may increase your risk of foodborne illness.")
         lines.append("Prices and menu items may change. Hours depend on weather and events.")
         notices = f'<section class="notice" aria-label="Important information"><p>{"</p><p>".join(lines)}</p></section>'
-    fonts = "+".join(f.get("heading", "Georgia").split()) + "&family=" + "+".join(f.get("body", "Arial").split())
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{e(brand.get('name', 'Welcome'))}</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={fonts}&display=swap">
+<link rel="stylesheet" href="{_fonts_url(brand)}">
 <style>
 :root{{--p:{p.get('primary', '#333')};--s:{p.get('secondary', '#777')};--a:{p.get('accent', '#aaa')};--bg:{p.get('background', '#fff')};--t:{p.get('text', '#111')}}}
 *{{box-sizing:border-box}}body{{margin:0;background:var(--bg);color:var(--t);font:17px/1.6 '{e(f.get('body', 'Arial'))}',system-ui,sans-serif}}
@@ -155,8 +161,28 @@ footer{{padding:28px 0 48px;font-size:14px;opacity:.75}}
 </body></html>"""
 
 
-async def make_site(inp: dict, **ctx) -> tuple[dict, str]:
+async def _site_actions(ask, inp: dict, brand: dict) -> None:
+    """Everything this agent wants to do beyond writing HTML has to go past the Guardian.
+
+    Fetching the brand's typefaces is inside its grant, so it is allowed and the Guardian
+    makes the call on the agent's behalf. The other two are here because a demo that only
+    ever shows permission being granted teaches nobody anything: one is outside the grant
+    and gets refused, one is outward-facing and waits for a person.
+    """
+    await ask("http.fetch", "brand fonts", destination="fonts.googleapis.com", url=_fonts_url(brand),
+              payload=brand.get("fonts"), purpose="load the typefaces the brand kit specifies")
+    if inp.get("attempt_exfil"):
+        await ask("external.upload", "brand_kit", destination="agent-telemetry.example.net",
+                  payload=brand, purpose="send the brand kit to our own analytics service")
+    if inp.get("attempt_publish"):
+        await ask("site.publish", "site", payload=inp.get("previous_html") or brand,
+                  purpose="put the finished page on the public web")
+
+
+async def make_site(inp: dict, *, ask=None, **ctx) -> tuple[dict, str]:
     brand, business, issues = inp.get("brand_kit", {}), inp.get("business", {}), inp.get("issues")
+    if ask:
+        await _site_actions(ask, inp, brand)
 
     def fallback():
         return {"html": _render_site(brand, business, issues),
@@ -197,7 +223,7 @@ def _fallback_review(inp: dict) -> dict:
             "summary": "Approved." if not high else f"{len(high)} required fix(es) before publishing."}
 
 
-async def review_site(inp: dict, **ctx) -> tuple[dict, str]:
+async def review_site(inp: dict, *, ask=None, **ctx) -> tuple[dict, str]:
     prompt = f"Business: {inp.get('business')}\nHTML:\n{(inp.get('html') or '')[:20000]}"
     out, engine = await generate_json(REVIEW_SYSTEM, prompt, lambda: _fallback_review(inp), label="Compliance review", **ctx)
     out.setdefault("issues", [])

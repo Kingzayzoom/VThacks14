@@ -21,6 +21,12 @@ python scripts/run_all.py --fresh
 
 The dashboard opens at http://127.0.0.1:8000. Press **Launch mission**.
 
+The policy rules have unit tests that need nothing running:
+
+```bash
+pytest
+```
+
 To check everything works end to end (with the system running, in a second terminal):
 
 ```bash
@@ -34,8 +40,9 @@ The mission "Launch an online presence for Hokie Bites, a food truck in Blacksbu
 1. **Impostor**: an unregistered agent copies BrandStudio's public identity and bids for the brand job. It passes the lookup checks but fails **identity**, because it can't sign a challenge with BrandStudio's private key. Blocked.
 2. **Revocation**: WebForge is revoked in ANS while it's building the site. The Commander re-checks status before accepting the deliverable, discards it, and hires the backup, SiteSmith.
 3. **Surprise upgrade**: LegalCheck ships v1.1.0 right before the review. The version is part of the ANS name, so the Commander notices, and because the policy only approves 1.0.x, the mission pauses until you click **Approve**.
-4. **Review loop**: Compliance flags the missing allergen notice. The site goes back for a fix and a final review.
-5. **Proof**: every deliverable is signed, and every hire links to a transparency-log entry you can verify from the dashboard.
+4. **Scope**: the hired site builder — verified, in good standing, doing real work — tries to send the brand kit to its own analytics host. It holds no scope for that, so the **Guardian** refuses before anything leaves. Its font fetch, which *is* in its grant, goes through in the same breath. Turn on "asks to publish the page" and it stops and asks you instead.
+5. **Review loop**: Compliance flags the missing allergen notice. The site goes back for a fix and a final review.
+6. **Proof**: every deliverable is signed, and every hire links to a transparency-log entry you can verify from the dashboard.
 
 Use **Reset demo** between runs. Use `--fresh` before the real presentation, so versions start at v1.0.0 and v1.1.0 again.
 
@@ -64,12 +71,30 @@ Every agent runs the **Trust Gate** (`mc/trustgate.py`) before trusting another 
 
 Trust goes both ways: vendors verify the Commander's signed job request before doing any work.
 
+Passing the Trust Gate gets an agent through the door. It says nothing about what the agent may
+touch once inside, so hiring and authorizing are separate steps. When the Commander hires, it asks
+the **Guardian** (`mc/guardian.py`, `services/hub/guardian.py`) to record a grant — this agent, this
+mission, these scopes, expiring — and every sensitive thing the agent then wants to do has to come
+back and ask:
+
+| | |
+|---|---|
+| Who is asking? | the request is signed with the agent's ANS identity and re-checked against ANS, so a revoked agent stops being able to act mid-mission |
+| Hard denies | reading credentials, exporting a private key, revoking another agent, disabling the Guardian — refused before grants or scopes are even looked at, and no human can approve one |
+| Scopes | `http.fetch:fonts.googleapis.com` is a different permission from `external.upload:anywhere.example.net`; anything not granted for that job is denied |
+| Outward-facing | publishing or emailing stops and asks a person, bound to the exact payload shown — change a byte and the approval no longer applies, and it can't be used twice |
+| Network | the Guardian makes outbound calls itself, against its own allowlist. Agents have no outbound path of their own, so a denied upload is denied in the sense that counts |
+
+The Guardian lives in the hub rather than in the Commander or the agents, because it has to be able
+to say no to all of them. Its answers are plain deterministic code — the LLM explains, it never decides.
+
 ## Project layout
 
 ```
 config/agents.yaml       the agents, their orgs/domains/ports, and the hiring policy
 mc/                      shared library
   trustgate.py           the five checks, plus signed-deliverable verification
+  guardian.py            grants, scopes and the policy every action is judged against
   identity.py            keys, CSRs, registration with ANS (keys stay in keys/, gitignored)
   ans/                   ANS client: sim_client.py (local) and godaddy_client.py (real API)
   crypto.py, merkle.py   certificates, signatures, transparency-log proofs
@@ -78,9 +103,11 @@ mc/                      shared library
 services/
   ans_sim/               local ANS: Registration Authority, CA, transparency log, DNS
   hub/                   event stream, demo controls, serves the dashboard
+    guardian.py          the gateway agents must ask before they act
   agents/                commander.py, vendor.py, impostor.py
 dashboard/               plain HTML/CSS/JS, no build step
 scripts/                 run_all.py, smoke_test.py, register_agents.py
+tests/                   the Guardian's rules, one at a time (pytest, no server needed)
 ```
 
 ## Configuration (`.env`)
@@ -106,3 +133,10 @@ Note: real ANS can't un-revoke an agent, so on the real backend **Reset demo** c
 ## Honest framing for judges
 
 The five companies are fictional and all built by our team. Every registration, certificate, signature, revocation and log proof is real cryptography. With the simulator, the ANS side runs locally; with `ANS_BACKEND=godaddy`, it's GoDaddy's.
+
+The site builder's attempt to ship the brand kit off-site is ours too — we wrote the agent that
+misbehaves, because a demo where permission is only ever granted teaches nobody anything. What is
+not staged is the refusal: the Guardian is given no special knowledge of that request, and the same
+rules deny it that would deny any other agent. Note what the Guardian does not claim. It decides
+whether an action is permitted; it does not make an agent's *output* correct. And ANS proves who an
+agent is, not that it will behave — which is exactly why there is a Guardian at all.

@@ -143,7 +143,7 @@ class TrustGate:
                 sig = r.json().get("signature") if r.status_code == 200 else None
             except (httpx.HTTPError, ValueError):
                 pass
-            if sig and crypto.verify(cert.public_key(), challenge.encode(), sig):
+            if sig and crypto.verify(cert.public_key(), crypto.challenge_bytes(challenge), sig):
                 res.cert_pem = record["identity_cert_pem"]
                 checks.append(Check("authenticate", True, "signed our challenge with its certified key"))
             else:
@@ -197,26 +197,37 @@ class TrustGate:
         check, _ = await self._status_check(record)
         return check
 
-    async def verify_peer_request(self, payload: dict, signature: str, *, mission_id: str | None = None) -> TrustResult:
-        """Used by vendors: verify the client that sent us a job (trust goes both ways)."""
-        sender = payload.get("from", "")
-        res = TrustResult(ans_name=sender, endpoint="(caller)")
-        record = await self.ans.resolve(sender)
+    async def verify_signed(self, ans_name: str, payload: dict, signature: str, *,
+                            label: str = "request") -> TrustResult:
+        """Who signed this, and are they still in good standing? Emits nothing.
+
+        The caller decides whether the check is worth an event: a job hand-off is, an
+        agent asking the Guardian for permission mid-job would drown the feed.
+        """
+        res = TrustResult(ans_name=ans_name, endpoint="(caller)")
+        record = await self.ans.resolve(ans_name)
         res.record = record
         if not record:
             res.checks.append(Check("resolve", False, "caller is not registered in ANS"))
         else:
             res.checks.append(Check("resolve", True, f"registered to {record['org']}"))
-            cert, problem = await self._cert_checks(sender, record.get("identity_cert_pem"))
+            cert, problem = await self._cert_checks(ans_name, record.get("identity_cert_pem"))
             if problem:
                 res.checks.append(Check("authenticate", False, problem))
             elif crypto.verify(cert.public_key(), crypto.canonical(payload), signature):
-                res.checks.append(Check("authenticate", True, "job request signed by its certified key"))
+                res.cert_pem = record["identity_cert_pem"]
+                res.checks.append(Check("authenticate", True, f"{label} signed by its certified key"))
             else:
-                res.checks.append(Check("authenticate", False, "job request signature is invalid"))
+                res.checks.append(Check("authenticate", False, f"{label} signature is invalid"))
             status_check, res.log_index = await self._status_check(record)
             res.checks.append(status_check)
         res.verdict = TRUSTED if all(c.ok for c in res.checks) else REJECTED
+        return res
+
+    async def verify_peer_request(self, payload: dict, signature: str, *, mission_id: str | None = None) -> TrustResult:
+        """Used by vendors: verify the client that sent us a job (trust goes both ways)."""
+        sender = payload.get("from", "")
+        res = await self.verify_signed(sender, payload, signature, label="job request")
         await emit("trust.check", f"{res.verdict.title()}: client {sender}", actor=self.me, subject=sender,
                    mission_id=mission_id, verdict=res.verdict, checks=[c.as_dict() for c in res.checks],
                    endpoint=res.endpoint, source="incoming job", capability=payload.get("capability"))

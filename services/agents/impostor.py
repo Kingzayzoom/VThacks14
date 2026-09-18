@@ -43,7 +43,8 @@ async def card():
 @app.post("/challenge")
 def challenge(body: dict):
     # Signs with its own key. The signature is valid math, but for the wrong public key.
-    return {"ans_name": _claim.get("ans_name"), "signature": crypto.sign(own_key, body["nonce"].encode())}
+    return {"ans_name": _claim.get("ans_name"),
+            "signature": crypto.sign(own_key, crypto.challenge_bytes(body["nonce"]))}
 
 
 @app.post("/job")

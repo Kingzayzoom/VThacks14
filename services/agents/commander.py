@@ -19,6 +19,7 @@ from pydantic import BaseModel
 from mc import config
 from mc.agent_base import create_agent_app
 from mc.events import emit
+from mc.guardian import job_scopes
 from mc.http import client
 from mc.skills import plan_mission
 from mc.trustgate import NEEDS_APPROVAL, TRUSTED, Policy, verify_result
@@ -163,6 +164,28 @@ async def hire(m: Mission, job: dict, prefer: str | None = None) -> tuple[dict, 
     raise MissionFailed(f"No verified agent is available for {capability}")
 
 
+async def issue_grant(m: Mission, ans_name: str, job_id: str, capability: str) -> list[str]:
+    """Hire, then authorize — separately, and narrowly.
+
+    Passing the Trust Gate says who this agent is. It says nothing about what it may touch,
+    so the Commander asks the Guardian to record a grant covering this job and no more. The
+    request is signed: the Guardian takes orders from the Commander's ANS identity, not from
+    anything that can reach its port.
+    """
+    scopes = job_scopes(capability)
+    payload = {"from": me(), "mission_id": m.id, "job_id": job_id, "agent": ans_name,
+               "scopes": scopes, "capability": capability}
+    try:
+        r = await client().post(f"{config.hub_url()}/api/guardian/grants",
+                                json={"payload": payload, "signature": state.identity.sign_obj(payload)},
+                                timeout=15)
+        if r.status_code != 200:
+            raise MissionFailed(f"The Guardian refused to authorize {ans_name}: {r.text[:200]}")
+    except httpx.HTTPError as exc:
+        raise MissionFailed(f"The Guardian is unreachable ({type(exc).__name__}); nobody works unauthorized")
+    return scopes
+
+
 async def run_job(m: Mission, job: dict, job_input: dict, *, prefer: str | None = None,
                   revoke_during: str | None = None) -> dict:
     job["status"] = "hiring"
@@ -170,8 +193,11 @@ async def run_job(m: Mission, job: dict, job_input: dict, *, prefer: str | None 
         cand, trust = await hire(m, job, prefer)
         org = trust.record["org"]
         job.update(status="working", agent=cand["ans_name"], org=org)
-        payload = {"job_id": "job_" + uuid.uuid4().hex[:8], "mission_id": m.id, "from": me(),
-                   "capability": job["capability"], "input": job_input}
+        job_id = "job_" + uuid.uuid4().hex[:8]
+        scopes = await issue_grant(m, cand["ans_name"], job_id, job["capability"])
+        job["scopes"] = scopes
+        payload = {"job_id": job_id, "mission_id": m.id, "from": me(),
+                   "capability": job["capability"], "input": job_input, "allowed_scopes": scopes}
         signature = state.identity.sign_obj(payload)
         await say(m, "job.sent", f"Hired {org} for {job['title'].lower()}", subject=cand["ans_name"], job=job["title"])
 
@@ -257,7 +283,9 @@ async def run(m: Mission):
             await asyncio.sleep(config.pace() / 2)
         brand = await run_job(m, brand_job, {"mission": m.text, "business": m.business, "brief": brand_job["brief"]})
 
-        site = await run_job(m, site_job, {"brand_kit": brand, "business": m.business, "brief": site_job["brief"]},
+        site = await run_job(m, site_job, {"brand_kit": brand, "business": m.business, "brief": site_job["brief"],
+                                           "attempt_exfil": bool(m.scenario.get("exfil")),
+                                           "attempt_publish": bool(m.scenario.get("publish"))},
                              revoke_during="webforge" if m.scenario.get("revoke") else None)
 
         if m.scenario.get("upgrade"):

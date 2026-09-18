@@ -34,6 +34,8 @@
     <label><input type="checkbox" id="scImpostor" checked> An impostor bids for the brand job</label>
     <label><input type="checkbox" id="scRevoke" checked> WebForge is revoked mid-job</label>
     <label><input type="checkbox" id="scUpgrade" checked> LegalCheck ships a surprise upgrade</label>
+    <label><input type="checkbox" id="scExfil" checked> The site builder tries to send data off-site</label>
+    <label><input type="checkbox" id="scPublish"> The site builder asks to publish the page</label>
   </fieldset>
   <p class="err" id="launchError" role="alert"></p>
 </section>
@@ -61,6 +63,11 @@
     <p class="muted small" id="missionMeta"></p>
   </section>
 </main>
+
+<section class="panel wide" aria-labelledby="guardianH">
+  <h2 id="guardianH">Guardian <span class="muted small">what a hired agent is allowed to do · every request, every answer</span></h2>
+  <div id="guardian" class="guardian" aria-live="polite"></div>
+</section>
 
 <section class="panel wide" aria-labelledby="resultH">
   <h2 id="resultH">Result and trust report</h2>

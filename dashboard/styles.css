@@ -110,3 +110,18 @@ button{font:inherit}
 .log{min-width:620px}
 .log td:first-child{font-family:var(--mono);color:var(--muted)}
 .proof-ok{color:var(--ok);font:11.5px var(--mono)} .proof-bad{color:var(--bad);font:11.5px var(--mono)}
+
+/* guardian */
+.guardian{display:grid;gap:8px;max-height:460px;overflow:auto}
+.incident{background:var(--panel-2);border:1px solid var(--line);border-left:3px solid var(--line-2);padding:10px 12px;display:grid;gap:5px}
+.incident.ok{border-left-color:var(--ok)} .incident.bad{border-left-color:var(--bad)} .incident.warn{border-left-color:var(--warn)}
+.incident.bad{background:linear-gradient(90deg,rgba(238,128,104,.07),var(--panel-2) 55%)}
+.incident.warn{background:linear-gradient(90deg,rgba(226,174,85,.09),var(--panel-2) 55%)}
+.incident-head{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline;justify-content:space-between}
+.incident-head b{font:700 15px/1.2 var(--display);font-stretch:88%}
+.incident-head code{font:12px/1.35 var(--mono);color:var(--accent)}
+.incident .why{margin:0;font-size:12.5px;color:var(--ink)}
+.incident.bad .why{color:var(--bad)}
+.incident .chips{display:flex;flex-wrap:wrap;gap:4px}
+.incident .meta{font:11px/1.4 var(--mono);color:var(--muted);overflow-wrap:anywhere}
+.incident .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}

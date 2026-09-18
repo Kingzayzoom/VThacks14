@@ -90,3 +90,29 @@ policy:
     - webforge.xyz
     - sitesmith.xyz
     - legalcheck.xyz
+
+  # What a hired agent may DO while it works, per kind of job. Passing the Trust Gate gets an
+  # agent through the door; this is what it is allowed to touch once inside. The Guardian
+  # denies anything not on the list for its job — no exceptions, no matter who the agent is.
+  # Scopes read as "<action>:<where or what>".
+  job_scopes:
+    brand.identity:
+      - mission.read:brief
+      - artifact.write:mission
+    site.generate:
+      - mission.read:brand_kit
+      - artifact.write:mission
+      - http.fetch:fonts.googleapis.com
+      # Granted, but outward-facing: the Guardian still stops and asks a human every time.
+      - site.publish:site
+    compliance.review:
+      - mission.read:site
+      - artifact.write:mission
+
+  # A grant is not a permanent hire. It covers one mission and then it lapses.
+  grant_ttl_seconds: 900
+
+  # The only hosts the Guardian will reach on an agent's behalf, whatever a scope claims.
+  # Agents have no outbound path of their own: network actions go through the Guardian.
+  outbound_allowlist:
+    - fonts.googleapis.com

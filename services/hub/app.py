@@ -14,7 +14,11 @@ from mc.events import emit
 from mc.http import client
 from mc.llm import mode as llm_mode
 
+from .guardian import reset as guardian_reset
+from .guardian import router as guardian_router
+
 app = FastAPI(title="Mission Control hub")
+app.include_router(guardian_router)
 ans = get_ans_client()
 
 EVENTS: deque = deque(maxlen=1500)
@@ -181,6 +185,7 @@ async def chaos_impostor():
 @app.post("/api/reset")
 async def reset():
     OFFERS.clear()
+    await guardian_reset()
     notes = []
     try:
         await _call("POST", f"{COMMANDER}/admin/missions/reset", timeout=5)

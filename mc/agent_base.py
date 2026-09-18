@@ -12,12 +12,14 @@ import datetime as dt
 from contextlib import asynccontextmanager
 from typing import Awaitable, Callable
 
+import httpx
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from . import config, crypto
 from .ans import AnsError, get_ans_client
 from .events import emit
+from .http import client
 from .identity import Identity, ensure_identity, register_identity
 from .trustgate import TrustGate
 
@@ -56,6 +58,36 @@ async def _wait_for_ans(state: AgentState, attempts: int = 40):
     raise RuntimeError("ANS is not reachable. Is the ANS simulator running?")
 
 
+def _guardian_asker(state: AgentState, mission_id: str | None, job_id: str | None):
+    """Hands a skill one function: ask the Guardian before doing something sensitive.
+
+    The request is signed with this agent's ANS identity, so the Guardian knows exactly who
+    is asking and can check it is still in good standing. If the Guardian can't be reached,
+    the answer is no — an agent must never be able to act by cutting the line.
+    """
+    async def ask(action: str, resource: str, *, destination: str | None = None, url: str | None = None,
+                  payload=None, purpose: str = "") -> tuple[bool, str]:
+        request = {
+            "from": state.identity.ans_name, "mission_id": mission_id, "job_id": job_id,
+            "action": action, "resource": resource, "destination": destination, "url": url,
+            "payload_sha256": crypto.sha256_hex(crypto.canonical(payload if payload is not None else "")),
+            "purpose": purpose,
+        }
+        body = {"payload": request, "signature": state.identity.sign_obj(request)}
+        try:
+            r = await client().post(f"{config.hub_url()}/api/guardian/actions", json=body, timeout=200)
+        except httpx.HTTPError as exc:
+            return False, f"Guardian unreachable ({type(exc).__name__})"
+        if r.status_code == 200:
+            return True, r.json().get("detail") or "allowed"
+        try:
+            return False, r.json().get("detail", r.text)
+        except ValueError:
+            return False, r.text
+
+    return ask
+
+
 class ChallengeBody(BaseModel):
     nonce: str
     model_config = {"extra": "allow"}
@@ -90,7 +122,8 @@ def create_agent_app(agent_key: str, handle_job: JobHandler | None = None) -> tu
 
     @app.post("/challenge")
     def challenge(body: ChallengeBody):
-        return {"ans_name": state.identity.ans_name, "signature": state.identity.sign(body.nonce.encode()),
+        return {"ans_name": state.identity.ans_name,
+                "signature": state.identity.sign(crypto.challenge_bytes(body.nonce)),
                 "fingerprint": state.identity.fingerprint}
 
     if handle_job:
@@ -110,7 +143,8 @@ def create_agent_app(agent_key: str, handle_job: JobHandler | None = None) -> tu
                        mission_id=mission_id, job_id=payload.get("job_id"))
             await asyncio.sleep(config.pace())
             output, engine = await handle_job(capability, payload.get("input", {}),
-                                              {"actor": me.ans_name, "mission_id": mission_id})
+                                              {"actor": me.ans_name, "mission_id": mission_id,
+                                               "ask": _guardian_asker(state, mission_id, payload.get("job_id"))})
             await asyncio.sleep(config.pace())
 
             result = {

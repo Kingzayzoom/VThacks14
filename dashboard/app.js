@@ -108,6 +108,7 @@ function eventHtml(ev) {
   const tone = {
     "result.rejected": "bad", "agent.revoked": "bad", "chaos.impostor": "bad", "mission.failed": "bad",
     "approval.required": "warn", "agent.upgraded": "warn", "mission.revision": "warn", "llm.fallback": "warn",
+    "action.blocked": "bad", "approval.requested": "warn", "action.completed": "good",
     "result.verified": "good", "mission.delivered": "good",
   }[ev.type] || "";
   let extra = "";
@@ -188,6 +189,52 @@ function hiresTable(m) {
   </tbody></table>`;
 }
 
+// --- guardian ---------------------------------------------------------------------------------
+
+const INCIDENT_PILL = { ALLOWED: "ok", DENIED: "bad", "NEEDS REVIEW": "warn" };
+
+function incidentHtml(i) {
+  const d = i.decision || {};
+  const where = i.destination ? ` <span class="muted">→ ${esc(i.destination)}</span>` : "";
+  const scopes = (i.grant?.scopes || []);
+  const review = i.state === "NEEDS REVIEW";
+  return `<div class="incident ${(INCIDENT_PILL[i.state] || "")}">
+    <div class="incident-head">
+      <b>${esc(i.org)}</b> wants to <code>${esc(i.action)}</code> ${esc(i.resource)}${where}
+      <span class="pill ${INCIDENT_PILL[i.state] || ""}">${esc(i.state)}</span>
+    </div>
+    <p class="why">${esc(d.reason || "")}</p>
+    <div class="chips">
+      <span class="chip" title="The scope this action needs">needs ${esc(d.required_scope || "?")}</span>
+      ${scopes.map((s) => `<span class="chip ${s === d.required_scope ? "ok" : ""}">${esc(s)}</span>`).join("")}
+    </div>
+    <span class="meta">${esc(i.purpose || "")}${i.payload_sha256 ? ` · payload ${esc(i.payload_sha256.slice(0, 12))}…` : ""}${i.result?.detail ? ` · ${esc(i.result.detail)}` : ""}</span>
+    ${review ? `<div class="actions">
+      <button class="btn primary small" data-incident="${esc(i.id)}" data-decision="approve">Authorize once</button>
+      <button class="btn small danger" data-incident="${esc(i.id)}" data-decision="reject">Refuse</button>
+    </div>` : ""}
+  </div>`;
+}
+
+async function refreshGuardian() {
+  try {
+    const rows = await api("GET", "/api/guardian/incidents?limit=30");
+    const el = $("guardian");
+    el.innerHTML = rows.length
+      ? rows.slice().reverse().map(incidentHtml).join("")
+      : `<p class="empty">Nothing yet. Every sensitive thing an agent tries to do shows up here, allowed or not.</p>`;
+  } catch { /* hub restarting */ }
+}
+
+$("guardian").addEventListener("click", async (e) => {
+  const btn = e.target.closest("button[data-incident]");
+  if (!btn) return;
+  $("guardian").querySelectorAll("button[data-incident]").forEach((b) => { b.disabled = true; });
+  try { await api("POST", `/api/guardian/incidents/${btn.dataset.incident}/decision`, { decision: btn.dataset.decision }); }
+  catch (err) { showError(err.message); }
+  refreshGuardian();
+});
+
 // --- transparency log -------------------------------------------------------------------------
 
 const LOG_LABEL = { AGENT_REGISTERED: "Registered", AGENT_REVOKED: "Revoked", AGENT_SUPERSEDED: "Superseded", DEMO_STATUS_RESET: "Demo reset" };
@@ -227,7 +274,10 @@ $("launchBtn").addEventListener("click", async () => {
   $("launchBtn").disabled = true;
   try {
     S.mission = await api("POST", "/api/missions", {
-      text, scenario: { impostor: $("scImpostor").checked, revoke: $("scRevoke").checked, upgrade: $("scUpgrade").checked },
+      text, scenario: {
+        impostor: $("scImpostor").checked, revoke: $("scRevoke").checked, upgrade: $("scUpgrade").checked,
+        exfil: $("scExfil").checked, publish: $("scPublish").checked,
+      },
     });
     renderMission();
   } catch (err) { showError(err.message); $("launchBtn").disabled = false; }
@@ -239,7 +289,7 @@ $("resetBtn").addEventListener("click", async () => {
   try { await api("POST", "/api/reset"); S.mission = null; S.events = []; renderFeed(); renderMission(); }
   catch (err) { showError(err.message); }
   $("resetBtn").disabled = false;
-  refreshState(); refreshLog();
+  refreshState(); refreshLog(); refreshGuardian();
 });
 
 // --- data refresh -------------------------------------------------------------------------------------
@@ -265,10 +315,14 @@ async function refreshMission() {
 }
 
 let pending = null;
+const GUARDIAN_EVENTS = ["action.requested", "policy.evaluated", "action.blocked", "action.completed",
+                        "approval.requested", "approval.decided", "agent.granted", "agent.grant_revoked"];
+
 function scheduleRefresh(ev) {
   if (["agent.revoked", "agent.upgraded", "agent.online", "demo.reset", "chaos.impostor"].includes(ev.type)) {
     refreshState(); refreshLog();
   }
+  if (GUARDIAN_EVENTS.includes(ev.type) || ev.type === "demo.reset") refreshGuardian();
   clearTimeout(pending);
   pending = setTimeout(refreshMission, 150);
 }
@@ -292,6 +346,7 @@ function connect() {
 refreshState();
 refreshMission();
 refreshLog();
+refreshGuardian();
 connect();
 setInterval(refreshState, 4000);
 setInterval(refreshMission, 2000);

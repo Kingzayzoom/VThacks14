@@ -158,3 +158,17 @@ def issue_cert(ca_key, ca_cert: x509.Certificate, csr_pem: str, days: int = 30) 
 
 def nonce() -> str:
     return secrets.token_hex(16)
+
+
+CHALLENGE_PREFIX = b"ans-challenge:v1:"
+
+
+def challenge_bytes(nonce: str) -> bytes:
+    """What a proof-of-possession challenge actually signs.
+
+    The prefix keeps challenge signatures and deliverable signatures in separate worlds.
+    /challenge signs whatever nonce a stranger sends it, so without a prefix a caller could
+    hand over the canonical JSON of a deliverable it wants forged, call it a nonce, and get
+    back a signature that verifies as that agent's signed work.
+    """
+    return CHALLENGE_PREFIX + nonce.encode()

@@ -14,6 +14,7 @@ from mc.events import emit
 from mc.http import client
 from mc.llm import mode as llm_mode
 
+from . import integrations
 from .guardian import reset as guardian_reset
 from .guardian import router as guardian_router
 
@@ -46,6 +47,7 @@ async def _call(method: str, url: str, timeout: float = 30, **kwargs):
 @app.post("/events")
 async def ingest(event: dict):
     EVENTS.append(event)
+    integrations.observe(event)
     asyncio.create_task(_broadcast({"kind": "event", "event": event}))
     return {"ok": True}
 
@@ -226,6 +228,12 @@ async def get_receipt(index: int):
 @app.get("/api/dns")
 async def get_dns():
     return await ans.dns()
+
+
+@app.get("/api/integrations/status")
+async def integration_status():
+    """What is actually working, probed live. Never inferred from configuration."""
+    return await integrations.status(client_count=len(CLIENTS))
 
 
 @app.get("/health")

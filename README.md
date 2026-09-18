@@ -67,9 +67,11 @@ Every agent runs the **Trust Gate** (`mc/trustgate.py`) before trusting another 
 | identity | Is it really that agent? | It signs a random challenge; we verify with the public key in its ANS identity certificate, which must chain to the ANS CA and name this exact ANS name. This challenge is ours, not ANS's — GoDaddy's documented mechanisms are mTLS and DPoP, which prove possession of the same key against the same certificate |
 | status | Still in good standing? | two separate things: a Merkle inclusion proof that it was registered, and a signed, short-lived status token saying it is ACTIVE *now*. The inclusion proof still verifies after a revocation — only the token catches one. Agents attach their own token to every response, so we verify it offline against keys we already hold, and only ask the registry if nothing was presented |
 | capability | Does it do this job? | Agent card and ANS record |
-| policy | Does it meet our rules? | Domain allowlist and approved versions (`config/agents.yaml`) |
+| policy | Does it meet our rules? | Domain allowlist, approved versions (`config/agents.yaml`), and that it is answering from the address ANS lists for it |
 
 Trust goes both ways: vendors verify the Commander's signed job request before doing any work.
+And a signed deliverable is bound to the job that asked for it — signature, job and mission are
+signed together, so yesterday's perfectly valid work cannot be handed back as today's.
 
 Passing the Trust Gate gets an agent through the door. It says nothing about what the agent may
 touch once inside, so hiring and authorizing are separate steps. When the Commander hires, it asks

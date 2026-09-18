@@ -205,7 +205,12 @@ class TrustGate:
         elif not card:
             checks.append(Check("resolve", False, "registered, but its agent card is unreachable"))
         else:
-            checks.append(Check("resolve", True, f"registered to {record['org']} · card fetched"))
+            at_registered_endpoint = endpoint.rstrip("/") == (record.get("endpoint") or "").rstrip("/")
+            where = "" if at_registered_endpoint else f" · offering from {endpoint}, ANS lists {record['endpoint']}"
+            checks.append(Check("resolve", True, f"registered to {record['org']} · card fetched{where}",
+                                evidence={"registered_endpoint": record.get("endpoint"),
+                                          "offered_endpoint": endpoint,
+                                          "endpoint_matches_registry": at_registered_endpoint}))
 
         if not checks[0].ok:
             checks += [Check(n, None, "skipped") for n in ("authenticate", "status", "capability", "policy")]
@@ -244,19 +249,29 @@ class TrustGate:
                             f"offers {capability}" if has_cap else f"doesn't offer {capability}"))
 
         # 5. policy
-        checks.append(self._policy_check(ans_name, policy))
+        checks.append(self._policy_check(ans_name, policy, record, endpoint))
         return await self._finish(res, mission_id, source, capability)
 
-    def _policy_check(self, ans_name: str, policy: Policy | None) -> Check:
+    def _policy_check(self, ans_name: str, policy: Policy | None, record: dict | None = None,
+                      endpoint: str | None = None) -> Check:
         if not policy:
             return Check("policy", True, "no policy set")
         parsed = parse_ans_name(ans_name)
         if policy.allowed_domains and parsed["domain"] not in policy.allowed_domains:
             return Check("policy", False, f"{parsed['domain']} is not on our allowlist")
+        # We talk to agents where ANS says they live. Someone offering this identity from an
+        # address the registry does not list is refused on that ground alone — belt and braces,
+        # because the authenticate check should already have caught anyone who cannot prove the
+        # key, and a rule that only works when the crypto works is not much of a rule.
+        registered = (record or {}).get("endpoint")
+        if endpoint and registered and endpoint.rstrip("/") != registered.rstrip("/"):
+            return Check("policy", False,
+                         f"offering this identity from {endpoint}, but ANS lists {registered}",
+                         evidence={"registered_endpoint": registered, "offered_endpoint": endpoint})
         pin = policy.version_pins.get(parsed["host"])
         if pin and not parsed["version"].startswith(pin + "."):
             return Check("policy", False, f"version {parsed['version']} isn't the approved {pin}.x")
-        return Check("policy", True, "domain allowed · version approved")
+        return Check("policy", True, "domain allowed · at its registered address · version approved")
 
     async def _finish(self, res: TrustResult, mission_id, source, capability) -> TrustResult:
         failed = [c for c in res.checks if c.ok is False]
@@ -317,17 +332,37 @@ class TrustGate:
         return res
 
 
-def verify_result(result: dict, expected_from: str, cert_pem: str) -> tuple[bool, str]:
-    """Check a signed deliverable: right sender, untampered output, valid signature."""
+# What an agent signs when it returns work. Both sides build this from the same keys, in the
+# same order, or nothing verifies. job_id and mission_id are in here so that a signature cannot
+# be lifted off one piece of work and stapled to another.
+SIGNED_RESULT_FIELDS = ("job_id", "mission_id", "from", "output_sha256", "signed_at")
+
+
+def signed_result_body(payload: dict) -> dict:
+    return {k: payload[k] for k in SIGNED_RESULT_FIELDS}
+
+
+def verify_result(result: dict, expected_from: str, cert_pem: str, *,
+                  job_id: str, mission_id: str) -> tuple[bool, str]:
+    """Check a signed deliverable: right agent, right job, untampered output, valid signature.
+
+    Checking the signature alone is not enough. A deliverable an agent signed perfectly well an
+    hour ago is still perfectly signed today — so without pinning it to the job we actually
+    asked for, an agent could hand back old work, or work it did for somebody else's mission,
+    and every cryptographic check would pass.
+    """
     try:
         payload, signature = result["payload"], result["signature"]
         if payload["from"] != expected_from:
             return False, "deliverable is from a different agent than the one hired"
+        if payload.get("job_id") != job_id:
+            return False, "deliverable is for a different job than the one we sent"
+        if payload.get("mission_id") != mission_id:
+            return False, "deliverable belongs to a different mission"
         if crypto.sha256_hex(crypto.canonical(payload["output"])) != payload["output_sha256"]:
             return False, "deliverable was altered after signing"
         cert = crypto.load_cert(cert_pem)
-        signed = {k: payload[k] for k in ("job_id", "from", "output_sha256", "signed_at")}
-        if not crypto.verify(cert.public_key(), crypto.canonical(signed), signature):
+        if not crypto.verify(cert.public_key(), crypto.canonical(signed_result_body(payload)), signature):
             return False, "signature doesn't match the agent's identity certificate"
         return True, "signature valid"
     except (KeyError, TypeError, ValueError) as exc:

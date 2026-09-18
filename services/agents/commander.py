@@ -416,7 +416,8 @@ async def run_job(m: Mission, job: dict, job_input: dict, *, revoke_during: str 
         result = r.json()
         if revoke_task:
             await revoke_task
-        ok, why = verify_result(result, cand["ans_name"], trust.cert_pem)
+        ok, why = verify_result(result, cand["ans_name"], trust.cert_pem,
+                                job_id=job_id, mission_id=m.id)
         if ok:
             status = await state.gate.recheck_status(cand["ans_name"])
             if not status.ok:

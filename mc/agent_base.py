@@ -22,7 +22,7 @@ from .ans import AnsError, get_ans_client
 from .events import emit
 from .http import client
 from .identity import Identity, ensure_identity, register_identity
-from .trustgate import TrustGate
+from .trustgate import TrustGate, signed_result_body
 
 # How long an agent holds on to its own status token before asking ANS for a fresh one.
 # Hosted ANS issues them with roughly an hour's life; re-fetching sooner means a revocation
@@ -190,7 +190,7 @@ def create_agent_app(agent_key: str, handle_job: JobHandler | None = None) -> tu
                 "output": output, "output_sha256": crypto.sha256_hex(crypto.canonical(output)),
                 "engine": engine, "signed_at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
             }
-            signed = {k: result[k] for k in ("job_id", "from", "output_sha256", "signed_at")}
+            signed = signed_result_body(result)
             await emit("job.done", f"{cfg['org']} delivered {capability} (signed)", actor=me.ans_name,
                        mission_id=mission_id, job_id=payload.get("job_id"), engine=engine)
             return {"payload": result, "signature": me.sign_obj(signed), "cert_fingerprint": me.fingerprint}

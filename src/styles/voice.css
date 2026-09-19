@@ -4,7 +4,7 @@
 .voice-state { color: var(--text); }
 .voice-start { display: grid; gap: 12px; }
 .voice-start label { font-size: 13px; }
-.voice-start input { min-height: 44px; width: 100%; padding: 10px 12px; border: 1px solid var(--border); background: #101614; color: #e4e8df; }
+.voice-start input { min-height: 44px; width: 100%; padding: 10px 12px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
 .voice-start p { font-size: 12px; line-height: 1.6; margin: 0; }
 .voice-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 .voice-draft { border-top: 1px solid var(--border); padding-top: 20px; }

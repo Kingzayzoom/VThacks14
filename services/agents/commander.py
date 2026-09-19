@@ -22,7 +22,7 @@ from dataclasses import dataclass, field
 import httpx
 from fastapi import HTTPException
 from fastapi.responses import HTMLResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 
 from mc import config
 from mc.agent_base import create_agent_app
@@ -37,6 +37,7 @@ app, state = create_agent_app("commander")
 
 MISSIONS: dict[str, "Mission"] = {}
 CURRENT: dict[str, str | None] = {"id": None}
+SUBMISSIONS: dict[str, str] = {}
 
 
 def now() -> str:
@@ -599,8 +600,14 @@ async def run(m: Mission):
 # --- API -------------------------------------------------------------------------------
 
 class MissionBody(BaseModel):
-    text: str
-    scenario: dict = {}
+    text: str = Field(min_length=1, max_length=2000)
+    scenario: dict = Field(default_factory=dict)
+    idempotency_key: str | None = Field(default=None, min_length=1, max_length=100)
+
+    @field_validator("text", mode="before")
+    @classmethod
+    def trim_text(cls, value):
+        return value.strip() if isinstance(value, str) else value
 
 
 class DecisionBody(BaseModel):
@@ -613,6 +620,11 @@ def _current() -> Mission | None:
 
 @app.post("/missions")
 async def start_mission(body: MissionBody):
+    if body.idempotency_key and body.idempotency_key in SUBMISSIONS:
+        previous = MISSIONS[SUBMISSIONS[body.idempotency_key]]
+        if previous.text != body.text or previous.scenario != body.scenario:
+            raise HTTPException(409, "Submission key already used for another objective")
+        return previous.public()
     cur = _current()
     if cur and cur.status in ("planning", "working", "paused", "reviewing"):
         raise HTTPException(409, "A mission is already running")
@@ -620,6 +632,8 @@ async def start_mission(body: MissionBody):
         raise HTTPException(400, "Describe the mission first")
     m = Mission(body.text.strip(), body.scenario)
     MISSIONS[m.id] = m
+    if body.idempotency_key:
+        SUBMISSIONS[body.idempotency_key] = m.id
     CURRENT["id"] = m.id
     m.task = asyncio.create_task(run(m))
     return m.public()

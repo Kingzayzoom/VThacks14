@@ -22,10 +22,14 @@ export function MissionComposer({
   compact = false,
   onSubmitted,
   initialObjective = "",
+  inputId,
+  onObjectiveChange,
 }: {
   compact?: boolean;
   onSubmitted?: () => void;
   initialObjective?: string;
+  inputId?: string;
+  onObjectiveChange?: (value: string) => void;
 }) {
   const { api } = useControl();
   const router = useRouter();
@@ -52,6 +56,7 @@ export function MissionComposer({
         objective,
         idempotencyKey: key.current,
       });
+      onObjectiveChange?.("");
       onSubmitted?.();
       router.push(`/missions/${mission.id}`);
     } catch (err) {
@@ -70,20 +75,21 @@ export function MissionComposer({
       onSubmit={submit}
     >
       <label
-        htmlFor={compact ? "dialog-objective" : "objective"}
-        className={compact ? "composer-label" : "sr-only"}
+        htmlFor={inputId ?? (compact ? "dialog-objective" : "objective")}
+        className="composer-label"
       >
         Your objective
       </label>
       <div className={`composer-input ${error ? "invalid" : ""}`}>
         <textarea
           ref={input}
-          id={compact ? "dialog-objective" : "objective"}
+          id={inputId ?? (compact ? "dialog-objective" : "objective")}
           value={objective}
           maxLength={2000}
-          rows={compact ? 2 : 1}
+          rows={3}
           onChange={(e) => {
             setObjective(e.target.value);
+            onObjectiveChange?.(e.target.value);
             key.current = null;
             setError("");
           }}
@@ -99,9 +105,9 @@ export function MissionComposer({
           type="submit"
           className="button primary run-button"
           disabled={busy}
-          aria-label={busy ? "Opening mission" : "Run objective"}
+          aria-label={busy ? "Opening mission" : "Start mission"}
         >
-          {compact && (busy ? "Opening…" : "Run objective")}
+          {busy ? "Opening…" : "Start mission"}
           <ArrowRight size={20} aria-hidden="true" />
         </button>
       </div>
@@ -111,7 +117,7 @@ export function MissionComposer({
         </p>
       )}
       <div className="composer-meta" id="composer-hint">
-        <span>Demo mode<span className="sr-only">. Public sample data. No external actions. Press Control or Command and Enter to submit.</span></span>
+        <span>Control / Command + Enter to submit. Public sample data only.</span>
       </div>
       <details className="composer-examples">
         <summary>Try an example</summary>
@@ -122,6 +128,7 @@ export function MissionComposer({
             key={example.label}
             onClick={() => {
               setObjective(example.value);
+              onObjectiveChange?.(example.value);
               setError("");
               key.current = null;
               input.current?.focus();

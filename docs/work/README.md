@@ -8,6 +8,12 @@ discovery proving out, and two dead Gemini keys.
 
 ## How to use one
 
+**[`CODEX_PROMPT.md`](CODEX_PROMPT.md) has ready-to-paste prompts** for a coding agent — they tell
+it what to read, in what order, what not to touch, how to verify, and the traps that are not
+discoverable from the code.
+
+Or by hand:
+
 1. Fresh session.
 2. Paste [`../onboarding.md`](../onboarding.md) — the project context primer.
 3. Paste the packet file.

@@ -170,10 +170,26 @@ class TrustGate:
         Answering only the first is the classic mistake — a revoked agent's inclusion proof
         verifies perfectly and always will.
         """
-        status = record.get("status")
+        status = (record.get("status") or "").upper()
         if status != "ACTIVE":
             reason = f" ({record['status_reason']})" if record.get("status_reason") else ""
-            return Check("status", False, f"{status}{reason}", evidence={"registry_status": status}), None
+            # Not every non-ACTIVE state is the agent's fault, and they should not read alike.
+            # A half-finished registration is our problem; a revocation is a statement about
+            # the agent. Both refuse the hire; only one means something went wrong out there.
+            unfinished = status in ("PENDING_VALIDATION", "PENDING_CERTS", "PENDING_DNS")
+            detail = {
+                "PENDING_VALIDATION": "registration is still proving domain control",
+                "PENDING_CERTS": "registration is waiting on certificate issuance",
+                "PENDING_DNS": "certificates are ready but the discovery records are not published",
+                "DEPRECATED": "registered but deprecated — a newer version is preferred",
+                "EXPIRED": "the registration has lapsed",
+                "FAILED": "registration never completed",
+                "REVOKED": "REVOKED",
+                "SUPERSEDED": "SUPERSEDED — replaced by a newer registration",
+            }.get(status, status)
+            return Check("status", False, f"{detail}{reason}",
+                         state="unverified" if unfinished else "fail",
+                         evidence={"registry_status": status}), None
 
         inclusion_state, inclusion_detail, index, inclusion_ev = await self._inclusion_evidence(record)
         standing_state, standing_detail, standing_ev = await self._standing_evidence(record, presented)

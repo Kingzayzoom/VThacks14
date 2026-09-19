@@ -2,6 +2,23 @@ import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import fs from "node:fs";
 
+test("objective composer supports keyboard submission and the workspace dialog", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("textbox", { name: "Your objective" }).fill("Plan our demo rehearsal.");
+  await page.getByRole("textbox", { name: "Your objective" }).press("Control+Enter");
+  await expect(page).toHaveURL(/\/missions\/demo-/);
+  await page.getByRole("button", { name: "New mission", exact: true }).click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByText("Try an example", { exact: true }).click();
+  await dialog.getByRole("button", { name: "Plan a research project" }).click();
+  await expect(dialog.getByRole("textbox", { name: "Your objective" })).toBeFocused();
+  await dialog.getByRole("button", { name: "Run objective", exact: true }).click();
+  await expect(dialog).not.toBeVisible();
+  await expect(page).toHaveURL(/\/missions\/demo-/);
+  await page.getByRole("link", { name: "MISSIONS 02" }).click();
+  await expect(page.locator(".mission-row")).toHaveCount(3);
+});
+
 test("entry and FIELD screenshots, core interactions, and accessibility", async ({
   page,
 }) => {
@@ -29,6 +46,7 @@ test("entry and FIELD screenshots, core interactions, and accessibility", async 
   await expect(page.locator("#composer-error")).toHaveText(
     "Describe an objective to begin.",
   );
+  await page.getByText("Try an example", { exact: true }).click();
   await page.getByRole("button", { name: "Prepare a launch brief" }).click();
   await expect(page.locator("#objective")).toHaveValue(
     /Prepare a launch brief/,

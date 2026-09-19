@@ -1,8 +1,24 @@
 # Phase A visual-refinement verification
 
+## Final visual QA
+
+PASS: typecheck, lint, all 6 unit tests, production build and all 10 browser tests (one sequential run, 1.6 minutes). Production QA uses `http://127.0.0.1:3021` with `CORTEX_BUILD_DIR=.next/final-visual-qa`; traces are outside OneDrive at `%TEMP%/cortex-final-visual-qa`. Tested desktop/mobile axe states have zero violations. Added assertions verify Reset is absent initially and after reset, keyboard focus remains on the view controls, and branch focus is absent in list mode. [Final screenshots and audit](FINAL_VISUAL_QA.md).
+
 Environment: Windows PowerShell, Node 24.20.0, npm 11.19.0, Next.js 16.3.5, React 19.3.0. Browser: Playwright Chromium / Chrome for Testing 153.0.8010.12, headless. These checks do not establish physical-device performance.
 
-## Agents extension / current verification
+## Design reduction / current verification
+
+Production QA on `http://127.0.0.1:3020`, built with `CORTEX_BUILD_DIR=.next/reduction-verified`. Before/after captures and reference lessons are linked from [DESIGN_REDUCTION.md](DESIGN_REDUCTION.md).
+
+- PASS: typecheck, lint, all 6 unit tests and production build.
+- PASS: all 10 browser tests in one final sequential run (1.6 minutes). The final run stores traces outside OneDrive via `--output C:\Users\rohee\AppData\Local\Temp\cortex-reduction-final-qa`.
+- PASS: desktop/mobile WCAG 2 A/AA and 2.1 AA checks with zero axe violations in tested states; responsive overflow checks at 390, 1280, 1440 and 1920 pixels.
+- PASS: objective validation, examples disclosure, duplicate-submit protection, keyboard submission, new-mission dialog, persisted missions, review/voice dialogs, map/list, search/filter, inspector open/close/Escape/focus return and handoff selection.
+- PASS: Canvas pixels change during ambient motion, freeze with visual pause/reduced motion, and execution packets follow mission state. SVG/DOM fallback remains usable with Canvas unavailable. No external requests or bitmap assets were introduced.
+
+An initial axe failure found `aria-controls` referring to the unmounted inspector; references now exist only when their target is mounted. Intermediate test artifacts collided; the final isolated sequential run above is the authoritative result. Generated build-path changes were removed from tsconfig and the pre-existing local `next-env.d.ts` dev imports restored.
+
+## Agents extension / previous verification
 
 Production QA on `http://127.0.0.1:3018`, built with `CORTEX_BUILD_DIR=.next/agents-final`. New screenshots are in `docs/screenshots/agents/`.
 

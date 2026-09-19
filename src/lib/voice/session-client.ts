@@ -1,7 +1,7 @@
 import type { Conversation, PartialOptions } from "@elevenlabs/client";
 import { z } from "zod";
 
-export const VoiceDraft = z.object({ objective: z.string().trim().min(1).max(2000) }).strict();
+export const VoiceObjective = z.object({ objective: z.string().trim().min(1).max(2000) }).strict();
 export type VoiceState = "idle" | "connecting" | "listening" | "speaking" | "muted";
 type Session = Pick<Conversation, "endSession" | "setMicMuted">;
 type StartSession = (options: PartialOptions) => Promise<Session>;
@@ -14,10 +14,11 @@ export class VoiceSession {
   private pending: AbortController | null = null;
   private muted = false;
   private mode: "listening" | "speaking" = "listening";
-  private hasDraft = false;
+  private submission: { objective: string; result: Promise<string> } | null = null;
   constructor(private callbacks: {
     state: (state: VoiceState) => void;
-    draft: (objective: string) => void;
+    createMission: (input: { objective: string; idempotencyKey: string }) => Promise<import("@/contracts").Mission>;
+    created: (mission: import("@/contracts").Mission) => void;
     error: (message: string) => void;
   }, private fetcher: typeof fetch = (input, init) => fetch(input, init), private startSession?: StartSession) {}
 
@@ -26,7 +27,7 @@ export class VoiceSession {
     const generation = ++this.generation;
     const active = () => generation === this.generation;
     this.pending = new AbortController();
-    this.hasDraft = false;
+    this.submission = null;
     this.callbacks.state("connecting");
     this.callbacks.error("");
     try {
@@ -49,14 +50,23 @@ export class VoiceSession {
         onDisconnect: () => { if (active()) { ++this.generation; this.pending = null; this.session = null; this.callbacks.state("idle"); } },
         onError: () => { if (active()) { this.callbacks.error("The voice connection was interrupted. Please reconnect."); void this.stop(); } },
         clientTools: {
-          draft_mission: (input: unknown) => {
-            if (!active()) return JSON.stringify({ status: "canceled" });
-            if (this.hasDraft) return JSON.stringify({ status: "awaiting_user_confirmation", message: "A draft is already open for editing. Do not replace it." });
-            const draft = VoiceDraft.safeParse(input);
-            if (!draft.success) return JSON.stringify({ status: "invalid", message: "Provide an objective between 1 and 2000 characters." });
-            this.hasDraft = true;
-            this.callbacks.draft(draft.data.objective);
-            return JSON.stringify({ status: "awaiting_user_confirmation", message: "Draft displayed. No mission has been started." });
+          start_mission: async (input: unknown) => {
+            if (!active()) return JSON.stringify({ success: false, message: "Session canceled." });
+            const objective = VoiceObjective.safeParse(input);
+            if (!objective.success) return JSON.stringify({ success: false, message: "Provide only an objective between 1 and 2000 characters." });
+            if (this.submission) return this.submission.objective === objective.data.objective ? this.submission.result : JSON.stringify({ success: false, message: "This conversation already submitted a mission. Start a new conversation for another objective." });
+            // The promise is retained even on failure: a provider retry cannot submit twice.
+            const result = Promise.resolve().then(async () => {
+              if (!active()) return JSON.stringify({ success: false, message: "Session canceled." });
+              try {
+                const mission = await this.callbacks.createMission({ objective: objective.data.objective, idempotencyKey: `voice-${crypto.randomUUID()}` });
+                // Let the SDK send the resolved tool response before navigation unmounts voice.
+                setTimeout(() => { if (active()) this.callbacks.created(mission); }, 0);
+                return JSON.stringify({ success: true, mission_id: mission.id, status: mission.backendStatus ?? mission.status, message: mission.source === "live" ? "Mission created. The orchestrator accepted the objective." : "Demo mission created. No external execution was started." });
+              } catch { return JSON.stringify({ success: false, message: "Mission creation failed." }); }
+            });
+            this.submission = { objective: objective.data.objective, result };
+            return result;
           },
         },
       });

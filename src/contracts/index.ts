@@ -33,6 +33,8 @@ export const AgentSchema = z.object({
   publicEndpoint: z.string().url().optional(),
   protocol: z.string().optional(),
   verificationEvidence: z.array(z.string()),
+  standingSummary: z.string().optional(),
+  trustChecks: z.array(z.object({ name: z.string(), state: z.enum(["pass", "fail", "unverified", "not_run"]), detail: z.string() })).optional(),
 });
 export type Agent = z.infer<typeof AgentSchema>;
 export const TaskSchema = z.object({
@@ -68,6 +70,10 @@ export const MissionSchema = z.object({
     basis: z.enum(["estimated", "measured", "unknown"]),
   }),
   currentStage: z.string(),
+  backendStatus: z.string().optional(),
+  source: z.enum(["demo", "live"]).optional(),
+  error: z.string().optional(),
+  approval: z.object({ reason: z.string(), org: z.string(), version: z.string() }).nullable().optional(),
 });
 export type Mission = z.infer<typeof MissionSchema>;
 export interface Recruitment {
@@ -188,6 +194,14 @@ export const SnapshotSchema = z.object({
     z.string(),
     z.object({ missionId: z.string(), objective: z.string() }),
   ),
+  live: z.object({
+    connection: z.enum(["connecting", "connected", "disconnected", "error"]),
+    error: z.string().optional(),
+    ansBackend: z.string(),
+    integrations: z.array(z.object({ name: z.string(), state: z.string(), detail: z.string() })),
+    recruitments: z.array(z.object({ id: z.string(), missionId: z.string(), capability: z.string(), status: z.string(), requestedScopes: z.array(z.string()), grantedScopes: z.array(z.string()), candidates: z.array(z.string()) })),
+    incidents: z.array(z.object({ id: z.string(), missionId: z.string(), state: z.string(), org: z.string(), action: z.string(), resource: z.string(), reason: z.string(), payloadDigest: z.string(), expiresAt: z.string().optional() })),
+  }).optional(),
 });
 export type Snapshot = z.infer<typeof SnapshotSchema>;
 export type ErrorCode =

@@ -1,3 +1,37 @@
+> **Current integration checkpoint - September 19, 2026:** The approved frontend now supports demo/live adapters, same-origin hub transport, strict confirmed start_mission voice handoff, and truthful ANS/Guardian state. Typecheck, lint and build pass; 20 JS unit tests, 124 Python tests, 17 demo browser tests and the separate real-hub browser test pass. Gemini was not contacted (key absent); ElevenLabs token issuance returned HTTP 401. Older disconnected/draft-only descriptions below are historical. See [live integration handoff](LIVE_INTEGRATION.md) for run commands, screenshots and limits. No redesign or deployment.
+
+## Current checkpoint: route transition screen
+
+Added the owner-requested loading transition between real pages on `feat/page-transitions`, based on `ebc0f92`. Preview: http://127.0.0.1:3028/field. All 17 browser tests, 11 unit tests, typecheck, lint and build pass. [Video, screenshots and behavior](PAGE_TRANSITIONS.md). No dependencies, backend/contracts, credentials, push or deployment changes.
+
+## Current: visible atmosphere motion
+
+Owner correction implemented: 12-second desktop / 16-second mobile sweeps, visibly traveling and changing proportions. Reduced motion and hidden-page pause preserved. Preview: http://127.0.0.1:3027/missions. [Motion clips and validation](WATERLIGHT_CHECKPOINT.md).
+
+## Current checkpoint: pearl / mauve atmosphere refinement
+
+The owner's supplied ShaderGradient waterPlane preset is adapted into the existing CSS background, preserving all approved product geometry. Branch `feat/pearl-waterlight`, based on `51a6f60`. Local preview: http://127.0.0.1:3027/field. See [checkpoint](WATERLIGHT_CHECKPOINT.md). No dependency, backend, contract or credential changes; no deployment.
+
+## Current checkpoint: layering and atmosphere ready for review
+
+Implemented on `feat/layering-atmosphere` from `98d924a`. The approved design-finish composition is preserved; one shared CSS light field and restrained surface material provide depth. Local production preview: http://127.0.0.1:3026 (`CORTEX_BUILD_DIR=.next/layering`). See [layering evidence and before/after comparisons](LAYERING_CHECKPOINT.md). No dependencies, backend/API/security, credentials or mission behavior changed. No push, deployment or connection pass.
+
+> **Active layering checkpoint (2026-09-19):** The owner approved the design-finish information architecture, type scale, spacing and interaction model. `CORTEXAI_LAYERING_ATMOSPHERE.md` now authorizes one quiet ambient light field and restrained surface depth. Preserve all geometry. The shared CSS environment sits behind opaque content, moves only transform/opacity over 48 seconds each direction, freezes on hidden pages and becomes static on mobile/coarse pointers and reduced motion. Material gradients, inner highlights and shallow shadows distinguish base, mission, decision and inspector surfaces. No WebGL dependency, particles, blur, neon, decorative relationship lines or additional UI controls. This supersedes older blanket prohibitions on background atmosphere. No connection pass or deployment.
+
+## Current checkpoint: design finish ready for owner review
+
+Implemented on `feat/finish-product-design` from reset commit `30aec66`. The existing information architecture now has stronger type hierarchy, deliberate graphite surfaces, a composed Overview, aligned mission rows and tonal agent identities. The desktop inspector sits beside the roster; smaller screens use a focus-contained modal sheet. Existing routes, mission behavior, search/categories, identity/standing/authority/runtime distinctions and reviewed voice drafts are preserved.
+
+Local production preview: http://127.0.0.1:3025 (`CORTEX_BUILD_DIR=.next/design-finish`). Typecheck, lint, 11 unit tests, production build and all 13 browser tests pass. See [test evidence](TEST_RESULTS.md) and [final screenshots](screenshots/finish/). One implementation pass and one browser correction pass; corrected inspector keyboard containment and status-column spacing. No backend, API, security, environment or dependency changes; no connection pass, push or deployment. Owner visual approval remains pending.
+
+> **Active design finish (2026-09-19):** `CORTEXAI_DESIGN_FINISH.md` refines the reset without changing information architecture. Geist; 224px sidebar; 60px top bar; 32-40px workspace insets; up to 1280px working content. Page/mission headings 32/28px, essential body and row text 14-16px, metadata 12-13px. Graphite surfaces (#0B0D10, #101216, #14171C, #1B1F26), warm-white actions, restrained #8FA8FF selection/focus, hairline borders, subtle shadows and 12px panels. Overview combines mission/tasks in a roughly 2:1 split with context; Missions uses aligned compact rows; Agents uses tonal role glyphs and a desktop side inspector or accessible modal sheet. Preserve actual state, honest preview labels, keyboard/mobile behavior and the reviewed voice draft. No new redesign, atmosphere, connection pass or deployment. Historical guidance below is superseded.
+
+## Current checkpoint: product UI reset ready for owner review
+
+Implemented on `feat/product-ui-reset` from `986ec5f`. See [checkpoint](UI_RESET_CHECKPOINT.md) and [test evidence](TEST_RESULTS.md). Local production preview: http://127.0.0.1:3024. Graphite/Geist presentation replaces the rejected atmosphere and orbital composition. All existing routes and demo/voice boundaries are preserved. No connection pass or deployment.
+
+> **Active owner reset (2026-09-19):** `CORTEXAI_VISUAL_RESET.md` supersedes the historical visuals below. Geist, graphite, warm-white actions, restrained blue selection, one sidebar/top bar, task-first Overview and roster-first Agents. No mounted atmosphere, neural wallpaper, decorative orbits, glow, oversized serif type or perpetual motion. Identity, standing, authority and runtime stay separate. Stop at visual review; do not start the connection pass or deploy.
+
 # CORTEXAI / Phase A living visual checkpoint
 
 ## Owner-authorized voice and category extension

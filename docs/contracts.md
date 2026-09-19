@@ -1,3 +1,20 @@
+# Next.js integration additions - September 19, 2026
+
+The existing hub remains authoritative. Next browsers use `/api/control/...`, an allowlisted server proxy to CORTEX_HUB_URL (local default http://127.0.0.1:8000). POST requires Origin to match the public Host. Arbitrary provider errors and credentials are not forwarded.
+
+- POST `/api/control/missions`: strict `{objective, idempotencyKey}` maps to hub `{text, idempotency_key}`. Objective is trimmed and 1-2000 characters. Commander deduplicates the optional key for its process lifetime; conflicting objective/scenario returns 409. Existing `{text, scenario}` callers remain compatible.
+- GET proxy routes: `state`, `integrations/status`, `missions/current`, `missions/:id`, `missions/:id/result`, `guardian/grants`, `guardian/incidents`.
+- POST decision routes: `missions/:id/decision` and `guardian/incidents/:id/decision`, strictly `{decision: "approve" | "reject"}`. Worker grant/action mutation endpoints are not exposed by the Next proxy.
+- `/api/control/events` bridges existing Python `/ws` to same-origin SSE. History/event envelopes are retained, plus a connected frame confirming upstream WebSocket open. Heartbeat comments keep transport open. Arbitrary provider error data is stripped. Replay deduplication uses event IDs. Reconnect stops after five retries and cancels on unmount.
+- REST snapshots refresh after events, selection, connection and decisions, with no recurring polling loop. Other-mission events never overwrite selected-mission state or enter its feed.
+- `hub-mapping.ts` translates snake_case. Identity proof, signed standing, active unexpired Guardian grants and runtime remain separate. Unknown runtime becomes disconnected; unknown/unverified identity is never verified. Simulator evidence is labeled. The five trust checks retain pass/fail/unverified/not_run states.
+- Generated HTML uses an empty iframe sandbox and restrictive CSP: no scripts, forms or outbound network.
+- The hub has no pause/resume endpoint, so live mode does not offer those actions. Version and Guardian decisions remain explicit visual actions. Voice cannot approve.
+
+See LIVE_INTEGRATION.md for run/test commands and known limits. The original backend contract follows.
+
+---
+
 # Frontend contract
 
 Everything the dashboard needs, and nothing it has to guess.

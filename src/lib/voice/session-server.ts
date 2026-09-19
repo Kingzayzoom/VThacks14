@@ -1,3 +1,4 @@
+import { isSameOrigin } from "@/lib/api/same-origin";
 import { createHash, timingSafeEqual } from "node:crypto";
 
 type VoiceEnv = Record<string, string | undefined>;
@@ -11,7 +12,7 @@ export function voiceConfigured(env: VoiceEnv) {
 export async function issueVoiceSession(request: Request, env: VoiceEnv, fetcher: typeof fetch = fetch) {
   const reply = (error: string, status: number) => Response.json({ error }, { status, headers });
   if (!voiceConfigured(env)) return reply("Voice is not configured yet. Use text instead.", 503);
-  if (request.headers.get("origin") !== new URL(request.url).origin)
+  if (!isSameOrigin(request))
     return reply("Open voice from this workspace.", 403);
   const supplied = request.headers.get("authorization")?.replace(/^Bearer /, "") ?? "";
   const digest = (value: string) => createHash("sha256").update(value).digest();

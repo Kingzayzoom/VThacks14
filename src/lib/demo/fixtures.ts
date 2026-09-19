@@ -216,6 +216,7 @@ export function agentInMission(
   snapshot: Snapshot,
   missionId: string,
 ): Agent {
+  if (snapshot.live) return agent;
   const task = snapshot.tasks.find(
     (t) => t.missionId === missionId && t.assignedAgentId === agent.id,
   );

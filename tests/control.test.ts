@@ -6,7 +6,7 @@ import { CreateMissionRequest, EventSchema } from "../src/contracts";
 import { createHttpControlApi } from "../src/lib/api/HttpControlApi";
 import { agentInMission } from "../src/lib/demo/fixtures";
 
-test("blank configuration selects demo; live adapter fails closed even with a key", () => {
+test("blank configuration selects demo; live selects an empty HTTP store", () => {
   assert.deepEqual(runtimeConfig({ CORTEX_RUNTIME_MODE: "" }), {
     mode: "demo",
     available: true,
@@ -17,13 +17,14 @@ test("blank configuration selects demo; live adapter fails closed even with a ke
       CORTEX_RUNTIME_MODE: "live",
       GEMINI_API_KEY: "test-only",
     }).available,
-    false,
+    true,
   );
   assert.equal(
     runtimeConfig({ CORTEX_RUNTIME_MODE: "typo" }).available,
     false,
   );
-  assert.throws(createHttpControlApi, { code: "NOT_CONFIGURED" });
+  assert.equal(createHttpControlApi().getSnapshot().missions.length, 0);
+  assert.ok(createHttpControlApi().getSnapshot().live);
 });
 test("validate blank and oversized objectives", () => {
   assert.equal(

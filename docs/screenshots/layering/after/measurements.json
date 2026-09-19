@@ -1,0 +1,470 @@
+[
+  {
+    "name": "overview",
+    "size": "desktop",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "frameMedianMs": 16.69999999999999,
+    "frameP95Ms": 16.799999999999955,
+    "framesOver34Ms": 0,
+    "overflow": false,
+    "geometry": {
+      ".sidebar": {
+        "x": 0,
+        "y": 0,
+        "width": 224,
+        "height": 900
+      },
+      ".workspace-topbar": {
+        "x": 224,
+        "y": 0,
+        "width": 1216,
+        "height": 60
+      },
+      ".page-heading": {
+        "x": 264,
+        "y": 96,
+        "width": 1136,
+        "height": 68.078125
+      },
+      ".mission-work": {
+        "x": 264,
+        "y": 192.078125,
+        "width": 741.328125,
+        "height": 727.375
+      },
+      ".review-callout": {
+        "x": 1029.328125,
+        "y": 192.078125,
+        "width": 370.65625,
+        "height": 370.953125
+      }
+    },
+    "assets": {
+      "js": {
+        "count": 15,
+        "bytes": 1073520,
+        "gzip": 302549
+      },
+      "css": {
+        "count": 4,
+        "bytes": 40512,
+        "gzip": 9984
+      }
+    }
+  },
+  {
+    "name": "missions",
+    "size": "desktop",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "frameMedianMs": 16.699999999999932,
+    "frameP95Ms": 16.799999999999955,
+    "framesOver34Ms": 0,
+    "overflow": false,
+    "geometry": {
+      ".sidebar": {
+        "x": 0,
+        "y": 0,
+        "width": 224,
+        "height": 900
+      },
+      ".workspace-topbar": {
+        "x": 224,
+        "y": 0,
+        "width": 1216,
+        "height": 60
+      },
+      ".page-heading": {
+        "x": 264,
+        "y": 96,
+        "width": 1136,
+        "height": 68.078125
+      },
+      ".mission-list": {
+        "x": 264,
+        "y": 192.078125,
+        "width": 1136,
+        "height": 222.59375
+      }
+    },
+    "assets": {
+      "js": {
+        "count": 15,
+        "bytes": 1073520,
+        "gzip": 302549
+      },
+      "css": {
+        "count": 4,
+        "bytes": 40512,
+        "gzip": 9984
+      }
+    }
+  },
+  {
+    "name": "agents",
+    "size": "desktop",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "frameMedianMs": 16.699999999999932,
+    "frameP95Ms": 16.700000000000273,
+    "framesOver34Ms": 0,
+    "overflow": false,
+    "geometry": {
+      ".sidebar": {
+        "x": 0,
+        "y": 0,
+        "width": 224,
+        "height": 900
+      },
+      ".workspace-topbar": {
+        "x": 224,
+        "y": 0,
+        "width": 1216,
+        "height": 60
+      },
+      ".agents-heading": {
+        "x": 264,
+        "y": 96,
+        "width": 1136,
+        "height": 68.078125
+      },
+      ".agents-constellation": {
+        "x": 264,
+        "y": 192.078125,
+        "width": 1136,
+        "height": 730.140625
+      }
+    },
+    "assets": {
+      "js": {
+        "count": 15,
+        "bytes": 1073520,
+        "gzip": 302549
+      },
+      "css": {
+        "count": 4,
+        "bytes": 40512,
+        "gzip": 9984
+      }
+    }
+  },
+  {
+    "name": "overview",
+    "size": "wide",
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "frameMedianMs": 16.69999999999999,
+    "frameP95Ms": 16.799999999999955,
+    "framesOver34Ms": 0,
+    "overflow": false,
+    "geometry": {
+      ".sidebar": {
+        "x": 0,
+        "y": 0,
+        "width": 224,
+        "height": 1080
+      },
+      ".workspace-topbar": {
+        "x": 224,
+        "y": 0,
+        "width": 1696,
+        "height": 60
+      },
+      ".page-heading": {
+        "x": 432,
+        "y": 96,
+        "width": 1280,
+        "height": 68.078125
+      },
+      ".mission-work": {
+        "x": 432,
+        "y": 192.078125,
+        "width": 837.328125,
+        "height": 727.375
+      },
+      ".review-callout": {
+        "x": 1293.328125,
+        "y": 192.078125,
+        "width": 418.65625,
+        "height": 370.953125
+      }
+    },
+    "assets": {
+      "js": {
+        "count": 15,
+        "bytes": 1073520,
+        "gzip": 302549
+      },
+      "css": {
+        "count": 4,
+        "bytes": 40512,
+        "gzip": 9984
+      }
+    }
+  },
+  {
+    "name": "missions",
+    "size": "wide",
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "frameMedianMs": 16.700000000000017,
+    "frameP95Ms": 16.700000000000045,
+    "framesOver34Ms": 0,
+    "overflow": false,
+    "geometry": {
+      ".sidebar": {
+        "x": 0,
+        "y": 0,
+        "width": 224,
+        "height": 1080
+      },
+      ".workspace-topbar": {
+        "x": 224,
+        "y": 0,
+        "width": 1696,
+        "height": 60
+      },
+      ".page-heading": {
+        "x": 432,
+        "y": 96,
+        "width": 1280,
+        "height": 68.078125
+      },
+      ".mission-list": {
+        "x": 432,
+        "y": 192.078125,
+        "width": 1280,
+        "height": 222.59375
+      }
+    },
+    "assets": {
+      "js": {
+        "count": 15,
+        "bytes": 1073520,
+        "gzip": 302549
+      },
+      "css": {
+        "count": 4,
+        "bytes": 40512,
+        "gzip": 9984
+      }
+    }
+  },
+  {
+    "name": "agents",
+    "size": "wide",
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "frameMedianMs": 16.699999999999932,
+    "frameP95Ms": 16.799999999999955,
+    "framesOver34Ms": 0,
+    "overflow": false,
+    "geometry": {
+      ".sidebar": {
+        "x": 0,
+        "y": 0,
+        "width": 224,
+        "height": 1080
+      },
+      ".workspace-topbar": {
+        "x": 224,
+        "y": 0,
+        "width": 1696,
+        "height": 60
+      },
+      ".agents-heading": {
+        "x": 432,
+        "y": 96,
+        "width": 1280,
+        "height": 68.078125
+      },
+      ".agents-constellation": {
+        "x": 432,
+        "y": 192.078125,
+        "width": 1280,
+        "height": 730.140625
+      }
+    },
+    "assets": {
+      "js": {
+        "count": 15,
+        "bytes": 1073520,
+        "gzip": 302549
+      },
+      "css": {
+        "count": 4,
+        "bytes": 40512,
+        "gzip": 9984
+      }
+    }
+  },
+  {
+    "name": "overview",
+    "size": "mobile",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "frameMedianMs": 16.69999999999999,
+    "frameP95Ms": 16.700000000000045,
+    "framesOver34Ms": 0,
+    "overflow": false,
+    "geometry": {
+      ".sidebar": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      ".workspace-topbar": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 60
+      },
+      ".page-heading": {
+        "x": 16,
+        "y": 88,
+        "width": 358,
+        "height": 169.5625
+      },
+      ".mission-work": {
+        "x": 16,
+        "y": 281.5625,
+        "width": 358,
+        "height": 868.21875
+      },
+      ".review-callout": {
+        "x": 16,
+        "y": 1169.78125,
+        "width": 358,
+        "height": 366.953125
+      }
+    },
+    "assets": {
+      "js": {
+        "count": 10,
+        "bytes": 905984,
+        "gzip": 246244
+      },
+      "css": {
+        "count": 2,
+        "bytes": 30922,
+        "gzip": 7312
+      }
+    }
+  },
+  {
+    "name": "missions",
+    "size": "mobile",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "frameMedianMs": 16.69999999999999,
+    "frameP95Ms": 16.700000000000273,
+    "framesOver34Ms": 0,
+    "overflow": false,
+    "geometry": {
+      ".sidebar": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      ".workspace-topbar": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 60
+      },
+      ".page-heading": {
+        "x": 16,
+        "y": 88,
+        "width": 358,
+        "height": 63.28125
+      },
+      ".mission-list": {
+        "x": 16,
+        "y": 175.28125,
+        "width": 358,
+        "height": 217.3125
+      }
+    },
+    "assets": {
+      "js": {
+        "count": 10,
+        "bytes": 893646,
+        "gzip": 242464
+      },
+      "css": {
+        "count": 2,
+        "bytes": 30922,
+        "gzip": 7312
+      }
+    }
+  },
+  {
+    "name": "agents",
+    "size": "mobile",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "frameMedianMs": 16.699999999999932,
+    "frameP95Ms": 16.700000000000045,
+    "framesOver34Ms": 0,
+    "overflow": false,
+    "geometry": {
+      ".sidebar": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      ".workspace-topbar": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 60
+      },
+      ".agents-heading": {
+        "x": 16,
+        "y": 88,
+        "width": 358,
+        "height": 99.421875
+      },
+      ".agents-constellation": {
+        "x": 16,
+        "y": 211.421875,
+        "width": 358,
+        "height": 914.203125
+      }
+    },
+    "assets": {
+      "js": {
+        "count": 11,
+        "bytes": 1028544,
+        "gzip": 286541
+      },
+      "css": {
+        "count": 3,
+        "bytes": 39106,
+        "gzip": 9472
+      }
+    }
+  }
+]

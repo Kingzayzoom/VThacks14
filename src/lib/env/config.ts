@@ -9,10 +9,9 @@ export function runtimeConfig(env: Record<string, string | undefined>) {
       available: false,
       error: "INVALID_REQUEST" as const,
     };
-  // Phase A has no live implementation. Even populated keys must never trigger provider work.
   return {
     mode: mode.data,
-    available: mode.data === "demo",
-    error: mode.data === "live" ? ("NOT_CONFIGURED" as const) : null,
+    available: true,
+    error: null,
   };
 }

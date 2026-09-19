@@ -1,3 +1,71 @@
+> **Current integration checkpoint - September 19, 2026:** The approved frontend now supports demo/live adapters, same-origin hub transport, strict confirmed start_mission voice handoff, and truthful ANS/Guardian state. Typecheck, lint and build pass; 20 JS unit tests, 124 Python tests, 17 demo browser tests and the separate real-hub browser test pass. Gemini was not contacted (key absent); ElevenLabs token issuance returned HTTP 401. Older disconnected/draft-only descriptions below are historical. See [live integration handoff](LIVE_INTEGRATION.md) for run commands, screenshots and limits. No redesign or deployment.
+
+## Route transition validation - September 19, 2026
+
+Preview http://127.0.0.1:3028. Typecheck, lint, build passed; **11 unit tests, all 17 browser tests passed** (27.2s), zero final failures. Three new route-transition cases supplement the existing 14: desktop/mobile navigation and focus, browser history, programmatic mission submission, same-page exclusions and keyboard/reduced-motion behavior. First run caught a heading-focus selector bug; corrected before the final full run. Axe tested states: zero violations. [Screenshots and recording](PAGE_TRANSITIONS.md).
+
+## Visible motion correction
+
+The owner requested visibly moving atmosphere. Desktop now uses a 12-second sweep each direction, mobile 16 seconds, with larger travel, rotation, changing proportions and stronger pearl/mauve light. Static-mobile behavior is removed; reduced motion remains static and hidden tabs pause. This supersedes the slower/static treatment documented below.
+
+Validation: typecheck, lint, build, 11 unit tests and all 14 browser tests pass (17.3s). The motion test now checks changing transforms on both desktop and mobile, plus hidden-page pause and reduced-motion suppression. No interaction assertions removed. Recorded actual eight-second clips: [desktop](screenshots/waterlight-motion/desktop-motion.webm), [mobile](screenshots/waterlight-motion/mobile-motion.webm). Preview remains http://127.0.0.1:3027/missions. No dependencies, backend changes or deployment.
+
+## Pearl / mauve atmosphere refinement - September 19, 2026
+
+At http://127.0.0.1:3027: typecheck, lint, build passed; **11 unit tests, 14 browser tests passed**, zero failures. Tested Axe states: zero violations. Existing interaction assertions unchanged. Measured shell/panel geometry identical at desktop/wide/mobile. No added JS or dependencies; +64 bytes gzip CSS versus the layering checkpoint. [Screenshots and measurements](WATERLIGHT_CHECKPOINT.md).
+
+## Layering and atmosphere validation - September 19, 2026
+
+Final build at http://127.0.0.1:3026 (`CORTEX_BUILD_DIR=.next/layering`): typecheck, lint, production build passed; **11 unit tests and all 14 browser tests passed**, zero failures. Axe reports zero violations in tested desktop/mobile states. Existing assertions preserved; added single-background, reduced-motion/mobile suppression and hidden-page lifecycle checks.
+
+[Before/after evidence, references and performance measurements](LAYERING_CHECKPOINT.md): 1440x900, 1920x1080, 390x844, identical measured shell/panel bounds, no overflow. Added resources: 160 B JS + 794 B CSS gzip estimate; no new dependencies. Local 120-frame samples: median 16.7ms / maximum p95 16.8ms before and after, zero intervals above 34ms. Hardware-specific GPU/mobile and full LCP/input-latency benchmarks were not performed. Hidden visibility event is simulated for deterministic headless testing. No live provider calls, push or deployment.
+
+## Design finish validation - September 19, 2026
+
+Production preview: http://127.0.0.1:3025 (`CORTEX_BUILD_DIR=.next/design-finish`), branch `feat/finish-product-design`, based on `30aec66`.
+
+| Existing command | Final result |
+| --- | --- |
+| `npm.cmd run typecheck` | Passed |
+| `npm.cmd run lint` | Passed |
+| `npm.cmd test` | 11 passed, 0 failed |
+| `npm.cmd run build` | Passed; existing routes built |
+| `npm.cmd run test:e2e` | 13 passed, 0 failed in the complete final run |
+
+Browser zoom was reset to 100%; measured CSS zoom and viewport scale are 1. Computed desktop sizes: sidebar 224px, top bar 60px, workspace insets 36px vertical / 40px horizontal, page heading 32px, primary mission heading 28px, task title 15px. Working content reaches 1280px at wide desktop.
+
+Actual Chromium screens inspected at 1440x900, 1920x1080 and 390x844; 1280x900 overflow checks also pass. Axe WCAG 2 A/AA and 2.1 AA assertions report zero violations in tested desktop/mobile entry, overview, mission detail, missions, settings, roster, agent sheet and voice-error states. Existing interaction/accessibility assertions remain. Agent inspector selectors accommodate the intended aside/dialog semantics; added a mobile modal focus-loop check.
+
+One implementation pass and one browser correction pass. The correction fixed mobile inspector Tab containment and agent runtime-column spacing; final review-dialog copy removes internal phase terminology. Preserved objective validation/submission, persistence, task controls, category filters, search/empty results, inspector Escape/focus return, reduced motion, review flow and the reviewed voice draft.
+
+| Final screen | Desktop 1440 | Wide 1920 | Mobile 390 |
+| --- | --- | --- | --- |
+| Overview | [Screenshot](screenshots/finish/overview-desktop.png) | [Screenshot](screenshots/finish/overview-1920.png) | [Screenshot](screenshots/finish/overview-mobile.png) |
+| Missions | [Screenshot](screenshots/finish/missions-desktop.png) | [Screenshot](screenshots/finish/missions-1920.png) | [Screenshot](screenshots/finish/missions-mobile.png) |
+| Agents | [Screenshot](screenshots/finish/agents-desktop.png) | [Screenshot](screenshots/finish/agents-1920.png) | [Screenshot](screenshots/finish/agents-mobile.png) |
+| Agent details | [Screenshot](screenshots/finish/agent-detail-desktop.png) | - | [Screenshot](screenshots/finish/agent-detail-mobile.png) |
+
+Limits: live ElevenLabs conversation and live backend execution were not exercised. Browser voice tests mock session responses and use synthetic microphone denial; the reviewed draft flow remains covered. No fake missions, artifacts, verification, grants or execution were added. No backend/security/API, credentials or dependency changes. The pre-existing local `next-env.d.ts` change is preserved and excluded from the checkpoint. No connection pass or deployment.
+
+## Product UI reset validation - September 19, 2026
+
+Production preview: http://127.0.0.1:3024 (`CORTEX_BUILD_DIR=.next/ui-reset`).
+
+- `npm.cmd run typecheck`: passed.
+- `npm.cmd run lint`: passed.
+- `npm.cmd test`: 11 passed, 0 failed.
+- `npm.cmd run build`: passed; all existing routes built.
+- `npm.cmd run test:e2e`: final full run passed 12 of 13; remaining failure was a test locator selecting the hidden objective dialog instead of the visible objective. Corrected the locator and ran `npm.cmd run test:e2e -- --grep 'objective validation'`: 1 passed. All 13 browser cases pass across those runs.
+- Browser: Playwright Chromium 153.0.8010.12. Initially missing browser executable; installed the version required by the existing package, with no dependency/lockfile changes.
+- Viewports: 1440x900, 390x844, and wide/compact checks at 1920x900 and 1280x900.
+- Axe WCAG 2 A/AA and 2.1 AA checks: zero violations on entry, overview, mission detail, missions, settings, roster, agent drawer, and voice error dialog at desktop/mobile.
+- Behavioral coverage: objective validation, keyboard submission, duplicate submission, persistence, unsent draft retention through voice fallback, navigation, all seven agent categories, search/empty results, preview identity/authority, inspector focus return/Escape, pause/resume, review dialog, reduced motion, Canvas absence, voice authorization failure and microphone denial.
+- One implementation pass and one browser correction pass. Corrected mobile top-bar overflow, task separator encoding, and the drawer's initially transparent content. Final screenshot set inspected; no additional redesign round.
+
+Screenshots: [entry desktop](screenshots/reset/entry-desktop.png), [entry mobile](screenshots/reset/entry-mobile.png), [overview desktop](screenshots/reset/overview-desktop.png), [overview mobile](screenshots/reset/overview-mobile.png), [agents desktop](screenshots/reset/agents-desktop.png), [agents mobile](screenshots/reset/agents-mobile.png), [drawer desktop](screenshots/reset/agent-detail-desktop.png), [drawer mobile](screenshots/reset/agent-detail-mobile.png), [mission detail](screenshots/reset/mission-detail-desktop.png), [missing mission](screenshots/reset/missing-mission.png), [empty search](screenshots/reset/empty-search.png), [validation error](screenshots/reset/objective-error.png).
+
+Limits: live ElevenLabs conversation and live backend execution were not exercised. Browser voice tests mock session responses and never contact the paid provider; microphone denial is synthetic. The reviewed draft tool remains unit-tested. The existing demo adapter always seeds one mission; zero-mission rendering is defensive and was not reached through its public API. No fabricated history or artifacts were added. No connection pass, deployment, push, environment changes, or backend/security edits.
+
 # Phase A visual-refinement verification
 
 ## Voice and category extension / September 19

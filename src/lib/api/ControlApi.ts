@@ -10,4 +10,5 @@ export interface ControlApi {
   selectMission(id: string): void;
   selectAgent(id: string): void;
   commandMission(id: string, command: "pause" | "resume"): Promise<void>;
+  decide?(id: string, decision: "approve" | "reject", kind: "mission" | "incident"): Promise<void>;
 }

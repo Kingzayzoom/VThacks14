@@ -21,7 +21,7 @@ export function MotionSystem({ children }: { children: ReactNode }) {
   }, [still]);
   return (
     <MotionContext.Provider value={{ still, paused, toggle: () => setPaused((value) => !value) }}>
-      <MotionConfig reducedMotion={still ? "always" : "user"} transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}>
+      <MotionConfig reducedMotion={still ? "always" : "user"} transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}>
         {children}
       </MotionConfig>
     </MotionContext.Provider>

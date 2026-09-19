@@ -111,6 +111,20 @@ policy:
       - mission.read:site
       - artifact.write:mission
 
+  # Which brain each kind of work uses. LLM_MODE in .env overrides all of it: LLM_MODE=offline
+  # makes the whole system deterministic for rehearsals, LLM_MODE=gemini forces the model
+  # everywhere. Without a GEMINI_API_KEY everything is offline regardless.
+  llm:
+    # Free text into a structured plan is the genuinely model-shaped task here.
+    mission.plan: gemini
+    # Creative, subjective, cheap, and the variety per run makes the demo feel alive.
+    brand.identity: gemini
+    # The page is the artifact a judge looks at. The template is fast, polished and identical
+    # every time; a model might hand us something ugly thirty seconds before judging.
+    site.generate: offline
+    # Good at reading a page for problems — and the rule checks below it are never skipped.
+    compliance.review: gemini
+
   # A grant is not a permanent hire. It covers one mission and then it lapses.
   grant_ttl_seconds: 900
 

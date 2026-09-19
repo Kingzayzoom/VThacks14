@@ -8,15 +8,34 @@ import json
 import re
 from typing import Callable
 
-from .config import env
+from .config import env, policy
 from .events import emit
 
 
 def mode() -> str:
+    """The system-wide answer: is a model available at all?"""
     m = (env("LLM_MODE", "auto") or "auto").lower()
     if m == "auto":
         return "gemini" if env("GEMINI_API_KEY") else "offline"
     return m
+
+
+def mode_for(capability: str | None = None) -> str:
+    """Which brain this particular kind of work should use.
+
+    Per-capability rather than global, because the right answer differs by job: planning wants
+    a model, and the page a judge looks at wants the template that renders the same way every
+    time. LLM_MODE still overrides everything, so a rehearsal can be made fully deterministic
+    with one environment variable.
+    """
+    configured = (env("LLM_MODE", "auto") or "auto").lower()
+    if configured in ("gemini", "offline"):
+        return configured
+    if not env("GEMINI_API_KEY"):
+        return "offline"
+    if not capability:
+        return "gemini"
+    return str((policy().get("llm") or {}).get(capability, "gemini")).lower()
 
 
 def _parse_json(text: str) -> dict:
@@ -28,10 +47,11 @@ def _parse_json(text: str) -> dict:
 
 
 async def generate_json(system: str, prompt: str, fallback: Callable[[], dict], *, label: str,
-                        actor: str | None = None, mission_id: str | None = None) -> tuple[dict, str]:
+                        capability: str | None = None, actor: str | None = None,
+                        mission_id: str | None = None) -> tuple[dict, str]:
     """Returns (result, engine) where engine is "gemini" or "offline"."""
     configured = (env("LLM_MODE", "auto") or "auto").lower()
-    if mode() == "offline":
+    if mode_for(capability) == "offline":
         return fallback(), "offline"
     try:
         from google import genai

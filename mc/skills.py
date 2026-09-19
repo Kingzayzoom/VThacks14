@@ -75,7 +75,7 @@ async def plan_mission(text: str, **ctx) -> tuple[Plan, str]:
 
     for attempt in (1, 2):
         raw, engine = await generate_json(PLAN_SYSTEM, prompt, lambda: fallback.as_dict(),
-                                          label="Mission plan", **ctx)
+                                          label="Mission plan", capability="mission.plan", **ctx)
         if engine == "offline":
             return fallback, engine
         plan, problems = validate_plan(raw, known_capabilities=CAPABILITIES)
@@ -126,7 +126,8 @@ def _fallback_brand(inp: dict) -> dict:
 
 async def make_brand(inp: dict, *, ask=None, **ctx) -> tuple[dict, str]:
     prompt = f"Business: {inp.get('business')}\nBrief: {inp.get('brief')}\nMission: {inp.get('mission')}"
-    return await generate_json(BRAND_SYSTEM, prompt, lambda: _fallback_brand(inp), label="Brand kit", **ctx)
+    return await generate_json(BRAND_SYSTEM, prompt, lambda: _fallback_brand(inp), label="Brand kit",
+                               capability="brand.identity", **ctx)
 
 
 # --- site.generate --------------------------------------------------------------------
@@ -225,7 +226,8 @@ async def make_site(inp: dict, *, ask=None, **ctx) -> tuple[dict, str]:
     prompt = f"Brand kit: {brand}\nBusiness: {business}\nBrief: {inp.get('brief')}"
     if issues:
         prompt += f"\nIssues to fix from compliance review: {issues}\nPrevious HTML:\n{inp.get('previous_html', '')[:12000]}"
-    out, engine = await generate_json(SITE_SYSTEM, prompt, fallback, label="Landing page", **ctx)
+    out, engine = await generate_json(SITE_SYSTEM, prompt, fallback, label="Landing page",
+                                      capability="site.generate", **ctx)
     if not isinstance(out.get("html"), str) or "<html" not in out["html"].lower():
         return fallback(), "offline"
     return out, engine
@@ -257,12 +259,44 @@ def _fallback_review(inp: dict) -> dict:
             "summary": "Approved." if not high else f"{len(high)} required fix(es) before publishing."}
 
 
+def _key(issue: dict) -> str:
+    """Two reports of the same problem, worded differently, should not become two issues."""
+    return re.sub(r"[^a-z0-9]+", " ", str(issue.get("issue", "")).lower()).strip()
+
+
+def merge_reviews(rules: dict, model: dict) -> dict:
+    """The rule checks always count. The model can add to them; it cannot overrule them.
+
+    A reviewer that can be talked out of a finding is not a reviewer. So the deterministic
+    checks run on every review and go into the result whatever the model said — a page missing
+    its allergen notice is missing it regardless of how confidently something says otherwise.
+    The model earns its place by catching what a rule cannot express, not by silencing rules.
+    """
+    issues = [{**i, "source": "rule"} for i in rules.get("issues", [])]
+    seen = {_key(i) for i in issues}
+    for found in model.get("issues") or []:
+        if not isinstance(found, dict):
+            continue
+        if _key(found) in seen:
+            continue
+        seen.add(_key(found))
+        issues.append({**found, "source": "model"})
+
+    high = [i for i in issues if i.get("severity") == "high"]
+    summary = model.get("summary") or rules.get("summary") or ""
+    if high:
+        summary = f"{len(high)} required fix(es) before publishing."
+    return {"approved": not high, "issues": issues, "summary": summary}
+
+
 async def review_site(inp: dict, *, ask=None, **ctx) -> tuple[dict, str]:
+    rules = _fallback_review(inp)
     prompt = f"Business: {inp.get('business')}\nHTML:\n{(inp.get('html') or '')[:20000]}"
-    out, engine = await generate_json(REVIEW_SYSTEM, prompt, lambda: _fallback_review(inp), label="Compliance review", **ctx)
-    out.setdefault("issues", [])
-    out["approved"] = bool(out.get("approved")) and not any(i.get("severity") == "high" for i in out["issues"])
-    return out, engine
+    out, engine = await generate_json(REVIEW_SYSTEM, prompt, lambda: rules,
+                                      label="Compliance review", capability="compliance.review", **ctx)
+    if engine == "offline":
+        return rules, engine
+    return merge_reviews(rules, out), engine
 
 
 SKILLS = {

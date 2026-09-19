@@ -46,8 +46,8 @@ We built the layer they say is needed and deliberately did not build.
 | **Backend** | Complete. 137 unit tests, all five demo scenarios green end to end. |
 | **Frontend** | Next.js, builds clean, **wired and verified end to end** — a mission launched from the browser layer ran to `delivered` (19 Sep). |
 | **ANS discovery (live)** | **Working.** No credential. 216,110 real agents in production. |
-| **ANS stranger verification** | **Working.** Real GoDaddy-issued certs verified by our own code. |
-| **A2A interaction with a stranger** | **Working.** Proven against `agent.webmesh.ai`. |
+| **ANS stranger verification** | Cryptography proven **in tests only**, against saved certs. Not in the running system. |
+| **A2A interaction with a stranger** | Proven **by hand** against `agent.webmesh.ai`. Not in the codebase. |
 | **ANS registration (live)** | Blocked — needs an API key from the GoDaddy table. |
 | **LLM** | **Nothing is using one.** Two keys tried, both dead. Running on templates. |
 | **Domain** | `getcortex.vip` at Porkbun. Wired as a switch; both modes pass the full demo. |
@@ -576,10 +576,14 @@ you would enforce it in production.
 ever granted teaches nobody anything. The refusal is not staged: the Guardian has no special
 knowledge of that request and the same rules would deny any agent.
 
-**"You registered all five agents yourself."** — Two answers. The impostor holds BrandStudio's
-exact public identity and still fails, because it cannot produce a signature — that is a real
-discriminator, not self-verification. And we verify complete strangers: `supplier.webmesh.ai`,
-run by Webmesh, against GoDaddy's production CA.
+**"You registered all five agents yourself."** — The impostor holds BrandStudio's exact public
+identity and still fails, because it cannot produce a signature. That is a real cryptographic
+discriminator, not self-verification.
+
+> **Do not claim "we verify strangers live."** We verify *saved copies* of two strangers'
+> certificates in `tests/test_stranger_identity.py`, against GoDaddy's production CA. That proves
+> the cryptography, not the product — nothing in the running system fetches a trust card. It
+> becomes a fair claim when P9 lands, and not before.
 
 **"What does this actually prove?"** — That an agent is who it says it is, that it is in good
 standing right now, and that it acted inside permissions we granted. **Not** that its output is
@@ -597,4 +601,5 @@ correct. Keeping those three claims separate is what makes it rigorous instead o
 | [`work/CODEX_PROMPT.md`](work/CODEX_PROMPT.md) | ready-to-paste prompts for an AI session |
 | [`work/fixtures/`](work/fixtures/) | real captured backend output and Webmesh trust cards |
 | [`godaddy-questions.md`](godaddy-questions.md) | what to ask at the sponsor table |
+| [`REFERENCE.md`](REFERENCE.md) | the exhaustive version — every module, every feature, every gap |
 | [`onboarding.md`](onboarding.md) | a shorter primer if this file is too long |

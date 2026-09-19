@@ -79,18 +79,40 @@ in `godaddy_client.py`; take the rest back to the table. Work through the list u
 
 ## Step 3 — the domain
 
-The sponsor is providing one. **One apex domain is enough** — `agentHost` is a fully-qualified
-name and the registry's domain filter matches apex plus subdomains, so:
+**We have one: `getcortex.vip`, registered at Porkbun** (not GoDaddy — that only changes which
+DNS console you use; ANS proves domain control with a DNS-01 TXT record and does not care who
+the registrar is).
+
+**Do not edit the domains in `config/agents.yaml`.** It is already done, as a switch:
+
+```dotenv
+ANS_DOMAIN=getcortex.vip
+```
+
+Unset, every agent keeps its own fictional domain — five separate organisations, which is the
+right shape for the story and impossible to register because we do not own `brandstudio.xyz`.
+Set, all five move to subdomains of a domain we can actually prove control of:
 
 ```
-commander.<domain>      brand.<domain>      sitebuilder.<domain>
-compliance.<domain>     (and a sacrificial one, see step 5)
+commander.getcortex.vip    brand.getcortex.vip      webforge.getcortex.vip
+sitesmith.getcortex.vip    compliance.getcortex.vip
 ```
 
-Update the `domain:` fields in `config/agents.yaml`. You own that section.
+Both modes are tested end to end against the simulator, so the config is known good before you
+point it at GoDaddy.
 
-You need DNS console access — registration returns a DNS-01 challenge and you add a
+**One thing to be aware of and say out loud on stage:** with every agent on one apex, they visibly
+belong to the same owner, which softens the "agents from different organisations" story. That is
+the honest trade for being able to register at all, and it is already covered by the framing —
+the companies are fictional and all ours; in production each vendor would own its own domain.
+If you want the story intact *and* live proof, the hybrid below is the better answer.
+
+You need Porkbun DNS console access — registration returns a DNS-01 challenge and you add a
 `_acme-challenge.<host>` TXT record per agent.
+
+**Optional, and worth the ten minutes:** API access is currently off on the Porkbun account.
+Turning it on gives you an API key, and a small script can then add all five TXT records instead
+of you doing it by hand at 2am. The key lives in `.env` and is gitignored.
 
 ## Step 4 — deployment (the part people underestimate)
 
@@ -106,11 +128,12 @@ on `127.0.0.1` fails **by design**, not by accident.
 | **A small VPS + reverse proxy** | several hours | More control, more to go wrong at 2am. |
 | **Hybrid** | ~1 hour of code | See below. |
 
-Whichever you pick, set the endpoints so they match what is registered:
+Whichever you pick, set the endpoints so they match what is registered — `.env.example` has the
+full list commented out:
 
 ```dotenv
-AGENT_ENDPOINT_BRAND=https://brand.<domain>
-AGENT_ENDPOINT_WEBFORGE=https://sitebuilder.<domain>
+AGENT_ENDPOINT_BRAND=https://brand.getcortex.vip
+AGENT_ENDPOINT_WEBFORGE=https://webforge.getcortex.vip
 ...
 ```
 
@@ -138,8 +161,8 @@ completes ACME validation.
 For the revocation demo, register a sacrificial one:
 
 ```
-sitebuilder.<domain>  v1.0.0   ← the real one. DO NOT REVOKE.
-sitebuilder.<domain>  v0.0.1   ← sacrificial. Revoke this live.
+sitesmith.getcortex.vip  v1.0.0   ← the real one. DO NOT REVOKE.
+sitesmith.getcortex.vip  v0.0.1   ← sacrificial. Revoke this live.
 ```
 
 **Never commit keys.** Private keys land in `keys/`, which is gitignored. Keep it that way. If a
@@ -166,6 +189,10 @@ over by the party you are checking is not a trust anchor. Ask question 3, then s
 - [ ] A sacrificial identity exists for the revocation demo
 - [ ] Either the full mission runs live, or the hybrid works and we know which we are demoing
 - [ ] `docs/status.md` updated with what is actually live
+
+One more thing worth checking early: `.vip` is an ordinary gTLD and should be fine, but if any
+ANS validation step turns out to be fussy about the TLD, `check_ans.py` is where you will see it
+first.
 
 ## When you are blocked
 

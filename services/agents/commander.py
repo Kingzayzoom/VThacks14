@@ -180,9 +180,19 @@ async def discover(m: Mission, rec: Recruitment) -> list[dict]:
         cands.append({"ans_name": o["ans_name"], "endpoint": o["endpoint"], "source": "open-web offer",
                       "org": o.get("org"), "pitch": o.get("pitch"), "capabilities": [rec.capability]})
 
-    rank = {d: i for i, d in enumerate(m.policy.preferred_vendors)}
+    rank: dict[str, int] = {}
+    for i, name in enumerate(m.policy.preferred_vendors):
+        try:
+            rank[config.host_of(config.agent(name))] = i
+        except KeyError:
+            rank[name] = i  # a raw host or domain is fine too
+
+    def preference(record: dict) -> int:
+        parsed = config.parse_ans_name(record["ans_name"])
+        return rank.get(parsed["host"], rank.get(parsed["domain"], 99))
+
     records = await state.ans.search(capability=rec.capability)
-    records.sort(key=lambda r: rank.get(config.parse_ans_name(r["ans_name"])["domain"], 99))
+    records.sort(key=preference)
     for r in records:
         cands.append({"ans_name": r["ans_name"], "endpoint": r["endpoint"], "source": "ANS registry",
                       "org": r.get("org"), "version": r.get("version"),

@@ -19,15 +19,21 @@ async function api(method, path, body) {
 function agentByAns(ans) { return S.agents.find((a) => a.ans_name === ans); }
 function parseAns(ans) {
   const m = /^ans:\/\/v(\d+\.\d+\.\d+)\.([a-z0-9-]+)\.([a-z0-9.-]+)$/.exec(ans || "");
-  return m ? { version: m[1], label: m[2], domain: m[3] } : null;
+  return m ? { version: m[1], label: m[2], domain: m[3], host: `${m[2]}.${m[3]}` } : null;
+}
+function hostOf(agent) {
+  const p = parseAns(agent.ans_name);
+  return p ? p.host : null;
 }
 function orgFor(ans) {
   const a = agentByAns(ans);
   if (a) return a.org;
   const p = parseAns(ans);
   if (p) {
-    const byDomain = S.agents.find((x) => x.domain === p.domain);
-    return byDomain ? `${byDomain.org} v${p.version}` : p.domain;
+    // Match on host, not domain: once every agent is a subdomain of one real domain, matching
+    // on the domain alone reports the same org for all of them.
+    const byHost = S.agents.find((x) => hostOf(x) === p.host);
+    return byHost ? `${byHost.org} v${p.version}` : p.host;
   }
   const imp = S.agents.find((x) => x.role === "impostor" && x.endpoint === ans);
   return imp ? "Impostor" : ans || "Mission Control";

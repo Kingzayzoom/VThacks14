@@ -373,17 +373,19 @@ Remaining work is split into six packets in [`work/`](work/), drawn so **no two 
 file**. Each is a self-contained brief you can hand to a separate AI session, with its own branch,
 its own file territory and its own done-criteria.
 
-| | Packet | Status | Priority |
+| | Packet | Blocked? | Priority |
 |---|---|---|---|
-| P1 | [Frontend data adapter](work/p1-frontend-adapter.md) | ready | critical path |
-| P2 | [Trust and Guardian views](work/p2-frontend-views.md) | ready | critical path |
-| P3 | [Backend API for the frontend](work/p3-backend-api.md) | ready | high |
-| P4 | [Live ANS and deployment](work/p4-live-ans.md) | partly blocked on a PAT | high — prize track |
-| P5 | [Agent output quality](work/p5-agent-output.md) | ready | medium |
-| P6 | [Demo script and rehearsal](work/p6-demo.md) | ready | high by Saturday |
+| P1 | [Frontend data adapter](work/p1-frontend-adapter.md) | no | **critical** |
+| P2 | [Trust and Guardian views](work/p2-frontend-views.md) | no | **critical** |
+| P3 | [Backend API for the frontend](work/p3-backend-api.md) | no | high |
+| P7 | [Live discovery over 216k agents](work/p7-live-discovery.md) | no | **high — prize track** |
+| P8 | [Make the agents think](work/p8-llm.md) | needs a key | **high** |
+| P6 | [Demo script and rehearsal](work/p6-demo.md) | no | high by Saturday |
+| P4 | [Live ANS registration and deployment](work/p4-live-ans.md) | needs a PAT | medium |
+| P5 | [Agent output quality](work/p5-agent-output.md) | no | medium |
 
-Three or four at a time, not six — more than that and the time goes on reviewing merges. P1 + P2 +
-P4 are the ones that decide how the demo looks and whether the track lands.
+Three or four at a time, not eight. If you can only staff four: **P1, P2, P7, P8** — connect the
+two halves, win the track, and make the agents think.
 
 [`work/fixtures/`](work/fixtures/) holds real captured output from a full run: 95 events, one
 example of each of the 32 event types, and every REST response. That is what lets P2 build the

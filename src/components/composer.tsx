@@ -21,13 +21,15 @@ const examples = [
 export function MissionComposer({
   compact = false,
   onSubmitted,
+  initialObjective = "",
 }: {
   compact?: boolean;
   onSubmitted?: () => void;
+  initialObjective?: string;
 }) {
   const { api } = useControl();
   const router = useRouter();
-  const [objective, setObjective] = useState("");
+  const [objective, setObjective] = useState(initialObjective);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const lock = useRef(false);

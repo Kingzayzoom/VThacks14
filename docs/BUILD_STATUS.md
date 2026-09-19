@@ -1,10 +1,32 @@
 # CORTEXAI / Phase A living visual checkpoint
 
+## Owner-authorized voice and category extension
+
+The design reduction and final QA were published to `main` in `52d6b97`, merging
+all four newer teammate commits through `c4f9bf9` without conflicts or force-pushing.
+Vercel confirmed that exact commit's production deployment; the public site is
+[cortex-gray-tau.vercel.app](https://cortex-gray-tau.vercel.app).
+
+The next frontend addition supplies seven category filters inside Find agents and
+a voice assistant with a reviewed, editable mission handoff. Session tokens are
+issued server-side behind a private team access code. Empty configuration remains
+usable with text and does not request a microphone. Settings distinguishes
+configuration from a tested connection. See [voice setup and integration boundary](VOICE_HANDOFF.md).
+
+P1's provider/adapter, P3's API, P4's ANS/environment files, P5's agents, shared
+contracts, the CORTEXAI rename, and `docs/status.md` were preserved. The new composer
+handoff uses the existing ControlApi and currently creates demo missions; real hub
+execution still depends on the team's live adapter. No live ElevenLabs call is claimed.
+
+Verified on `http://127.0.0.1:3023`: typecheck, lint, 11 unit tests, production build
+and all 13 browser checks. One host-load timeout passed on an isolated rerun after
+older QA servers were stopped. See [full test evidence](TEST_RESULTS.md).
+
 ## Final visual QA / complete
 
 The no-redesign audit is complete. Homepage composition and neural rendering are unchanged. Removed duplicate workspace demo labels and repetitive roster capability text, made Reset and branch focus contextual, and tightened desktop roster spacing. CORTEXAI branding and backend work are untouched. Typecheck, lint, 6 unit tests, production build and all 10 browser tests pass; tested desktop/mobile axe states report zero violations. [Final comparison and stop point](FINAL_VISUAL_QA.md).
 
-Current verified local preview: `http://127.0.0.1:3021`, built with `CORTEX_BUILD_DIR=.next/final-visual-qa`. No push or deployment.
+Historical verified preview: `http://127.0.0.1:3021`, built with `CORTEX_BUILD_DIR=.next/final-visual-qa`. This checkpoint was subsequently published in `52d6b97` as described above.
 
 ## Current checkpoint / Design reduction
 
@@ -14,7 +36,7 @@ The homepage now contains the wordmark, concise promise, objective composer and 
 
 Agents opens with the network occupying the whole stage. Selection opens a closable inspector; search/filter and recorded activity use disclosures. Actual runtime/review/disconnected states, scope evidence, handoffs, mission actions, roster mode and the shared motion architecture remain. Preview specialists still have no admission or authority. No contracts, providers, credentials or backend behavior changed.
 
-Local review build: `http://127.0.0.1:3020` with `CORTEX_BUILD_DIR=.next/reduction-verified`. This pass is local and awaits visual review. No deployment or GitHub push was performed for this pass.
+Historical review build: `http://127.0.0.1:3020` with `CORTEX_BUILD_DIR=.next/reduction-verified`. This pass was subsequently included in the owner-authorized publication described above.
 
 Validation: typecheck, lint, all 6 unit tests, production build and all 10 browser tests passed. Final desktop/mobile axe checks report zero violations. See [verification details](TEST_RESULTS.md).
 

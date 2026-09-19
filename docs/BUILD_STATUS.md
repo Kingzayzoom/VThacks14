@@ -1,5 +1,25 @@
 # PERIHELION / Phase A living visual checkpoint
 
+## Current checkpoint / Agents constellation
+
+The owner's explicit Agents request extends the frontend with `/agents`, using `references/agentimage.png` as the direct visual target. The new page is linked from the workspace sidebar and Entry navigation. Broader Phase B work still awaits direction.
+
+- Real React controls and readable DOM labels over an original Canvas/SVG constellation: orchestrator, five colored specialist clusters, separate Guardian boundary, right inspector and recorded activity strip.
+- Continuous optical fabric, breathing signatures, rotating rings, light grains, hover response, selected-branch focus and Framer Motion inspector transitions. Shared frame clock, reduced motion, visual pause and Canvas fallback are preserved.
+- Search by name/role/capability, mission/review filters, map/list, reset, selectable nodes and handoffs, expandable identity evidence, mission navigation and pause/resume all work.
+- Mission counts, statuses, active packets and events come from the existing ControlApi snapshot. Memory and Voice are disconnected, unverified concept previews with no authority or mission assignment. No new shared contract or roster entry was introduced.
+- Mobile defaults to the roster; selection scrolls and moves keyboard focus to the inspector. The map is an optional horizontally scrollable view.
+
+Validation: typecheck, lint, all 6 unit tests, production build and all 9 browser tests passed. Agents accessibility checks found zero axe violations on desktop and mobile. Browser coverage includes real changing Canvas pixels, frozen pixels during visual pause, paused mission counts/packets, filtering, preview authority, mobile navigation and unavailable Canvas. See `docs/TEST_RESULTS.md` for limits.
+
+Preview: `http://127.0.0.1:3018/agents`. The verified build uses `PERIHELION_BUILD_DIR=.next/agents-final` because OneDrive locked the older output. To reproduce: set that process environment variable, run `npm.cmd run build`, then `npm.cmd run start -- --port 3018`. Normal development remains `npm.cmd run dev`. Existing environment files and the pre-existing `next-env.d.ts` development imports were preserved.
+
+Review artifacts: [desktop](screenshots/agents/desktop.png), [wide](screenshots/agents/wide.png), [compact desktop](screenshots/agents/compact.png), [mobile](screenshots/agents/mobile.png), [mobile inspector](screenshots/agents/mobile-inspector.png), [motion recording](screenshots/agents/motion.webm). Re-record with `node scripts/capture-agents.mjs` against the local preview. The reference image itself is never loaded by the runtime.
+
+Changed product files: `src/app/(workspace)/agents/page.tsx`, the three modules under `src/components/agents/`, `src/styles/agents.css`, `src/components/shell.tsx`, `src/components/entry.tsx`. Added browser coverage and capture script; updated the visual handoff docs. No dependencies, lockfiles, backend services, provider setup or microphone capture changed. The exact next step is Roheen's visual review of this Agents composition.
+
+## Previous checkpoint / Entry and FIELD
+
 September 18, 2026. Phase A visual refinement completed through two screenshot inspection passes. Awaiting Roheen's visual review. Do not start Phase B or live integration without the next instruction.
 
 ## Current living-field refinement

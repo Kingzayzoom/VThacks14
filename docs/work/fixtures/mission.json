@@ -1,0 +1,743 @@
+{
+  "mission": {
+    "id": "m_f06a261d",
+    "text": "Launch an online presence for Hokie Bites, a food truck in Blacksburg.",
+    "scenario": {
+      "impostor": true,
+      "revoke": true,
+      "upgrade": true,
+      "exfil": true,
+      "publish": true
+    },
+    "status": "delivered",
+    "business": {
+      "name": "Hokie Bites",
+      "type": "food truck",
+      "location": "Blacksburg",
+      "audience": "local customers"
+    },
+    "jobs": [
+      {
+        "id": "brand",
+        "title": "Brand kit",
+        "capability": "brand.identity",
+        "brief": "Create a brand kit for Hokie Bites, a food truck in Blacksburg.",
+        "depends_on": [],
+        "status": "done",
+        "agent": "ans://v1.0.0.brand.brandstudio.xyz",
+        "org": "BrandStudio",
+        "recruitment_id": "rec_6b7251f8",
+        "scopes": [
+          "mission.read:brief",
+          "artifact.write:mission"
+        ]
+      },
+      {
+        "id": "site",
+        "title": "Landing page",
+        "capability": "site.generate",
+        "brief": "Build a one-page site for Hokie Bites using the brand kit.",
+        "depends_on": [
+          "brand"
+        ],
+        "status": "done",
+        "agent": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+        "org": "SiteSmith",
+        "recruitment_id": "rec_fa5a0255",
+        "scopes": [
+          "mission.read:brand_kit",
+          "artifact.write:mission",
+          "http.fetch:fonts.googleapis.com",
+          "site.publish:site"
+        ]
+      },
+      {
+        "id": "review",
+        "title": "Compliance review",
+        "capability": "compliance.review",
+        "brief": "Check the site for missing disclaimers, accessibility basics and risky claims.",
+        "depends_on": [
+          "site"
+        ],
+        "status": "done",
+        "agent": "ans://v1.1.0.compliance.legalcheck.xyz",
+        "org": "LegalCheck",
+        "recruitment_id": "rec_237d914c",
+        "scopes": [
+          "mission.read:site",
+          "artifact.write:mission"
+        ]
+      },
+      {
+        "id": "review.fix",
+        "title": "Fix review issues",
+        "capability": "site.generate",
+        "brief": "Build a one-page site for Hokie Bites using the brand kit.",
+        "depends_on": [
+          "site",
+          "review"
+        ],
+        "status": "done",
+        "agent": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+        "org": "SiteSmith",
+        "scopes": [
+          "mission.read:brand_kit",
+          "artifact.write:mission",
+          "http.fetch:fonts.googleapis.com",
+          "site.publish:site"
+        ]
+      },
+      {
+        "id": "review.recheck",
+        "title": "Final review",
+        "capability": "compliance.review",
+        "brief": "Check the site for missing disclaimers, accessibility basics and risky claims.",
+        "depends_on": [
+          "review.fix"
+        ],
+        "status": "done",
+        "agent": "ans://v1.1.0.compliance.legalcheck.xyz",
+        "org": "LegalCheck",
+        "scopes": [
+          "mission.read:site",
+          "artifact.write:mission"
+        ]
+      }
+    ],
+    "hires": [
+      {
+        "job": "Brand kit",
+        "capability": "brand.identity",
+        "ans_name": "ans://v1.0.0.brand.brandstudio.xyz",
+        "org": "BrandStudio",
+        "endpoint": "http://127.0.0.1:8002",
+        "checks": [
+          {
+            "name": "resolve",
+            "ok": true,
+            "detail": "registered to BrandStudio \u00b7 card fetched",
+            "state": "pass",
+            "evidence": {
+              "registered_endpoint": "http://127.0.0.1:8002",
+              "offered_endpoint": "http://127.0.0.1:8002",
+              "endpoint_matches_registry": true
+            }
+          },
+          {
+            "name": "authenticate",
+            "ok": true,
+            "detail": "signed our challenge with its certified key",
+            "state": "pass",
+            "evidence": {}
+          },
+          {
+            "name": "status",
+            "ok": true,
+            "detail": "ACTIVE \u00b7 ANS says ACTIVE, signed 5s ago (presented, verified offline) \u00b7 log entry #1 verified",
+            "state": "pass",
+            "evidence": {
+              "registry_status": "ACTIVE",
+              "inclusion": {
+                "state": "pass",
+                "detail": "entry #1 is in the signed log (size 5)",
+                "log_index": 1
+              },
+              "standing": {
+                "state": "pass",
+                "detail": "ANS says ACTIVE, signed 5s ago (presented, verified offline)",
+                "status": "ACTIVE",
+                "version": "1.0.0",
+                "ans_name": "ans://v1.0.0.brand.brandstudio.xyz",
+                "issued_at": "2026-09-19T02:57:40+00:00",
+                "expires_at": "2026-09-19T03:57:40+00:00",
+                "age_seconds": 5,
+                "source": "presented by the agent"
+              }
+            }
+          },
+          {
+            "name": "capability",
+            "ok": true,
+            "detail": "offers brand.identity",
+            "state": "pass",
+            "evidence": {}
+          },
+          {
+            "name": "policy",
+            "ok": true,
+            "detail": "domain allowed \u00b7 at its registered address \u00b7 version approved",
+            "state": "pass",
+            "evidence": {}
+          }
+        ],
+        "owner_approved": false,
+        "log_index": 1,
+        "fingerprint": "sha256:a48a7505122807fffd6572039e566f045118a321f88d8c67f53d457556be631f",
+        "output_sha256": "05514a4733f9a8283a066dca4b08d8074102ee5e02d56831e07373ab416f3be2",
+        "signed_at": "2026-09-19T02:57:48+00:00",
+        "engine": "offline"
+      },
+      {
+        "job": "Landing page",
+        "capability": "site.generate",
+        "ans_name": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+        "org": "SiteSmith",
+        "endpoint": "http://127.0.0.1:8004",
+        "checks": [
+          {
+            "name": "resolve",
+            "ok": true,
+            "detail": "registered to SiteSmith \u00b7 card fetched",
+            "state": "pass",
+            "evidence": {
+              "registered_endpoint": "http://127.0.0.1:8004",
+              "offered_endpoint": "http://127.0.0.1:8004",
+              "endpoint_matches_registry": true
+            }
+          },
+          {
+            "name": "authenticate",
+            "ok": true,
+            "detail": "signed our challenge with its certified key",
+            "state": "pass",
+            "evidence": {}
+          },
+          {
+            "name": "status",
+            "ok": true,
+            "detail": "ACTIVE \u00b7 ANS says ACTIVE, signed 12s ago (presented, verified offline) \u00b7 log entry #4 verified",
+            "state": "pass",
+            "evidence": {
+              "registry_status": "ACTIVE",
+              "inclusion": {
+                "state": "pass",
+                "detail": "entry #4 is in the signed log (size 6)",
+                "log_index": 4
+              },
+              "standing": {
+                "state": "pass",
+                "detail": "ANS says ACTIVE, signed 12s ago (presented, verified offline)",
+                "status": "ACTIVE",
+                "version": "1.0.0",
+                "ans_name": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+                "issued_at": "2026-09-19T02:57:40+00:00",
+                "expires_at": "2026-09-19T03:57:40+00:00",
+                "age_seconds": 12,
+                "source": "presented by the agent"
+              }
+            }
+          },
+          {
+            "name": "capability",
+            "ok": true,
+            "detail": "offers site.generate",
+            "state": "pass",
+            "evidence": {}
+          },
+          {
+            "name": "policy",
+            "ok": true,
+            "detail": "domain allowed \u00b7 at its registered address \u00b7 version approved",
+            "state": "pass",
+            "evidence": {}
+          }
+        ],
+        "owner_approved": false,
+        "log_index": 4,
+        "fingerprint": "sha256:408bb916495e4abd53f4ae3d85367998980c78e4a44b029236f89002f172c435",
+        "output_sha256": "856a5f2ee0befdf31c8f72c9625ba6af0d6e45c1fae31b14c0be6e405a5ae1c1",
+        "signed_at": "2026-09-19T02:57:54+00:00",
+        "engine": "offline"
+      },
+      {
+        "job": "Compliance review",
+        "capability": "compliance.review",
+        "ans_name": "ans://v1.1.0.compliance.legalcheck.xyz",
+        "org": "LegalCheck",
+        "endpoint": "http://127.0.0.1:8005",
+        "checks": [
+          {
+            "name": "resolve",
+            "ok": true,
+            "detail": "registered to LegalCheck \u00b7 card fetched",
+            "state": "pass",
+            "evidence": {
+              "registered_endpoint": "http://127.0.0.1:8005",
+              "offered_endpoint": "http://127.0.0.1:8005",
+              "endpoint_matches_registry": true
+            }
+          },
+          {
+            "name": "authenticate",
+            "ok": true,
+            "detail": "signed our challenge with its certified key",
+            "state": "pass",
+            "evidence": {}
+          },
+          {
+            "name": "status",
+            "ok": true,
+            "detail": "ACTIVE \u00b7 ANS says ACTIVE, signed 3s ago (presented, verified offline) \u00b7 log entry #6 verified",
+            "state": "pass",
+            "evidence": {
+              "registry_status": "ACTIVE",
+              "inclusion": {
+                "state": "pass",
+                "detail": "entry #6 is in the signed log (size 8)",
+                "log_index": 6
+              },
+              "standing": {
+                "state": "pass",
+                "detail": "ANS says ACTIVE, signed 3s ago (presented, verified offline)",
+                "status": "ACTIVE",
+                "version": "1.1.0",
+                "ans_name": "ans://v1.1.0.compliance.legalcheck.xyz",
+                "issued_at": "2026-09-19T02:57:54+00:00",
+                "expires_at": "2026-09-19T03:57:54+00:00",
+                "age_seconds": 3,
+                "source": "presented by the agent"
+              }
+            }
+          },
+          {
+            "name": "capability",
+            "ok": true,
+            "detail": "offers compliance.review",
+            "state": "pass",
+            "evidence": {}
+          },
+          {
+            "name": "policy",
+            "ok": false,
+            "detail": "version 1.1.0 isn't the approved 1.0.x",
+            "state": "fail",
+            "evidence": {}
+          }
+        ],
+        "owner_approved": true,
+        "log_index": 6,
+        "fingerprint": "sha256:12d409bd5a66fccb739e10da08096295ad9097c3a8fa52b483a2f3104335c1ef",
+        "output_sha256": "db19dcbc0b31939c79118ea5a26d16fb3a04ce3b57396c8a89bbf1184009f9c9",
+        "signed_at": "2026-09-19T02:57:59+00:00",
+        "engine": "offline"
+      },
+      {
+        "job": "Fix review issues",
+        "capability": "site.generate",
+        "ans_name": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+        "org": "SiteSmith",
+        "endpoint": "http://127.0.0.1:8004",
+        "checks": [
+          {
+            "name": "resolve",
+            "ok": true,
+            "detail": "registered to SiteSmith \u00b7 card fetched",
+            "state": "pass",
+            "evidence": {
+              "registered_endpoint": "http://127.0.0.1:8004",
+              "offered_endpoint": "http://127.0.0.1:8004",
+              "endpoint_matches_registry": true
+            }
+          },
+          {
+            "name": "authenticate",
+            "ok": true,
+            "detail": "signed our challenge with its certified key",
+            "state": "pass",
+            "evidence": {}
+          },
+          {
+            "name": "status",
+            "ok": true,
+            "detail": "ACTIVE \u00b7 ANS says ACTIVE, signed 12s ago (presented, verified offline) \u00b7 log entry #4 verified",
+            "state": "pass",
+            "evidence": {
+              "registry_status": "ACTIVE",
+              "inclusion": {
+                "state": "pass",
+                "detail": "entry #4 is in the signed log (size 6)",
+                "log_index": 4
+              },
+              "standing": {
+                "state": "pass",
+                "detail": "ANS says ACTIVE, signed 12s ago (presented, verified offline)",
+                "status": "ACTIVE",
+                "version": "1.0.0",
+                "ans_name": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+                "issued_at": "2026-09-19T02:57:40+00:00",
+                "expires_at": "2026-09-19T03:57:40+00:00",
+                "age_seconds": 12,
+                "source": "presented by the agent"
+              }
+            }
+          },
+          {
+            "name": "capability",
+            "ok": true,
+            "detail": "offers site.generate",
+            "state": "pass",
+            "evidence": {}
+          },
+          {
+            "name": "policy",
+            "ok": true,
+            "detail": "domain allowed \u00b7 at its registered address \u00b7 version approved",
+            "state": "pass",
+            "evidence": {}
+          }
+        ],
+        "owner_approved": false,
+        "log_index": 4,
+        "fingerprint": "sha256:408bb916495e4abd53f4ae3d85367998980c78e4a44b029236f89002f172c435",
+        "output_sha256": "7e35307ce5fc34575b1b3afe597b4ed715eb6694a2f45562c7ff3ad73a4dbd57",
+        "signed_at": "2026-09-19T02:58:02+00:00",
+        "engine": "offline"
+      },
+      {
+        "job": "Final review",
+        "capability": "compliance.review",
+        "ans_name": "ans://v1.1.0.compliance.legalcheck.xyz",
+        "org": "LegalCheck",
+        "endpoint": "http://127.0.0.1:8005",
+        "checks": [
+          {
+            "name": "resolve",
+            "ok": true,
+            "detail": "registered to LegalCheck \u00b7 card fetched",
+            "state": "pass",
+            "evidence": {
+              "registered_endpoint": "http://127.0.0.1:8005",
+              "offered_endpoint": "http://127.0.0.1:8005",
+              "endpoint_matches_registry": true
+            }
+          },
+          {
+            "name": "authenticate",
+            "ok": true,
+            "detail": "signed our challenge with its certified key",
+            "state": "pass",
+            "evidence": {}
+          },
+          {
+            "name": "status",
+            "ok": true,
+            "detail": "ACTIVE \u00b7 ANS says ACTIVE, signed 3s ago (presented, verified offline) \u00b7 log entry #6 verified",
+            "state": "pass",
+            "evidence": {
+              "registry_status": "ACTIVE",
+              "inclusion": {
+                "state": "pass",
+                "detail": "entry #6 is in the signed log (size 8)",
+                "log_index": 6
+              },
+              "standing": {
+                "state": "pass",
+                "detail": "ANS says ACTIVE, signed 3s ago (presented, verified offline)",
+                "status": "ACTIVE",
+                "version": "1.1.0",
+                "ans_name": "ans://v1.1.0.compliance.legalcheck.xyz",
+                "issued_at": "2026-09-19T02:57:54+00:00",
+                "expires_at": "2026-09-19T03:57:54+00:00",
+                "age_seconds": 3,
+                "source": "presented by the agent"
+              }
+            }
+          },
+          {
+            "name": "capability",
+            "ok": true,
+            "detail": "offers compliance.review",
+            "state": "pass",
+            "evidence": {}
+          },
+          {
+            "name": "policy",
+            "ok": false,
+            "detail": "version 1.1.0 isn't the approved 1.0.x",
+            "state": "fail",
+            "evidence": {}
+          }
+        ],
+        "owner_approved": true,
+        "log_index": 6,
+        "fingerprint": "sha256:12d409bd5a66fccb739e10da08096295ad9097c3a8fa52b483a2f3104335c1ef",
+        "output_sha256": "7382bf4d5f8cb120c93500a2d0adefd5fe9323d7e7167518f3dbedae130c9a1e",
+        "signed_at": "2026-09-19T02:58:04+00:00",
+        "engine": "offline"
+      }
+    ],
+    "approval": null,
+    "recruitments": [
+      {
+        "id": "rec_6b7251f8",
+        "mission_id": "m_f06a261d",
+        "job_title": "Brand kit",
+        "capability": "brand.identity",
+        "status": "admitted",
+        "candidates": [
+          {
+            "ans_name": "ans://v1.0.0.brand.brandstudio.xyz",
+            "endpoint": "http://127.0.0.1:8006",
+            "source": "open-web offer",
+            "org": "BrandStudio",
+            "pitch": "Half price, delivered instantly.",
+            "capabilities": [
+              "brand.identity"
+            ]
+          },
+          {
+            "ans_name": "ans://v1.0.0.brand.brandstudio.xyz",
+            "endpoint": "http://127.0.0.1:8002",
+            "source": "ANS registry",
+            "org": "BrandStudio",
+            "version": "1.0.0",
+            "capabilities": [
+              "brand.identity"
+            ],
+            "pitch": null
+          }
+        ],
+        "selected": "ans://v1.0.0.brand.brandstudio.xyz",
+        "replacing": null,
+        "rejected": [
+          {
+            "ans_name": "ans://v1.0.0.brand.brandstudio.xyz",
+            "org": "BrandStudio",
+            "failed_check": "authenticate",
+            "reason": "couldn't prove it holds this identity's private key (it is not at the endpoint ANS lists)"
+          }
+        ],
+        "requested_scopes": [
+          "mission.read:brief",
+          "artifact.write:mission"
+        ],
+        "granted_scopes": [
+          "mission.read:brief",
+          "artifact.write:mission"
+        ],
+        "started_at": "2026-09-19T02:57:43+00:00",
+        "finished_at": "2026-09-19T02:57:45+00:00"
+      },
+      {
+        "id": "rec_a3e3ba54",
+        "mission_id": "m_f06a261d",
+        "job_title": "Landing page",
+        "capability": "site.generate",
+        "status": "admitted",
+        "candidates": [
+          {
+            "ans_name": "ans://v1.0.0.sitebuilder.webforge.xyz",
+            "endpoint": "http://127.0.0.1:8003",
+            "source": "ANS registry",
+            "org": "WebForge",
+            "version": "1.0.0",
+            "capabilities": [
+              "site.generate"
+            ],
+            "pitch": null
+          },
+          {
+            "ans_name": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+            "endpoint": "http://127.0.0.1:8004",
+            "source": "ANS registry",
+            "org": "SiteSmith",
+            "version": "1.0.0",
+            "capabilities": [
+              "site.generate"
+            ],
+            "pitch": null
+          }
+        ],
+        "selected": "ans://v1.0.0.sitebuilder.webforge.xyz",
+        "replacing": null,
+        "rejected": [],
+        "requested_scopes": [
+          "mission.read:brand_kit",
+          "artifact.write:mission",
+          "http.fetch:fonts.googleapis.com",
+          "site.publish:site"
+        ],
+        "granted_scopes": [
+          "mission.read:brand_kit",
+          "artifact.write:mission",
+          "http.fetch:fonts.googleapis.com",
+          "site.publish:site"
+        ],
+        "started_at": "2026-09-19T02:57:48+00:00",
+        "finished_at": "2026-09-19T02:57:49+00:00"
+      },
+      {
+        "id": "rec_fa5a0255",
+        "mission_id": "m_f06a261d",
+        "job_title": "Landing page",
+        "capability": "site.generate",
+        "status": "admitted",
+        "candidates": [
+          {
+            "ans_name": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+            "endpoint": "http://127.0.0.1:8004",
+            "source": "ANS registry",
+            "org": "SiteSmith",
+            "version": "1.0.0",
+            "capabilities": [
+              "site.generate"
+            ],
+            "pitch": null
+          }
+        ],
+        "selected": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+        "replacing": {
+          "ans_name": "ans://v1.0.0.sitebuilder.webforge.xyz",
+          "org": "WebForge",
+          "reason": "WebForge is now REVOKED (Compromised: revoked from CortexAi). Deliverable discarded."
+        },
+        "rejected": [],
+        "requested_scopes": [
+          "mission.read:brand_kit",
+          "artifact.write:mission",
+          "http.fetch:fonts.googleapis.com",
+          "site.publish:site"
+        ],
+        "granted_scopes": [
+          "mission.read:brand_kit",
+          "artifact.write:mission",
+          "http.fetch:fonts.googleapis.com",
+          "site.publish:site"
+        ],
+        "started_at": "2026-09-19T02:57:51+00:00",
+        "finished_at": "2026-09-19T02:57:52+00:00"
+      },
+      {
+        "id": "rec_237d914c",
+        "mission_id": "m_f06a261d",
+        "job_title": "Compliance review",
+        "capability": "compliance.review",
+        "status": "admitted",
+        "candidates": [
+          {
+            "ans_name": "ans://v1.1.0.compliance.legalcheck.xyz",
+            "endpoint": "http://127.0.0.1:8005",
+            "source": "ANS registry",
+            "org": "LegalCheck",
+            "version": "1.1.0",
+            "capabilities": [
+              "compliance.review"
+            ],
+            "pitch": null
+          }
+        ],
+        "selected": "ans://v1.1.0.compliance.legalcheck.xyz",
+        "replacing": null,
+        "rejected": [],
+        "requested_scopes": [
+          "mission.read:site",
+          "artifact.write:mission"
+        ],
+        "granted_scopes": [
+          "mission.read:site",
+          "artifact.write:mission"
+        ],
+        "started_at": "2026-09-19T02:57:55+00:00",
+        "finished_at": "2026-09-19T02:57:56+00:00"
+      }
+    ],
+    "plan": {
+      "business": {
+        "name": "Hokie Bites",
+        "type": "food truck",
+        "location": "Blacksburg",
+        "audience": "local customers"
+      },
+      "tasks": [
+        {
+          "id": "brand",
+          "title": "Brand kit",
+          "capability": "brand.identity",
+          "brief": "Create a brand kit for Hokie Bites, a food truck in Blacksburg.",
+          "depends_on": []
+        },
+        {
+          "id": "site",
+          "title": "Landing page",
+          "capability": "site.generate",
+          "brief": "Build a one-page site for Hokie Bites using the brand kit.",
+          "depends_on": [
+            "brand"
+          ]
+        },
+        {
+          "id": "review",
+          "title": "Compliance review",
+          "capability": "compliance.review",
+          "brief": "Check the site for missing disclaimers, accessibility basics and risky claims.",
+          "depends_on": [
+            "site"
+          ]
+        },
+        {
+          "id": "review.fix",
+          "title": "Fix review issues",
+          "capability": "site.generate",
+          "brief": "Build a one-page site for Hokie Bites using the brand kit.",
+          "depends_on": [
+            "site",
+            "review"
+          ]
+        },
+        {
+          "id": "review.recheck",
+          "title": "Final review",
+          "capability": "compliance.review",
+          "brief": "Check the site for missing disclaimers, accessibility basics and risky claims.",
+          "depends_on": [
+            "review.fix"
+          ]
+        }
+      ],
+      "unsupported": []
+    },
+    "roster": [
+      {
+        "ans_name": "ans://v1.0.0.brand.brandstudio.xyz",
+        "org": "BrandStudio",
+        "version": "1.0.0",
+        "capabilities": [
+          "brand.identity"
+        ]
+      },
+      {
+        "ans_name": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+        "org": "SiteSmith",
+        "version": "1.0.0",
+        "capabilities": [
+          "site.generate"
+        ]
+      },
+      {
+        "ans_name": "ans://v1.1.0.compliance.legalcheck.xyz",
+        "org": "LegalCheck",
+        "version": "1.1.0",
+        "capabilities": [
+          "compliance.review"
+        ]
+      }
+    ],
+    "stats": {
+      "checks_passed": 24,
+      "blocked": 2,
+      "signed": 5
+    },
+    "review": {
+      "approved": true,
+      "issues": [],
+      "summary": "Approved."
+    },
+    "error": null,
+    "has_result": true,
+    "engines": [
+      "offline"
+    ],
+    "started_at": "2026-09-19T02:57:40+00:00",
+    "finished_at": "2026-09-19T02:58:04+00:00"
+  }
+}

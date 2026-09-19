@@ -1,0 +1,36 @@
+{
+  "overall": "DEGRADED",
+  "checked_at": "2026-09-19T03:03:25+00:00",
+  "components": [
+    {
+      "name": "ANS",
+      "state": "CONNECTED",
+      "detail": "ANS simulator (local) \u00b7 6 registered agent(s)",
+      "checked_at": "2026-09-19T03:03:25+00:00",
+      "backend": "sim",
+      "registered": 6
+    },
+    {
+      "name": "Agent runtime",
+      "state": "CONNECTED",
+      "detail": "6 of 6 agents online",
+      "checked_at": "2026-09-19T03:03:25+00:00",
+      "online": 6,
+      "total": 6
+    },
+    {
+      "name": "Gemini",
+      "state": "DEGRADED",
+      "detail": "Compliance review: Gemini unavailable (ClientError), used offline template",
+      "checked_at": "2026-09-19T03:03:25+00:00",
+      "last_seen": "2026-09-19T02:58:03.774+00:00"
+    },
+    {
+      "name": "Event stream",
+      "state": "CONNECTED",
+      "detail": "1 dashboard(s) attached",
+      "checked_at": "2026-09-19T03:03:25+00:00",
+      "clients": 1
+    }
+  ]
+}

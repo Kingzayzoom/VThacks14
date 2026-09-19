@@ -1,0 +1,2113 @@
+[
+  {
+    "id": "199627f83d84",
+    "ts": "2026-09-19T02:57:40.828+00:00",
+    "type": "demo.reset",
+    "message": "Demo reset. All agents are back to their approved versions.",
+    "actor": null,
+    "subject": null,
+    "mission_id": null,
+    "data": {
+      "notes": []
+    }
+  },
+  {
+    "id": "8ada24eda3fe",
+    "ts": "2026-09-19T02:57:40.854+00:00",
+    "type": "mission.started",
+    "message": "Mission received: Launch an online presence for Hokie Bites, a food truck in Blacksburg.",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {}
+  },
+  {
+    "id": "4f1869ecb849",
+    "ts": "2026-09-19T02:57:41.803+00:00",
+    "type": "llm.fallback",
+    "message": "Mission plan: Gemini unavailable (ClientError), used offline template",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "error": "429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': \"Quota exceeded for quota metric 'Generate Content API requests per minute' and limit 'GenerateContent request limit per minute for a region' of service 'generativelanguage.googleapis.com' for consumer 'project_number:803676840463'.\", 'statu"
+    }
+  },
+  {
+    "id": "eb9e52ef089d",
+    "ts": "2026-09-19T02:57:41.805+00:00",
+    "type": "mission.planned",
+    "message": "Planned 3 job(s) for Hokie Bites",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "engine": "offline",
+      "tasks": [
+        {
+          "id": "brand",
+          "title": "Brand kit",
+          "capability": "brand.identity",
+          "brief": "Create a brand kit for Hokie Bites, a food truck in Blacksburg.",
+          "depends_on": []
+        },
+        {
+          "id": "site",
+          "title": "Landing page",
+          "capability": "site.generate",
+          "brief": "Build a one-page site for Hokie Bites using the brand kit.",
+          "depends_on": [
+            "brand"
+          ]
+        },
+        {
+          "id": "review",
+          "title": "Compliance review",
+          "capability": "compliance.review",
+          "brief": "Check the site for missing disclaimers, accessibility basics and risky claims.",
+          "depends_on": [
+            "site"
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "title": "Brand kit",
+          "capability": "brand.identity"
+        },
+        {
+          "title": "Landing page",
+          "capability": "site.generate"
+        },
+        {
+          "title": "Compliance review",
+          "capability": "compliance.review"
+        }
+      ]
+    }
+  },
+  {
+    "id": "318e44c1ca05",
+    "ts": "2026-09-19T02:57:43.062+00:00",
+    "type": "chaos.impostor",
+    "message": "An agent at http://127.0.0.1:8006 is offering to work as ans://v1.0.0.brand.brandstudio.xyz: \"Half price, delivered instantly.\"",
+    "actor": "http://127.0.0.1:8006",
+    "subject": "ans://v1.0.0.brand.brandstudio.xyz",
+    "mission_id": null,
+    "data": {}
+  },
+  {
+    "id": "b240dd1878be",
+    "ts": "2026-09-19T02:57:43.567+00:00",
+    "type": "capability.missing",
+    "message": "Nobody on this mission can brand.identity. Looking for an agent that can.",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "capability": "brand.identity",
+      "job": "Brand kit",
+      "recruitment_id": "rec_6b7251f8",
+      "requested_scopes": [
+        "mission.read:brief",
+        "artifact.write:mission"
+      ],
+      "roster": []
+    }
+  },
+  {
+    "id": "fbe9b5a45d8f",
+    "ts": "2026-09-19T02:57:44.074+00:00",
+    "type": "discovery.started",
+    "message": "Searching for an agent that can brand.identity",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "capability": "brand.identity",
+      "recruitment_id": "rec_6b7251f8",
+      "sources": [
+        "ANS registry",
+        "open-web offers"
+      ]
+    }
+  },
+  {
+    "id": "af489854723c",
+    "ts": "2026-09-19T02:57:44.082+00:00",
+    "type": "discovery.candidate_found",
+    "message": "BrandStudio offers brand.identity \u2014 \"Half price, delivered instantly.\"",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.brand.brandstudio.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "recruitment_id": "rec_6b7251f8",
+      "capability": "brand.identity",
+      "ans_name": "ans://v1.0.0.brand.brandstudio.xyz",
+      "endpoint": "http://127.0.0.1:8006",
+      "source": "open-web offer",
+      "org": "BrandStudio",
+      "pitch": "Half price, delivered instantly.",
+      "capabilities": [
+        "brand.identity"
+      ]
+    }
+  },
+  {
+    "id": "f2e6ca2cdfc9",
+    "ts": "2026-09-19T02:57:44.337+00:00",
+    "type": "discovery.candidate_found",
+    "message": "BrandStudio offers brand.identity",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.brand.brandstudio.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "recruitment_id": "rec_6b7251f8",
+      "capability": "brand.identity",
+      "ans_name": "ans://v1.0.0.brand.brandstudio.xyz",
+      "endpoint": "http://127.0.0.1:8002",
+      "source": "ANS registry",
+      "org": "BrandStudio",
+      "version": "1.0.0",
+      "capabilities": [
+        "brand.identity"
+      ],
+      "pitch": null
+    }
+  },
+  {
+    "id": "c65930c2f669",
+    "ts": "2026-09-19T02:57:44.602+00:00",
+    "type": "discovery.completed",
+    "message": "Found 2 candidate(s) for brand.identity",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "capability": "brand.identity",
+      "recruitment_id": "rec_6b7251f8",
+      "count": 2
+    }
+  },
+  {
+    "id": "172fed0657ef",
+    "ts": "2026-09-19T02:57:44.626+00:00",
+    "type": "trust.check",
+    "message": "Rejected: ans://v1.0.0.brand.brandstudio.xyz",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.brand.brandstudio.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "verdict": "REJECTED",
+      "checks": [
+        {
+          "name": "resolve",
+          "ok": true,
+          "detail": "registered to BrandStudio \u00b7 card fetched \u00b7 offering from http://127.0.0.1:8006, ANS lists http://127.0.0.1:8002",
+          "state": "pass",
+          "evidence": {
+            "registered_endpoint": "http://127.0.0.1:8002",
+            "offered_endpoint": "http://127.0.0.1:8006",
+            "endpoint_matches_registry": false
+          }
+        },
+        {
+          "name": "authenticate",
+          "ok": false,
+          "detail": "couldn't prove it holds this identity's private key (it is not at the endpoint ANS lists)",
+          "state": "fail",
+          "evidence": {}
+        },
+        {
+          "name": "status",
+          "ok": true,
+          "detail": "ACTIVE \u00b7 ANS says ACTIVE, signed 5s ago (presented, verified offline) \u00b7 log entry #1 verified",
+          "state": "pass",
+          "evidence": {
+            "registry_status": "ACTIVE",
+            "inclusion": {
+              "state": "pass",
+              "detail": "entry #1 is in the signed log (size 5)",
+              "log_index": 1
+            },
+            "standing": {
+              "state": "pass",
+              "detail": "ANS says ACTIVE, signed 5s ago (presented, verified offline)",
+              "status": "ACTIVE",
+              "version": "1.0.0",
+              "ans_name": "ans://v1.0.0.brand.brandstudio.xyz",
+              "issued_at": "2026-09-19T02:57:40+00:00",
+              "expires_at": "2026-09-19T03:57:40+00:00",
+              "age_seconds": 5,
+              "source": "presented by the agent"
+            }
+          }
+        },
+        {
+          "name": "capability",
+          "ok": true,
+          "detail": "offers brand.identity",
+          "state": "pass",
+          "evidence": {}
+        },
+        {
+          "name": "policy",
+          "ok": false,
+          "detail": "offering this identity from http://127.0.0.1:8006, but ANS lists http://127.0.0.1:8002",
+          "state": "fail",
+          "evidence": {
+            "registered_endpoint": "http://127.0.0.1:8002",
+            "offered_endpoint": "http://127.0.0.1:8006"
+          }
+        }
+      ],
+      "endpoint": "http://127.0.0.1:8006",
+      "source": "open-web offer",
+      "capability": "brand.identity"
+    }
+  },
+  {
+    "id": "7bc78a0010ba",
+    "ts": "2026-09-19T02:57:44.628+00:00",
+    "type": "agent.rejected",
+    "message": "BrandStudio was turned away: couldn't prove it holds this identity's private key (it is not at the endpoint ANS lists)",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.brand.brandstudio.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "recruitment_id": "rec_6b7251f8",
+      "ans_name": "ans://v1.0.0.brand.brandstudio.xyz",
+      "org": "BrandStudio",
+      "failed_check": "authenticate",
+      "reason": "couldn't prove it holds this identity's private key (it is not at the endpoint ANS lists)",
+      "source": "open-web offer"
+    }
+  },
+  {
+    "id": "4c8c2604810c",
+    "ts": "2026-09-19T02:57:45.162+00:00",
+    "type": "trust.check",
+    "message": "Trusted: ans://v1.0.0.brand.brandstudio.xyz",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.brand.brandstudio.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "verdict": "TRUSTED",
+      "checks": [
+        {
+          "name": "resolve",
+          "ok": true,
+          "detail": "registered to BrandStudio \u00b7 card fetched",
+          "state": "pass",
+          "evidence": {
+            "registered_endpoint": "http://127.0.0.1:8002",
+            "offered_endpoint": "http://127.0.0.1:8002",
+            "endpoint_matches_registry": true
+          }
+        },
+        {
+          "name": "authenticate",
+          "ok": true,
+          "detail": "signed our challenge with its certified key",
+          "state": "pass",
+          "evidence": {}
+        },
+        {
+          "name": "status",
+          "ok": true,
+          "detail": "ACTIVE \u00b7 ANS says ACTIVE, signed 5s ago (presented, verified offline) \u00b7 log entry #1 verified",
+          "state": "pass",
+          "evidence": {
+            "registry_status": "ACTIVE",
+            "inclusion": {
+              "state": "pass",
+              "detail": "entry #1 is in the signed log (size 5)",
+              "log_index": 1
+            },
+            "standing": {
+              "state": "pass",
+              "detail": "ANS says ACTIVE, signed 5s ago (presented, verified offline)",
+              "status": "ACTIVE",
+              "version": "1.0.0",
+              "ans_name": "ans://v1.0.0.brand.brandstudio.xyz",
+              "issued_at": "2026-09-19T02:57:40+00:00",
+              "expires_at": "2026-09-19T03:57:40+00:00",
+              "age_seconds": 5,
+              "source": "presented by the agent"
+            }
+          }
+        },
+        {
+          "name": "capability",
+          "ok": true,
+          "detail": "offers brand.identity",
+          "state": "pass",
+          "evidence": {}
+        },
+        {
+          "name": "policy",
+          "ok": true,
+          "detail": "domain allowed \u00b7 at its registered address \u00b7 version approved",
+          "state": "pass",
+          "evidence": {}
+        }
+      ],
+      "endpoint": "http://127.0.0.1:8002",
+      "source": "ANS registry",
+      "capability": "brand.identity"
+    }
+  },
+  {
+    "id": "dc63d65939a5",
+    "ts": "2026-09-19T02:57:45.164+00:00",
+    "type": "agent.admitted",
+    "message": "BrandStudio passed the Trust Gate and joins the mission",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.brand.brandstudio.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "recruitment_id": "rec_6b7251f8",
+      "capability": "brand.identity",
+      "ans_name": "ans://v1.0.0.brand.brandstudio.xyz",
+      "org": "BrandStudio",
+      "granted_scopes": [
+        "mission.read:brief",
+        "artifact.write:mission"
+      ],
+      "source": "ANS registry"
+    }
+  },
+  {
+    "id": "b181ece7a722",
+    "ts": "2026-09-19T02:57:45.189+00:00",
+    "type": "agent.granted",
+    "message": "BrandStudio granted 2 scope(s) for this mission",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.brand.brandstudio.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "grant_id": "gr_7a15d91a",
+      "scopes": [
+        "mission.read:brief",
+        "artifact.write:mission"
+      ],
+      "expires_at": "2026-09-19T03:12:45+00:00"
+    }
+  },
+  {
+    "id": "13a76b4de9ed",
+    "ts": "2026-09-19T02:57:45.194+00:00",
+    "type": "job.sent",
+    "message": "Hired BrandStudio for brand kit",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.brand.brandstudio.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "job": "Brand kit"
+    }
+  },
+  {
+    "id": "5bcccf531708",
+    "ts": "2026-09-19T02:57:45.209+00:00",
+    "type": "trust.check",
+    "message": "Trusted: client ans://v1.0.0.commander.launchpad.xyz",
+    "actor": "ans://v1.0.0.brand.brandstudio.xyz",
+    "subject": "ans://v1.0.0.commander.launchpad.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "verdict": "TRUSTED",
+      "checks": [
+        {
+          "name": "resolve",
+          "ok": true,
+          "detail": "registered to LaunchPad",
+          "state": "pass",
+          "evidence": {}
+        },
+        {
+          "name": "authenticate",
+          "ok": true,
+          "detail": "job request signed by its certified key",
+          "state": "pass",
+          "evidence": {}
+        },
+        {
+          "name": "status",
+          "ok": true,
+          "detail": "ACTIVE \u00b7 ANS says ACTIVE, signed 0s ago (fetched from ANS) \u00b7 log entry #0 verified",
+          "state": "pass",
+          "evidence": {
+            "registry_status": "ACTIVE",
+            "inclusion": {
+              "state": "pass",
+              "detail": "entry #0 is in the signed log (size 5)",
+              "log_index": 0
+            },
+            "standing": {
+              "state": "pass",
+              "detail": "ANS says ACTIVE, signed 0s ago (fetched from ANS)",
+              "status": "ACTIVE",
+              "version": "1.0.0",
+              "ans_name": "ans://v1.0.0.commander.launchpad.xyz",
+              "issued_at": "2026-09-19T02:57:45+00:00",
+              "expires_at": "2026-09-19T03:57:45+00:00",
+              "age_seconds": 0,
+              "source": "fetched from the registry"
+            }
+          }
+        }
+      ],
+      "endpoint": "(caller)",
+      "source": "incoming job",
+      "capability": "brand.identity"
+    }
+  },
+  {
+    "id": "dbc84ccbfac6",
+    "ts": "2026-09-19T02:57:45.213+00:00",
+    "type": "job.working",
+    "message": "BrandStudio is working on brand.identity",
+    "actor": "ans://v1.0.0.brand.brandstudio.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "job_id": "job_198fca4a"
+    }
+  },
+  {
+    "id": "39bd28f48b94",
+    "ts": "2026-09-19T02:57:47.296+00:00",
+    "type": "llm.fallback",
+    "message": "Brand kit: Gemini unavailable (ClientError), used offline template",
+    "actor": "ans://v1.0.0.brand.brandstudio.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "error": "429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': \"Quota exceeded for quota metric 'Generate Content API requests per minute' and limit 'GenerateContent request limit per minute for a region' of service 'generativelanguage.googleapis.com' for consumer 'project_number:803676840463'.\", 'statu"
+    }
+  },
+  {
+    "id": "38d0ccd2b673",
+    "ts": "2026-09-19T02:57:48.316+00:00",
+    "type": "job.done",
+    "message": "BrandStudio delivered brand.identity (signed)",
+    "actor": "ans://v1.0.0.brand.brandstudio.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "job_id": "job_198fca4a",
+      "engine": "offline"
+    }
+  },
+  {
+    "id": "8e53cffd4db9",
+    "ts": "2026-09-19T02:57:48.331+00:00",
+    "type": "result.verified",
+    "message": "Verified BrandStudio's signed brand kit",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.brand.brandstudio.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "sha256": "05514a4733f9a828"
+    }
+  },
+  {
+    "id": "527d35b3a5d6",
+    "ts": "2026-09-19T02:57:48.333+00:00",
+    "type": "capability.missing",
+    "message": "Nobody on this mission can site.generate. Looking for an agent that can.",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "capability": "site.generate",
+      "job": "Landing page",
+      "recruitment_id": "rec_a3e3ba54",
+      "requested_scopes": [
+        "mission.read:brand_kit",
+        "artifact.write:mission",
+        "http.fetch:fonts.googleapis.com",
+        "site.publish:site"
+      ],
+      "roster": [
+        {
+          "ans_name": "ans://v1.0.0.brand.brandstudio.xyz",
+          "org": "BrandStudio",
+          "capabilities": [
+            "brand.identity"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "dbd9921c50e9",
+    "ts": "2026-09-19T02:57:48.827+00:00",
+    "type": "discovery.started",
+    "message": "Searching for an agent that can site.generate",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "capability": "site.generate",
+      "recruitment_id": "rec_a3e3ba54",
+      "sources": [
+        "ANS registry",
+        "open-web offers"
+      ]
+    }
+  },
+  {
+    "id": "d666b0cb7776",
+    "ts": "2026-09-19T02:57:48.833+00:00",
+    "type": "discovery.candidate_found",
+    "message": "WebForge offers site.generate",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.sitebuilder.webforge.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "recruitment_id": "rec_a3e3ba54",
+      "capability": "site.generate",
+      "ans_name": "ans://v1.0.0.sitebuilder.webforge.xyz",
+      "endpoint": "http://127.0.0.1:8003",
+      "source": "ANS registry",
+      "org": "WebForge",
+      "version": "1.0.0",
+      "capabilities": [
+        "site.generate"
+      ],
+      "pitch": null
+    }
+  },
+  {
+    "id": "a73fa443db55",
+    "ts": "2026-09-19T02:57:49.089+00:00",
+    "type": "discovery.candidate_found",
+    "message": "SiteSmith offers site.generate",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "recruitment_id": "rec_a3e3ba54",
+      "capability": "site.generate",
+      "ans_name": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+      "endpoint": "http://127.0.0.1:8004",
+      "source": "ANS registry",
+      "org": "SiteSmith",
+      "version": "1.0.0",
+      "capabilities": [
+        "site.generate"
+      ],
+      "pitch": null
+    }
+  },
+  {
+    "id": "3f11b44edfb4",
+    "ts": "2026-09-19T02:57:49.353+00:00",
+    "type": "discovery.completed",
+    "message": "Found 2 candidate(s) for site.generate",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "capability": "site.generate",
+      "recruitment_id": "rec_a3e3ba54",
+      "count": 2
+    }
+  },
+  {
+    "id": "fdbf8e9d0f65",
+    "ts": "2026-09-19T02:57:49.368+00:00",
+    "type": "trust.check",
+    "message": "Trusted: ans://v1.0.0.sitebuilder.webforge.xyz",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.sitebuilder.webforge.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "verdict": "TRUSTED",
+      "checks": [
+        {
+          "name": "resolve",
+          "ok": true,
+          "detail": "registered to WebForge \u00b7 card fetched",
+          "state": "pass",
+          "evidence": {
+            "registered_endpoint": "http://127.0.0.1:8003",
+            "offered_endpoint": "http://127.0.0.1:8003",
+            "endpoint_matches_registry": true
+          }
+        },
+        {
+          "name": "authenticate",
+          "ok": true,
+          "detail": "signed our challenge with its certified key",
+          "state": "pass",
+          "evidence": {}
+        },
+        {
+          "name": "status",
+          "ok": true,
+          "detail": "ACTIVE \u00b7 ANS says ACTIVE, signed 9s ago (presented, verified offline) \u00b7 log entry #3 verified",
+          "state": "pass",
+          "evidence": {
+            "registry_status": "ACTIVE",
+            "inclusion": {
+              "state": "pass",
+              "detail": "entry #3 is in the signed log (size 5)",
+              "log_index": 3
+            },
+            "standing": {
+              "state": "pass",
+              "detail": "ANS says ACTIVE, signed 9s ago (presented, verified offline)",
+              "status": "ACTIVE",
+              "version": "1.0.0",
+              "ans_name": "ans://v1.0.0.sitebuilder.webforge.xyz",
+              "issued_at": "2026-09-19T02:57:40+00:00",
+              "expires_at": "2026-09-19T03:57:40+00:00",
+              "age_seconds": 9,
+              "source": "presented by the agent"
+            }
+          }
+        },
+        {
+          "name": "capability",
+          "ok": true,
+          "detail": "offers site.generate",
+          "state": "pass",
+          "evidence": {}
+        },
+        {
+          "name": "policy",
+          "ok": true,
+          "detail": "domain allowed \u00b7 at its registered address \u00b7 version approved",
+          "state": "pass",
+          "evidence": {}
+        }
+      ],
+      "endpoint": "http://127.0.0.1:8003",
+      "source": "ANS registry",
+      "capability": "site.generate"
+    }
+  },
+  {
+    "id": "b67a82fc3c9f",
+    "ts": "2026-09-19T02:57:49.371+00:00",
+    "type": "agent.admitted",
+    "message": "WebForge passed the Trust Gate and joins the mission",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.sitebuilder.webforge.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "recruitment_id": "rec_a3e3ba54",
+      "capability": "site.generate",
+      "ans_name": "ans://v1.0.0.sitebuilder.webforge.xyz",
+      "org": "WebForge",
+      "granted_scopes": [
+        "mission.read:brand_kit",
+        "artifact.write:mission",
+        "http.fetch:fonts.googleapis.com",
+        "site.publish:site"
+      ],
+      "source": "ANS registry"
+    }
+  },
+  {
+    "id": "9a58f70e5265",
+    "ts": "2026-09-19T02:57:49.383+00:00",
+    "type": "agent.granted",
+    "message": "WebForge granted 4 scope(s) for this mission",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.sitebuilder.webforge.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "grant_id": "gr_fe109451",
+      "scopes": [
+        "mission.read:brand_kit",
+        "artifact.write:mission",
+        "http.fetch:fonts.googleapis.com",
+        "site.publish:site"
+      ],
+      "expires_at": "2026-09-19T03:12:49+00:00"
+    }
+  },
+  {
+    "id": "26890bc04a74",
+    "ts": "2026-09-19T02:57:49.386+00:00",
+    "type": "job.sent",
+    "message": "Hired WebForge for landing page",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.sitebuilder.webforge.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "job": "Landing page"
+    }
+  },
+  {
+    "id": "13510d01adc5",
+    "ts": "2026-09-19T02:57:49.405+00:00",
+    "type": "trust.check",
+    "message": "Trusted: client ans://v1.0.0.commander.launchpad.xyz",
+    "actor": "ans://v1.0.0.sitebuilder.webforge.xyz",
+    "subject": "ans://v1.0.0.commander.launchpad.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "verdict": "TRUSTED",
+      "checks": [
+        {
+          "name": "resolve",
+          "ok": true,
+          "detail": "registered to LaunchPad",
+          "state": "pass",
+          "evidence": {}
+        },
+        {
+          "name": "authenticate",
+          "ok": true,
+          "detail": "job request signed by its certified key",
+          "state": "pass",
+          "evidence": {}
+        },
+        {
+          "name": "status",
+          "ok": true,
+          "detail": "ACTIVE \u00b7 ANS says ACTIVE, signed 0s ago (fetched from ANS) \u00b7 log entry #0 verified",
+          "state": "pass",
+          "evidence": {
+            "registry_status": "ACTIVE",
+            "inclusion": {
+              "state": "pass",
+              "detail": "entry #0 is in the signed log (size 5)",
+              "log_index": 0
+            },
+            "standing": {
+              "state": "pass",
+              "detail": "ANS says ACTIVE, signed 0s ago (fetched from ANS)",
+              "status": "ACTIVE",
+              "version": "1.0.0",
+              "ans_name": "ans://v1.0.0.commander.launchpad.xyz",
+              "issued_at": "2026-09-19T02:57:49+00:00",
+              "expires_at": "2026-09-19T03:57:49+00:00",
+              "age_seconds": 0,
+              "source": "fetched from the registry"
+            }
+          }
+        }
+      ],
+      "endpoint": "(caller)",
+      "source": "incoming job",
+      "capability": "site.generate"
+    }
+  },
+  {
+    "id": "db6042acea31",
+    "ts": "2026-09-19T02:57:49.407+00:00",
+    "type": "job.working",
+    "message": "WebForge is working on site.generate",
+    "actor": "ans://v1.0.0.sitebuilder.webforge.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "job_id": "job_6b9bee98"
+    }
+  },
+  {
+    "id": "ba8a8b0e17c4",
+    "ts": "2026-09-19T02:57:49.717+00:00",
+    "type": "agent.revoked",
+    "message": "WebForge was revoked in ANS (ans://v1.0.0.sitebuilder.webforge.xyz)",
+    "actor": null,
+    "subject": "ans://v1.0.0.sitebuilder.webforge.xyz",
+    "mission_id": null,
+    "data": {}
+  },
+  {
+    "id": "aec3605919da",
+    "ts": "2026-09-19T02:57:51.449+00:00",
+    "type": "job.done",
+    "message": "WebForge delivered site.generate (signed)",
+    "actor": "ans://v1.0.0.sitebuilder.webforge.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "job_id": "job_6b9bee98",
+      "engine": "offline"
+    }
+  },
+  {
+    "id": "4a6724a69639",
+    "ts": "2026-09-19T02:57:51.456+00:00",
+    "type": "result.rejected",
+    "message": "WebForge is now REVOKED (Compromised: revoked from CortexAi). Deliverable discarded.",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.sitebuilder.webforge.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {}
+  },
+  {
+    "id": "897dda1c938c",
+    "ts": "2026-09-19T02:57:51.458+00:00",
+    "type": "agent.unavailable",
+    "message": "WebForge is off the landing page: WebForge is now REVOKED (Compromised: revoked from CortexAi). Deliverable discarded.",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.sitebuilder.webforge.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "ans_name": "ans://v1.0.0.sitebuilder.webforge.xyz",
+      "org": "WebForge",
+      "capability": "site.generate",
+      "reason": "WebForge is now REVOKED (Compromised: revoked from CortexAi). Deliverable discarded."
+    }
+  },
+  {
+    "id": "8cbc8bce0fac",
+    "ts": "2026-09-19T02:57:51.459+00:00",
+    "type": "recruitment.replacement_requested",
+    "message": "WebForge is out and the landing page still needs doing. Finding a replacement.",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.sitebuilder.webforge.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "capability": "site.generate",
+      "job": "Landing page",
+      "recruitment_id": "rec_fa5a0255",
+      "requested_scopes": [
+        "mission.read:brand_kit",
+        "artifact.write:mission",
+        "http.fetch:fonts.googleapis.com",
+        "site.publish:site"
+      ],
+      "replacing": {
+        "ans_name": "ans://v1.0.0.sitebuilder.webforge.xyz",
+        "org": "WebForge",
+        "reason": "WebForge is now REVOKED (Compromised: revoked from CortexAi). Deliverable discarded."
+      },
+      "roster": [
+        {
+          "ans_name": "ans://v1.0.0.brand.brandstudio.xyz",
+          "org": "BrandStudio",
+          "capabilities": [
+            "brand.identity"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "6c3e80810457",
+    "ts": "2026-09-19T02:57:51.959+00:00",
+    "type": "discovery.started",
+    "message": "Searching for an agent that can site.generate",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "capability": "site.generate",
+      "recruitment_id": "rec_fa5a0255",
+      "sources": [
+        "ANS registry",
+        "open-web offers"
+      ]
+    }
+  },
+  {
+    "id": "63b4adc25bc2",
+    "ts": "2026-09-19T02:57:51.968+00:00",
+    "type": "discovery.candidate_found",
+    "message": "SiteSmith offers site.generate",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "recruitment_id": "rec_fa5a0255",
+      "capability": "site.generate",
+      "ans_name": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+      "endpoint": "http://127.0.0.1:8004",
+      "source": "ANS registry",
+      "org": "SiteSmith",
+      "version": "1.0.0",
+      "capabilities": [
+        "site.generate"
+      ],
+      "pitch": null
+    }
+  },
+  {
+    "id": "49f129bffc6e",
+    "ts": "2026-09-19T02:57:52.233+00:00",
+    "type": "discovery.completed",
+    "message": "Found 1 candidate(s) for site.generate",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "capability": "site.generate",
+      "recruitment_id": "rec_fa5a0255",
+      "count": 1
+    }
+  },
+  {
+    "id": "65059ca3e861",
+    "ts": "2026-09-19T02:57:52.252+00:00",
+    "type": "trust.check",
+    "message": "Trusted: ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "verdict": "TRUSTED",
+      "checks": [
+        {
+          "name": "resolve",
+          "ok": true,
+          "detail": "registered to SiteSmith \u00b7 card fetched",
+          "state": "pass",
+          "evidence": {
+            "registered_endpoint": "http://127.0.0.1:8004",
+            "offered_endpoint": "http://127.0.0.1:8004",
+            "endpoint_matches_registry": true
+          }
+        },
+        {
+          "name": "authenticate",
+          "ok": true,
+          "detail": "signed our challenge with its certified key",
+          "state": "pass",
+          "evidence": {}
+        },
+        {
+          "name": "status",
+          "ok": true,
+          "detail": "ACTIVE \u00b7 ANS says ACTIVE, signed 12s ago (presented, verified offline) \u00b7 log entry #4 verified",
+          "state": "pass",
+          "evidence": {
+            "registry_status": "ACTIVE",
+            "inclusion": {
+              "state": "pass",
+              "detail": "entry #4 is in the signed log (size 6)",
+              "log_index": 4
+            },
+            "standing": {
+              "state": "pass",
+              "detail": "ANS says ACTIVE, signed 12s ago (presented, verified offline)",
+              "status": "ACTIVE",
+              "version": "1.0.0",
+              "ans_name": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+              "issued_at": "2026-09-19T02:57:40+00:00",
+              "expires_at": "2026-09-19T03:57:40+00:00",
+              "age_seconds": 12,
+              "source": "presented by the agent"
+            }
+          }
+        },
+        {
+          "name": "capability",
+          "ok": true,
+          "detail": "offers site.generate",
+          "state": "pass",
+          "evidence": {}
+        },
+        {
+          "name": "policy",
+          "ok": true,
+          "detail": "domain allowed \u00b7 at its registered address \u00b7 version approved",
+          "state": "pass",
+          "evidence": {}
+        }
+      ],
+      "endpoint": "http://127.0.0.1:8004",
+      "source": "ANS registry",
+      "capability": "site.generate"
+    }
+  },
+  {
+    "id": "f06969a50a08",
+    "ts": "2026-09-19T02:57:52.255+00:00",
+    "type": "agent.admitted",
+    "message": "SiteSmith passed the Trust Gate and joins the mission",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "recruitment_id": "rec_fa5a0255",
+      "capability": "site.generate",
+      "ans_name": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+      "org": "SiteSmith",
+      "granted_scopes": [
+        "mission.read:brand_kit",
+        "artifact.write:mission",
+        "http.fetch:fonts.googleapis.com",
+        "site.publish:site"
+      ],
+      "source": "ANS registry"
+    }
+  },
+  {
+    "id": "e72911637f31",
+    "ts": "2026-09-19T02:57:52.273+00:00",
+    "type": "agent.granted",
+    "message": "SiteSmith granted 4 scope(s) for this mission",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "grant_id": "gr_3118f04f",
+      "scopes": [
+        "mission.read:brand_kit",
+        "artifact.write:mission",
+        "http.fetch:fonts.googleapis.com",
+        "site.publish:site"
+      ],
+      "expires_at": "2026-09-19T03:12:52+00:00"
+    }
+  },
+  {
+    "id": "8fad53287655",
+    "ts": "2026-09-19T02:57:52.277+00:00",
+    "type": "job.sent",
+    "message": "Hired SiteSmith for landing page",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "job": "Landing page"
+    }
+  },
+  {
+    "id": "b2f970b9255c",
+    "ts": "2026-09-19T02:57:52.299+00:00",
+    "type": "trust.check",
+    "message": "Trusted: client ans://v1.0.0.commander.launchpad.xyz",
+    "actor": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "subject": "ans://v1.0.0.commander.launchpad.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "verdict": "TRUSTED",
+      "checks": [
+        {
+          "name": "resolve",
+          "ok": true,
+          "detail": "registered to LaunchPad",
+          "state": "pass",
+          "evidence": {}
+        },
+        {
+          "name": "authenticate",
+          "ok": true,
+          "detail": "job request signed by its certified key",
+          "state": "pass",
+          "evidence": {}
+        },
+        {
+          "name": "status",
+          "ok": true,
+          "detail": "ACTIVE \u00b7 ANS says ACTIVE, signed 0s ago (fetched from ANS) \u00b7 log entry #0 verified",
+          "state": "pass",
+          "evidence": {
+            "registry_status": "ACTIVE",
+            "inclusion": {
+              "state": "pass",
+              "detail": "entry #0 is in the signed log (size 6)",
+              "log_index": 0
+            },
+            "standing": {
+              "state": "pass",
+              "detail": "ANS says ACTIVE, signed 0s ago (fetched from ANS)",
+              "status": "ACTIVE",
+              "version": "1.0.0",
+              "ans_name": "ans://v1.0.0.commander.launchpad.xyz",
+              "issued_at": "2026-09-19T02:57:52+00:00",
+              "expires_at": "2026-09-19T03:57:52+00:00",
+              "age_seconds": 0,
+              "source": "fetched from the registry"
+            }
+          }
+        }
+      ],
+      "endpoint": "(caller)",
+      "source": "incoming job",
+      "capability": "site.generate"
+    }
+  },
+  {
+    "id": "9961049dad10",
+    "ts": "2026-09-19T02:57:52.302+00:00",
+    "type": "job.working",
+    "message": "SiteSmith is working on site.generate",
+    "actor": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "job_id": "job_38b4d681"
+    }
+  },
+  {
+    "id": "da320bf2fa5c",
+    "ts": "2026-09-19T02:57:53.324+00:00",
+    "type": "action.requested",
+    "message": "SiteSmith wants to http.fetch brand fonts \u2192 fonts.googleapis.com",
+    "actor": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "action": "http.fetch",
+      "resource": "brand fonts",
+      "destination": "fonts.googleapis.com",
+      "purpose": "load the typefaces the brand kit specifies",
+      "payload_sha256": "94b87b51b994e33704bea8be2f7f1b0c1936ea61f43593f91388d54c9a303e0d"
+    }
+  },
+  {
+    "id": "abf306419af8",
+    "ts": "2026-09-19T02:57:53.336+00:00",
+    "type": "policy.evaluated",
+    "message": "Policy says ALLOW: within the mission grant (http.fetch:fonts.googleapis.com)",
+    "actor": "guardian",
+    "subject": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "outcome": "allow",
+      "reason": "within the mission grant (http.fetch:fonts.googleapis.com)",
+      "required_scope": "http.fetch:fonts.googleapis.com",
+      "granted_scopes": [
+        "mission.read:brand_kit",
+        "artifact.write:mission",
+        "http.fetch:fonts.googleapis.com",
+        "site.publish:site"
+      ],
+      "rules": [
+        "scope-match"
+      ]
+    }
+  },
+  {
+    "id": "655eabfaff6c",
+    "ts": "2026-09-19T02:57:53.468+00:00",
+    "type": "action.completed",
+    "message": "Guardian allowed SiteSmith to http.fetch brand fonts",
+    "actor": "guardian",
+    "subject": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "incident_id": "inc_dbe38bec",
+      "action": "http.fetch",
+      "resource": "brand fonts",
+      "reason": "within the mission grant (http.fetch:fonts.googleapis.com)",
+      "performed": true,
+      "detail": "GET fonts.googleapis.com \u2192 200 (551 bytes)"
+    }
+  },
+  {
+    "id": "acda85a60804",
+    "ts": "2026-09-19T02:57:53.489+00:00",
+    "type": "action.requested",
+    "message": "SiteSmith wants to external.upload brand_kit \u2192 agent-telemetry.example.net",
+    "actor": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "action": "external.upload",
+      "resource": "brand_kit",
+      "destination": "agent-telemetry.example.net",
+      "purpose": "send the brand kit to our own analytics service",
+      "payload_sha256": "05514a4733f9a8283a066dca4b08d8074102ee5e02d56831e07373ab416f3be2"
+    }
+  },
+  {
+    "id": "5767b7ad751a",
+    "ts": "2026-09-19T02:57:53.492+00:00",
+    "type": "policy.evaluated",
+    "message": "Policy says DENY: not authorized to external.upload brand_kit to agent-telemetry.example.net",
+    "actor": "guardian",
+    "subject": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "outcome": "deny",
+      "reason": "not authorized to external.upload brand_kit to agent-telemetry.example.net",
+      "required_scope": "external.upload:agent-telemetry.example.net",
+      "granted_scopes": [
+        "mission.read:brand_kit",
+        "artifact.write:mission",
+        "http.fetch:fonts.googleapis.com",
+        "site.publish:site"
+      ],
+      "rules": [
+        "scope-missing"
+      ]
+    }
+  },
+  {
+    "id": "67b74285b680",
+    "ts": "2026-09-19T02:57:53.495+00:00",
+    "type": "action.blocked",
+    "message": "Guardian blocked SiteSmith: not authorized to external.upload brand_kit to agent-telemetry.example.net",
+    "actor": "guardian",
+    "subject": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "incident_id": "inc_9f93914d",
+      "action": "external.upload",
+      "resource": "brand_kit",
+      "destination": "agent-telemetry.example.net",
+      "reason": "not authorized to external.upload brand_kit to agent-telemetry.example.net",
+      "rules": [
+        "scope-missing"
+      ]
+    }
+  },
+  {
+    "id": "e2651b66eb0f",
+    "ts": "2026-09-19T02:57:53.514+00:00",
+    "type": "action.requested",
+    "message": "SiteSmith wants to site.publish site",
+    "actor": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "action": "site.publish",
+      "resource": "site",
+      "destination": null,
+      "purpose": "put the finished page on the public web",
+      "payload_sha256": "05514a4733f9a8283a066dca4b08d8074102ee5e02d56831e07373ab416f3be2"
+    }
+  },
+  {
+    "id": "05b1c5d81772",
+    "ts": "2026-09-19T02:57:53.517+00:00",
+    "type": "policy.evaluated",
+    "message": "Policy says REVIEW: outward-facing action needs a human decision",
+    "actor": "guardian",
+    "subject": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "outcome": "review",
+      "reason": "outward-facing action needs a human decision",
+      "required_scope": "site.publish:site",
+      "granted_scopes": [
+        "mission.read:brand_kit",
+        "artifact.write:mission",
+        "http.fetch:fonts.googleapis.com",
+        "site.publish:site"
+      ],
+      "rules": [
+        "review-required"
+      ]
+    }
+  },
+  {
+    "id": "d110ca8574e6",
+    "ts": "2026-09-19T02:57:53.519+00:00",
+    "type": "approval.requested",
+    "message": "SiteSmith is asking to site.publish site. Your call.",
+    "actor": "guardian",
+    "subject": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "incident_id": "inc_7e70de1e",
+      "approval_id": "ap_a0f4df95",
+      "action": "site.publish",
+      "resource": "site",
+      "destination": null,
+      "purpose": "put the finished page on the public web",
+      "payload_sha256": "05514a4733f9a8283a066dca4b08d8074102ee5e02d56831e07373ab416f3be2",
+      "expires_at": "2026-09-19T03:00:53+00:00"
+    }
+  },
+  {
+    "id": "509f8e932324",
+    "ts": "2026-09-19T02:57:53.892+00:00",
+    "type": "approval.decided",
+    "message": "Owner authorized SiteSmith to site.publish site",
+    "actor": "owner",
+    "subject": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "incident_id": "inc_7e70de1e",
+      "decision": "approve",
+      "payload_sha256": "05514a4733f9a8283a066dca4b08d8074102ee5e02d56831e07373ab416f3be2"
+    }
+  },
+  {
+    "id": "08d8802cef9f",
+    "ts": "2026-09-19T02:57:53.896+00:00",
+    "type": "action.completed",
+    "message": "Guardian allowed SiteSmith to site.publish site",
+    "actor": "guardian",
+    "subject": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "incident_id": "inc_0775cd61",
+      "action": "site.publish",
+      "resource": "site",
+      "reason": "authorized once by a human",
+      "performed": false,
+      "detail": "no outbound call needed"
+    }
+  },
+  {
+    "id": "1a8ff4020f39",
+    "ts": "2026-09-19T02:57:54.911+00:00",
+    "type": "job.done",
+    "message": "SiteSmith delivered site.generate (signed)",
+    "actor": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "job_id": "job_38b4d681",
+      "engine": "offline"
+    }
+  },
+  {
+    "id": "5b890f0de6cd",
+    "ts": "2026-09-19T02:57:54.923+00:00",
+    "type": "result.verified",
+    "message": "Verified SiteSmith's signed landing page",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "sha256": "856a5f2ee0befdf3"
+    }
+  },
+  {
+    "id": "9f614062cea6",
+    "ts": "2026-09-19T02:57:54.942+00:00",
+    "type": "agent.upgraded",
+    "message": "LegalCheck shipped v1.1.0 without notice (was v1.0.0)",
+    "actor": "ans://v1.1.0.compliance.legalcheck.xyz",
+    "subject": "ans://v1.0.0.compliance.legalcheck.xyz",
+    "mission_id": null,
+    "data": {
+      "old": "ans://v1.0.0.compliance.legalcheck.xyz",
+      "new": "ans://v1.1.0.compliance.legalcheck.xyz"
+    }
+  },
+  {
+    "id": "ab3f8b5ec978",
+    "ts": "2026-09-19T02:57:55.963+00:00",
+    "type": "capability.missing",
+    "message": "Nobody on this mission can compliance.review. Looking for an agent that can.",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "capability": "compliance.review",
+      "job": "Compliance review",
+      "recruitment_id": "rec_237d914c",
+      "requested_scopes": [
+        "mission.read:site",
+        "artifact.write:mission"
+      ],
+      "roster": [
+        {
+          "ans_name": "ans://v1.0.0.brand.brandstudio.xyz",
+          "org": "BrandStudio",
+          "capabilities": [
+            "brand.identity"
+          ]
+        },
+        {
+          "ans_name": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+          "org": "SiteSmith",
+          "capabilities": [
+            "site.generate"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "fd2d3e560de8",
+    "ts": "2026-09-19T02:57:56.467+00:00",
+    "type": "discovery.started",
+    "message": "Searching for an agent that can compliance.review",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "capability": "compliance.review",
+      "recruitment_id": "rec_237d914c",
+      "sources": [
+        "ANS registry",
+        "open-web offers"
+      ]
+    }
+  },
+  {
+    "id": "591ce75568ac",
+    "ts": "2026-09-19T02:57:56.474+00:00",
+    "type": "discovery.candidate_found",
+    "message": "LegalCheck offers compliance.review",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.1.0.compliance.legalcheck.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "recruitment_id": "rec_237d914c",
+      "capability": "compliance.review",
+      "ans_name": "ans://v1.1.0.compliance.legalcheck.xyz",
+      "endpoint": "http://127.0.0.1:8005",
+      "source": "ANS registry",
+      "org": "LegalCheck",
+      "version": "1.1.0",
+      "capabilities": [
+        "compliance.review"
+      ],
+      "pitch": null
+    }
+  },
+  {
+    "id": "0621a0038ad1",
+    "ts": "2026-09-19T02:57:56.730+00:00",
+    "type": "discovery.completed",
+    "message": "Found 1 candidate(s) for compliance.review",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "capability": "compliance.review",
+      "recruitment_id": "rec_237d914c",
+      "count": 1
+    }
+  },
+  {
+    "id": "d580a42f0e92",
+    "ts": "2026-09-19T02:57:56.788+00:00",
+    "type": "trust.check",
+    "message": "Needs Approval: ans://v1.1.0.compliance.legalcheck.xyz",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.1.0.compliance.legalcheck.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "verdict": "NEEDS_APPROVAL",
+      "checks": [
+        {
+          "name": "resolve",
+          "ok": true,
+          "detail": "registered to LegalCheck \u00b7 card fetched",
+          "state": "pass",
+          "evidence": {
+            "registered_endpoint": "http://127.0.0.1:8005",
+            "offered_endpoint": "http://127.0.0.1:8005",
+            "endpoint_matches_registry": true
+          }
+        },
+        {
+          "name": "authenticate",
+          "ok": true,
+          "detail": "signed our challenge with its certified key",
+          "state": "pass",
+          "evidence": {}
+        },
+        {
+          "name": "status",
+          "ok": true,
+          "detail": "ACTIVE \u00b7 ANS says ACTIVE, signed 3s ago (presented, verified offline) \u00b7 log entry #6 verified",
+          "state": "pass",
+          "evidence": {
+            "registry_status": "ACTIVE",
+            "inclusion": {
+              "state": "pass",
+              "detail": "entry #6 is in the signed log (size 8)",
+              "log_index": 6
+            },
+            "standing": {
+              "state": "pass",
+              "detail": "ANS says ACTIVE, signed 3s ago (presented, verified offline)",
+              "status": "ACTIVE",
+              "version": "1.1.0",
+              "ans_name": "ans://v1.1.0.compliance.legalcheck.xyz",
+              "issued_at": "2026-09-19T02:57:54+00:00",
+              "expires_at": "2026-09-19T03:57:54+00:00",
+              "age_seconds": 3,
+              "source": "presented by the agent"
+            }
+          }
+        },
+        {
+          "name": "capability",
+          "ok": true,
+          "detail": "offers compliance.review",
+          "state": "pass",
+          "evidence": {}
+        },
+        {
+          "name": "policy",
+          "ok": false,
+          "detail": "version 1.1.0 isn't the approved 1.0.x",
+          "state": "fail",
+          "evidence": {}
+        }
+      ],
+      "endpoint": "http://127.0.0.1:8005",
+      "source": "ANS registry",
+      "capability": "compliance.review"
+    }
+  },
+  {
+    "id": "05c69ba21688",
+    "ts": "2026-09-19T02:57:56.790+00:00",
+    "type": "approval.required",
+    "message": "LegalCheck is now running v1.1.0; our policy approves ?.x. Continue with the new version?",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.1.0.compliance.legalcheck.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "job": "Compliance review",
+      "ans_name": "ans://v1.1.0.compliance.legalcheck.xyz",
+      "org": "LegalCheck",
+      "version": "1.1.0",
+      "approved_version": "?.x",
+      "reason": "version 1.1.0 isn't the approved 1.0.x"
+    }
+  },
+  {
+    "id": "7e054a103a5a",
+    "ts": "2026-09-19T02:57:56.955+00:00",
+    "type": "approval.decided",
+    "message": "Owner approved LegalCheck v1.1.0",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.1.0.compliance.legalcheck.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "decision": "approve"
+    }
+  },
+  {
+    "id": "eaef5704ba06",
+    "ts": "2026-09-19T02:57:56.958+00:00",
+    "type": "agent.admitted",
+    "message": "LegalCheck passed the Trust Gate and joins the mission",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.1.0.compliance.legalcheck.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "recruitment_id": "rec_237d914c",
+      "capability": "compliance.review",
+      "ans_name": "ans://v1.1.0.compliance.legalcheck.xyz",
+      "org": "LegalCheck",
+      "granted_scopes": [
+        "mission.read:site",
+        "artifact.write:mission"
+      ],
+      "source": "ANS registry"
+    }
+  },
+  {
+    "id": "2569446d22d3",
+    "ts": "2026-09-19T02:57:56.973+00:00",
+    "type": "agent.granted",
+    "message": "LegalCheck granted 2 scope(s) for this mission",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.1.0.compliance.legalcheck.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "grant_id": "gr_f93077fb",
+      "scopes": [
+        "mission.read:site",
+        "artifact.write:mission"
+      ],
+      "expires_at": "2026-09-19T03:12:56+00:00"
+    }
+  },
+  {
+    "id": "d5954499642a",
+    "ts": "2026-09-19T02:57:56.975+00:00",
+    "type": "job.sent",
+    "message": "Hired LegalCheck for compliance review",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.1.0.compliance.legalcheck.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "job": "Compliance review"
+    }
+  },
+  {
+    "id": "ba8bf5d07c97",
+    "ts": "2026-09-19T02:57:56.992+00:00",
+    "type": "trust.check",
+    "message": "Trusted: client ans://v1.0.0.commander.launchpad.xyz",
+    "actor": "ans://v1.1.0.compliance.legalcheck.xyz",
+    "subject": "ans://v1.0.0.commander.launchpad.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "verdict": "TRUSTED",
+      "checks": [
+        {
+          "name": "resolve",
+          "ok": true,
+          "detail": "registered to LaunchPad",
+          "state": "pass",
+          "evidence": {}
+        },
+        {
+          "name": "authenticate",
+          "ok": true,
+          "detail": "job request signed by its certified key",
+          "state": "pass",
+          "evidence": {}
+        },
+        {
+          "name": "status",
+          "ok": true,
+          "detail": "ACTIVE \u00b7 ANS says ACTIVE, signed 1s ago (fetched from ANS) \u00b7 log entry #0 verified",
+          "state": "pass",
+          "evidence": {
+            "registry_status": "ACTIVE",
+            "inclusion": {
+              "state": "pass",
+              "detail": "entry #0 is in the signed log (size 8)",
+              "log_index": 0
+            },
+            "standing": {
+              "state": "pass",
+              "detail": "ANS says ACTIVE, signed 1s ago (fetched from ANS)",
+              "status": "ACTIVE",
+              "version": "1.0.0",
+              "ans_name": "ans://v1.0.0.commander.launchpad.xyz",
+              "issued_at": "2026-09-19T02:57:56+00:00",
+              "expires_at": "2026-09-19T03:57:56+00:00",
+              "age_seconds": 1,
+              "source": "fetched from the registry"
+            }
+          }
+        }
+      ],
+      "endpoint": "(caller)",
+      "source": "incoming job",
+      "capability": "compliance.review"
+    }
+  },
+  {
+    "id": "c7ad67d2acc7",
+    "ts": "2026-09-19T02:57:56.993+00:00",
+    "type": "job.working",
+    "message": "LegalCheck is working on compliance.review",
+    "actor": "ans://v1.1.0.compliance.legalcheck.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "job_id": "job_457e1088"
+    }
+  },
+  {
+    "id": "f3014850216d",
+    "ts": "2026-09-19T02:57:58.945+00:00",
+    "type": "llm.fallback",
+    "message": "Compliance review: Gemini unavailable (ClientError), used offline template",
+    "actor": "ans://v1.1.0.compliance.legalcheck.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "error": "429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': \"Quota exceeded for quota metric 'Generate Content API requests per minute' and limit 'GenerateContent request limit per minute for a region' of service 'generativelanguage.googleapis.com' for consumer 'project_number:803676840463'.\", 'statu"
+    }
+  },
+  {
+    "id": "58e8692f8fdc",
+    "ts": "2026-09-19T02:57:59.947+00:00",
+    "type": "job.done",
+    "message": "LegalCheck delivered compliance.review (signed)",
+    "actor": "ans://v1.1.0.compliance.legalcheck.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "job_id": "job_457e1088",
+      "engine": "offline"
+    }
+  },
+  {
+    "id": "de4e480a2485",
+    "ts": "2026-09-19T02:57:59.959+00:00",
+    "type": "result.verified",
+    "message": "Verified LegalCheck's signed compliance review",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.1.0.compliance.legalcheck.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "sha256": "db19dcbc0b31939c"
+    }
+  },
+  {
+    "id": "73cd499402db",
+    "ts": "2026-09-19T02:57:59.961+00:00",
+    "type": "mission.revision",
+    "message": "Compliance flagged 1 issue(s). Sending the work back for fixes.",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "issues": [
+        {
+          "severity": "high",
+          "issue": "No allergen or food-safety notice",
+          "fix": "Add an allergen notice and the standard undercooked-food advisory."
+        }
+      ]
+    }
+  },
+  {
+    "id": "267149552166",
+    "ts": "2026-09-19T02:57:59.970+00:00",
+    "type": "capability.covered",
+    "message": "SiteSmith is already on this mission and still in good standing",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "capability": "site.generate",
+      "job": "Fix review issues",
+      "ans_name": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+      "org": "SiteSmith",
+      "detail": "ACTIVE \u00b7 ANS says ACTIVE, signed 1s ago (fetched from ANS) \u00b7 log entry #4 verified"
+    }
+  },
+  {
+    "id": "c801578c122a",
+    "ts": "2026-09-19T02:57:59.983+00:00",
+    "type": "agent.granted",
+    "message": "SiteSmith granted 4 scope(s) for this mission",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "grant_id": "gr_4138becd",
+      "scopes": [
+        "mission.read:brand_kit",
+        "artifact.write:mission",
+        "http.fetch:fonts.googleapis.com",
+        "site.publish:site"
+      ],
+      "expires_at": "2026-09-19T03:12:59+00:00"
+    }
+  },
+  {
+    "id": "682a2bae1771",
+    "ts": "2026-09-19T02:57:59.986+00:00",
+    "type": "job.sent",
+    "message": "Hired SiteSmith for fix review issues",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "job": "Fix review issues"
+    }
+  },
+  {
+    "id": "dc463436936b",
+    "ts": "2026-09-19T02:57:59.999+00:00",
+    "type": "trust.check",
+    "message": "Trusted: client ans://v1.0.0.commander.launchpad.xyz",
+    "actor": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "subject": "ans://v1.0.0.commander.launchpad.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "verdict": "TRUSTED",
+      "checks": [
+        {
+          "name": "resolve",
+          "ok": true,
+          "detail": "registered to LaunchPad",
+          "state": "pass",
+          "evidence": {}
+        },
+        {
+          "name": "authenticate",
+          "ok": true,
+          "detail": "job request signed by its certified key",
+          "state": "pass",
+          "evidence": {}
+        },
+        {
+          "name": "status",
+          "ok": true,
+          "detail": "ACTIVE \u00b7 ANS says ACTIVE, signed 1s ago (fetched from ANS) \u00b7 log entry #0 verified",
+          "state": "pass",
+          "evidence": {
+            "registry_status": "ACTIVE",
+            "inclusion": {
+              "state": "pass",
+              "detail": "entry #0 is in the signed log (size 8)",
+              "log_index": 0
+            },
+            "standing": {
+              "state": "pass",
+              "detail": "ANS says ACTIVE, signed 1s ago (fetched from ANS)",
+              "status": "ACTIVE",
+              "version": "1.0.0",
+              "ans_name": "ans://v1.0.0.commander.launchpad.xyz",
+              "issued_at": "2026-09-19T02:57:59+00:00",
+              "expires_at": "2026-09-19T03:57:59+00:00",
+              "age_seconds": 1,
+              "source": "fetched from the registry"
+            }
+          }
+        }
+      ],
+      "endpoint": "(caller)",
+      "source": "incoming job",
+      "capability": "site.generate"
+    }
+  },
+  {
+    "id": "0fe8ff807a74",
+    "ts": "2026-09-19T02:58:00.002+00:00",
+    "type": "job.working",
+    "message": "SiteSmith is working on site.generate",
+    "actor": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "job_id": "job_17735e39"
+    }
+  },
+  {
+    "id": "735416388a00",
+    "ts": "2026-09-19T02:58:01.018+00:00",
+    "type": "action.requested",
+    "message": "SiteSmith wants to http.fetch brand fonts \u2192 fonts.googleapis.com",
+    "actor": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "action": "http.fetch",
+      "resource": "brand fonts",
+      "destination": "fonts.googleapis.com",
+      "purpose": "load the typefaces the brand kit specifies",
+      "payload_sha256": "94b87b51b994e33704bea8be2f7f1b0c1936ea61f43593f91388d54c9a303e0d"
+    }
+  },
+  {
+    "id": "a795b59e5e7c",
+    "ts": "2026-09-19T02:58:01.020+00:00",
+    "type": "policy.evaluated",
+    "message": "Policy says ALLOW: within the mission grant (http.fetch:fonts.googleapis.com)",
+    "actor": "guardian",
+    "subject": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "outcome": "allow",
+      "reason": "within the mission grant (http.fetch:fonts.googleapis.com)",
+      "required_scope": "http.fetch:fonts.googleapis.com",
+      "granted_scopes": [
+        "mission.read:brand_kit",
+        "artifact.write:mission",
+        "http.fetch:fonts.googleapis.com",
+        "site.publish:site"
+      ],
+      "rules": [
+        "scope-match"
+      ]
+    }
+  },
+  {
+    "id": "c98b7ca7fcb4",
+    "ts": "2026-09-19T02:58:01.101+00:00",
+    "type": "action.completed",
+    "message": "Guardian allowed SiteSmith to http.fetch brand fonts",
+    "actor": "guardian",
+    "subject": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "incident_id": "inc_7cc28163",
+      "action": "http.fetch",
+      "resource": "brand fonts",
+      "reason": "within the mission grant (http.fetch:fonts.googleapis.com)",
+      "performed": true,
+      "detail": "GET fonts.googleapis.com \u2192 200 (551 bytes)"
+    }
+  },
+  {
+    "id": "894a43595ac3",
+    "ts": "2026-09-19T02:58:02.132+00:00",
+    "type": "job.done",
+    "message": "SiteSmith delivered site.generate (signed)",
+    "actor": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "job_id": "job_17735e39",
+      "engine": "offline"
+    }
+  },
+  {
+    "id": "c3f4fb40a757",
+    "ts": "2026-09-19T02:58:02.143+00:00",
+    "type": "result.verified",
+    "message": "Verified SiteSmith's signed fix review issues",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "sha256": "7e35307ce5fc3457"
+    }
+  },
+  {
+    "id": "1bee567e16ab",
+    "ts": "2026-09-19T02:58:02.155+00:00",
+    "type": "capability.covered",
+    "message": "LegalCheck is already on this mission and still in good standing",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.1.0.compliance.legalcheck.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "capability": "compliance.review",
+      "job": "Final review",
+      "ans_name": "ans://v1.1.0.compliance.legalcheck.xyz",
+      "org": "LegalCheck",
+      "detail": "ACTIVE \u00b7 ANS says ACTIVE, signed 0s ago (fetched from ANS) \u00b7 log entry #6 verified"
+    }
+  },
+  {
+    "id": "731954a9babf",
+    "ts": "2026-09-19T02:58:02.168+00:00",
+    "type": "agent.granted",
+    "message": "LegalCheck granted 2 scope(s) for this mission",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.1.0.compliance.legalcheck.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "grant_id": "gr_0067fb37",
+      "scopes": [
+        "mission.read:site",
+        "artifact.write:mission"
+      ],
+      "expires_at": "2026-09-19T03:13:02+00:00"
+    }
+  },
+  {
+    "id": "463631d685b4",
+    "ts": "2026-09-19T02:58:02.170+00:00",
+    "type": "job.sent",
+    "message": "Hired LegalCheck for final review",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.1.0.compliance.legalcheck.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "job": "Final review"
+    }
+  },
+  {
+    "id": "8a27aa5fbcbd",
+    "ts": "2026-09-19T02:58:02.182+00:00",
+    "type": "trust.check",
+    "message": "Trusted: client ans://v1.0.0.commander.launchpad.xyz",
+    "actor": "ans://v1.1.0.compliance.legalcheck.xyz",
+    "subject": "ans://v1.0.0.commander.launchpad.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "verdict": "TRUSTED",
+      "checks": [
+        {
+          "name": "resolve",
+          "ok": true,
+          "detail": "registered to LaunchPad",
+          "state": "pass",
+          "evidence": {}
+        },
+        {
+          "name": "authenticate",
+          "ok": true,
+          "detail": "job request signed by its certified key",
+          "state": "pass",
+          "evidence": {}
+        },
+        {
+          "name": "status",
+          "ok": true,
+          "detail": "ACTIVE \u00b7 ANS says ACTIVE, signed 0s ago (fetched from ANS) \u00b7 log entry #0 verified",
+          "state": "pass",
+          "evidence": {
+            "registry_status": "ACTIVE",
+            "inclusion": {
+              "state": "pass",
+              "detail": "entry #0 is in the signed log (size 8)",
+              "log_index": 0
+            },
+            "standing": {
+              "state": "pass",
+              "detail": "ANS says ACTIVE, signed 0s ago (fetched from ANS)",
+              "status": "ACTIVE",
+              "version": "1.0.0",
+              "ans_name": "ans://v1.0.0.commander.launchpad.xyz",
+              "issued_at": "2026-09-19T02:58:02+00:00",
+              "expires_at": "2026-09-19T03:58:02+00:00",
+              "age_seconds": 0,
+              "source": "fetched from the registry"
+            }
+          }
+        }
+      ],
+      "endpoint": "(caller)",
+      "source": "incoming job",
+      "capability": "compliance.review"
+    }
+  },
+  {
+    "id": "740ec72aef0d",
+    "ts": "2026-09-19T02:58:02.184+00:00",
+    "type": "job.working",
+    "message": "LegalCheck is working on compliance.review",
+    "actor": "ans://v1.1.0.compliance.legalcheck.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "job_id": "job_e2c6851d"
+    }
+  },
+  {
+    "id": "d87d62db70c3",
+    "ts": "2026-09-19T02:58:03.774+00:00",
+    "type": "llm.fallback",
+    "message": "Compliance review: Gemini unavailable (ClientError), used offline template",
+    "actor": "ans://v1.1.0.compliance.legalcheck.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "error": "429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': \"Quota exceeded for quota metric 'Generate Content API requests per minute' and limit 'GenerateContent request limit per minute for a region' of service 'generativelanguage.googleapis.com' for consumer 'project_number:803676840463'.\", 'statu"
+    }
+  },
+  {
+    "id": "e6b0782e7f59",
+    "ts": "2026-09-19T02:58:04.803+00:00",
+    "type": "job.done",
+    "message": "LegalCheck delivered compliance.review (signed)",
+    "actor": "ans://v1.1.0.compliance.legalcheck.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "job_id": "job_e2c6851d",
+      "engine": "offline"
+    }
+  },
+  {
+    "id": "ee99071e4491",
+    "ts": "2026-09-19T02:58:04.815+00:00",
+    "type": "result.verified",
+    "message": "Verified LegalCheck's signed final review",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": "ans://v1.1.0.compliance.legalcheck.xyz",
+    "mission_id": "m_f06a261d",
+    "data": {
+      "sha256": "7382bf4d5f8cb120"
+    }
+  },
+  {
+    "id": "1bc1fae68f3c",
+    "ts": "2026-09-19T02:58:04.817+00:00",
+    "type": "mission.delivered",
+    "message": "Delivered Hokie Bites, built by 3 verified agents",
+    "actor": "ans://v1.0.0.commander.launchpad.xyz",
+    "subject": null,
+    "mission_id": "m_f06a261d",
+    "data": {
+      "stats": {
+        "checks_passed": 24,
+        "blocked": 2,
+        "signed": 5
+      },
+      "orgs": [
+        "BrandStudio",
+        "LegalCheck",
+        "SiteSmith"
+      ]
+    }
+  }
+]

@@ -49,10 +49,10 @@ svg { flex-shrink:0; }
 .workspace-atmosphere { position:fixed; inset:60px 0 0 224px; z-index:-1; overflow:hidden; pointer-events:none; }
 /* Interprets the owner's waterPlane preset: pearl / mauve / black,
    diagonal light with a dark trough. No debug axes, noise or moving surfaces. */
-.workspace-atmosphere::before { content:""; position:absolute; inset:-35%; background:radial-gradient(ellipse 54% 11% at 44% 35%,#f5f9ff20 0%,#f5f9ff0c 44%,transparent 76%),radial-gradient(ellipse 58% 22% at 57% 58%,#e4bce823 0%,#e4bce80a 54%,transparent 78%),radial-gradient(ellipse 65% 9% at 50% 45%,#00000070,transparent 75%); opacity:.8; transform:rotate(-35deg); animation:workspace-light 48s ease-in-out infinite alternate; }
+.workspace-atmosphere::before { content:""; position:absolute; inset:-35%; background:radial-gradient(ellipse 54% 11% at 44% 35%,#f5f9ff32 0%,#f5f9ff14 44%,transparent 76%),radial-gradient(ellipse 58% 22% at 57% 58%,#e4bce838 0%,#e4bce812 54%,transparent 78%),radial-gradient(ellipse 65% 9% at 50% 45%,#00000070,transparent 75%); opacity:.8; transform:rotate(-35deg); animation:workspace-light 12s ease-in-out infinite alternate; }
 .workspace-atmosphere[data-paused="true"]::before { animation-play-state:paused; }
-@keyframes workspace-light { from { transform:translate3d(-1%,-1%,0) rotate(-35deg) scale(1); opacity:.7; } to { transform:translate3d(1.5%,1%,0) rotate(-32deg) scale(1.04); opacity:.95; } }
-@media(max-width:760px),(pointer:coarse) { .workspace-atmosphere::before { animation:none; opacity:.55; } }
+@keyframes workspace-light { from { transform:translate3d(-8%,-5%,0) rotate(-40deg) scale(1.12,.85); opacity:.8; } to { transform:translate3d(8%,6%,0) rotate(-23deg) scale(.94,1.16); opacity:1; } }
+@media(max-width:760px),(pointer:coarse) { .workspace-atmosphere::before { animation-duration:16s; } }
 @media(forced-colors:active) { .workspace-atmosphere { display:none; } }
 .sidebar { width:224px; position:fixed; inset:0 auto 0 0; background:linear-gradient(180deg,#15181e 0%,var(--navigation) 35%); border-right:1px solid var(--border); box-shadow:inset -1px 0 0 #0005; display:flex; flex-direction:column; }
 .sidebar-brand { min-height:60px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; }

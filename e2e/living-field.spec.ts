@@ -8,7 +8,7 @@ test("steady interface keeps Canvas absent and honors reduced motion",async({pag
  await expect(page.getByLabel("Agent inspector",{exact:true})).toContainText("cannot grant its own permissions");
 });
 
-test("one ambient layer pauses when hidden and stays static on mobile",async({page})=>{
+test("one ambient layer visibly moves on desktop and mobile and pauses when hidden",async({page})=>{
  await page.setViewportSize({width:1440,height:900});
  await page.emulateMedia({reducedMotion:"no-preference"});
  await page.goto("/field");
@@ -18,6 +18,8 @@ test("one ambient layer pauses when hidden and stays static on mobile",async({pa
  await expect(atmosphere).toHaveAttribute("data-paused","false");
  expect(await atmosphere.evaluate(el=>getComputedStyle(el).pointerEvents)).toBe("none");
  expect(await atmosphere.evaluate(el=>getComputedStyle(el,"::before").animationPlayState)).toBe("running");
+ const desktopTransform=await atmosphere.evaluate(el=>getComputedStyle(el,"::before").transform);
+ await expect.poll(()=>atmosphere.evaluate(el=>getComputedStyle(el,"::before").transform)).not.toBe(desktopTransform);
  // Synthetic lifecycle event: deterministic in headless Chromium, whose tabs
  // do not reliably background one another. Exercise the real subscription.
  await page.evaluate(()=>{Object.defineProperty(document,"hidden",{configurable:true,get:()=>true});document.dispatchEvent(new Event("visibilitychange"));});
@@ -26,7 +28,9 @@ test("one ambient layer pauses when hidden and stays static on mobile",async({pa
  await page.evaluate(()=>{Object.defineProperty(document,"hidden",{configurable:true,get:()=>false});document.dispatchEvent(new Event("visibilitychange"));});
  await expect(atmosphere).toHaveAttribute("data-paused","false");
  await page.setViewportSize({width:390,height:844});
- expect(await atmosphere.evaluate(el=>getComputedStyle(el,"::before").animationName)).toBe("none");
+ expect(await atmosphere.evaluate(el=>getComputedStyle(el,"::before").animationName)).toBe("workspace-light");
+ const mobileTransform=await atmosphere.evaluate(el=>getComputedStyle(el,"::before").transform);
+ await expect.poll(()=>atmosphere.evaluate(el=>getComputedStyle(el,"::before").transform)).not.toBe(mobileTransform);
  await page.getByRole("button",{name:"Review request",exact:true}).click();
  await expect(page.getByRole("dialog",{name:"Capability request"})).toBeVisible();
 });

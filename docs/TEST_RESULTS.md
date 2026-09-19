@@ -1,3 +1,9 @@
+## Visible motion correction
+
+The owner requested visibly moving atmosphere. Desktop now uses a 12-second sweep each direction, mobile 16 seconds, with larger travel, rotation, changing proportions and stronger pearl/mauve light. Static-mobile behavior is removed; reduced motion remains static and hidden tabs pause. This supersedes the slower/static treatment documented below.
+
+Validation: typecheck, lint, build, 11 unit tests and all 14 browser tests pass (17.3s). The motion test now checks changing transforms on both desktop and mobile, plus hidden-page pause and reduced-motion suppression. No interaction assertions removed. Recorded actual eight-second clips: [desktop](screenshots/waterlight-motion/desktop-motion.webm), [mobile](screenshots/waterlight-motion/mobile-motion.webm). Preview remains http://127.0.0.1:3027/missions. No dependencies, backend changes or deployment.
+
 ## Pearl / mauve atmosphere refinement - September 19, 2026
 
 At http://127.0.0.1:3027: typecheck, lint, build passed; **11 unit tests, 14 browser tests passed**, zero failures. Tested Axe states: zero violations. Existing interaction assertions unchanged. Measured shell/panel geometry identical at desktop/wide/mobile. No added JS or dependencies; +64 bytes gzip CSS versus the layering checkpoint. [Screenshots and measurements](WATERLIGHT_CHECKPOINT.md).

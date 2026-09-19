@@ -1,3 +1,7 @@
+## Current: visible atmosphere motion
+
+Owner correction implemented: 12-second desktop / 16-second mobile sweeps, visibly traveling and changing proportions. Reduced motion and hidden-page pause preserved. Preview: http://127.0.0.1:3027/missions. [Motion clips and validation](WATERLIGHT_CHECKPOINT.md).
+
 ## Current checkpoint: pearl / mauve atmosphere refinement
 
 The owner's supplied ShaderGradient waterPlane preset is adapted into the existing CSS background, preserving all approved product geometry. Branch `feat/pearl-waterlight`, based on `51a6f60`. Local preview: http://127.0.0.1:3027/field. See [checkpoint](WATERLIGHT_CHECKPOINT.md). No dependency, backend, contract or credential changes; no deployment.

@@ -2,7 +2,32 @@
 
 Environment: Windows PowerShell, Node 24.20.0, npm 11.19.0, Next.js 16.3.5, React 19.3.0. Browser: Playwright Chromium / Chrome for Testing 153.0.8010.12, headless. These checks do not establish physical-device performance.
 
-## Commands actually run - living-field pass
+## Agents extension / current verification
+
+Production QA on `http://127.0.0.1:3018`, built with `PERIHELION_BUILD_DIR=.next/agents-final`. New screenshots are in `docs/screenshots/agents/`.
+
+| Check | Result |
+| --- | --- |
+| `npm.cmd run typecheck` | PASS, including after restoring the original local generated-file configuration |
+| `npm.cmd run lint` | PASS |
+| `npm.cmd test` | PASS, all 6 unit tests |
+| `npm.cmd run build` | PASS, `/agents` statically generated |
+| `npm.cmd run test:e2e` | PASS, all 9 tests, 1.9 minutes against the final production build |
+| Agents desktop/mobile axe checks | PASS, zero WCAG 2 A/AA and 2.1 AA violations in the tested states |
+| Canvas motion and pause | Pixel content changes while fluid; identical across multiple frame ticks when paused |
+| Mission pause versus visual pause | Mission pause removes executing packets and changes executing count to zero; atmosphere continues. Visual pause freezes animation without changing mission state |
+| Agent selection and discovery | Search, empty results, review filter, map/list, reset, branch focus and inspector updates passed |
+| Disconnected previews | Memory shows unverified identity, zero scoped permissions and no mission; no runtime is created |
+| Mobile and fallback | Roster, inspector keyboard focus, contained horizontal map, navigation and no-Canvas/reduced-motion states passed |
+| Runtime requests | No external requests in the tested Agents interaction flow; reference PNG is not a runtime asset |
+
+Inspected screenshots: 1440×900, 1920×1080, 1280×900, 390×844 and mobile full-page captures. The refined inspector scrolls independently on desktop; mobile retains natural page scrolling. A motion recording demonstrates actual node selection, focus, visual pause and resume.
+
+Initial verification found a filter test selector mismatch: the implicit select label included option text in the label query. The control now has an explicit accessible label and the test selects it by combobox role. An earlier combined test timed out at that selector; all final tests pass. The older `.next/visual-review` output hit a Windows/OneDrive EPERM lock, so final QA used fresh isolated output. Existing environment values and original local generated-file imports were restored/preserved.
+
+Limits: this establishes demo behavior and selected Chromium accessibility states. It does not establish live ANS verification, provider execution, microphone behavior, Safari/Firefox support, physical-mobile battery usage or a hardware frame-rate guarantee. Existing Entry/FIELD tests also passed; their previous review images remain as historical artifacts.
+
+## Commands actually run - previous living-field pass
 | Check | Result |
 | --- | --- |
 | npm.cmd run typecheck | PASS after final changes |

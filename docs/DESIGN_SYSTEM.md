@@ -1,6 +1,16 @@
 # PERIHELION / Design foundation
 
-Phase A visual refinement, September 18, 2026. Visual approval: pending Roheen's review. Routes, adapters, fixtures and integration boundaries remain unchanged.
+Phase A visual refinement plus the explicitly requested Agents frontend extension. Visual approval: pending Roheen's review. `/agents` is now available; adapters, shared fixtures, contracts and integration boundaries are unchanged.
+
+## Agents / constellation extension
+
+`references/agentimage.png` is the direct art-direction target: left editorial title and mission counts, a central orchestrator with five surrounding colored clusters, a separate Guardian boundary, an inspector on the right, and recorded mission activity along the bottom. The image is reference material only and is never loaded by the running page.
+
+`src/components/agents/` contains the reusable field atmosphere, node glyphs, connection paths, state-driven signal pulse, inspector, field controls, and presentation-only coordinates. `src/styles/agents.css` scopes the composition to this route and its shell. Research is sage green, analysis pale blue, execution amber, memory muted violet, and voice soft coral. The orchestrator stays ivory/gold. Text and buttons are DOM elements; lines and symbols are SVG; the original optical fabric is Canvas 2D.
+
+The five mission agents retain existing API state. Memory and Voice are disconnected, unverified concept previews with no permissions or assignment; they are not added to the roster. Counts, execution packets, mission pause, selection and activity use the shared ControlApi snapshot. Guardian remains an independent boundary. Capability satellites and shifting fabric are decorative presence, never extra workers or fabricated transfers.
+
+Ambient animation uses the existing shared frame clock, at its 30fps cap, with DPR capped at 1.4 and fewer strands on narrow canvases. No React state is changed per frame. Canvas and CSS/SVG honor visual pause, reduced motion, hidden tabs and off-screen suspension. SVG links and controls survive unavailable Canvas. The inspector has its own scroll area on desktop. Below 761px, the roster is primary and selection moves focus to the inspector; the map remains an optional horizontally scrollable surface. Search, status filters, map/list, reset, branch focus and mission pause are real controls.
 
 ## Direction
 An authored instrument: an editorial title plate, architectural work surfaces, off-axis contour sheets, and a network that exposes the state of work. The four supplied AI-generated boards inform composition, not product claims. No reference image is shipped as a UI background. Entry is expressive; FIELD is quieter and denser.

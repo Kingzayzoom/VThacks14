@@ -8,6 +8,8 @@ Read MASTER_PROMPT.md, docs/RESEARCH_NOTES.md, docs/BUILD_STATUS.md and the four
 Phase A only: tokens, atmosphere, application shell, entry composer, interactive FIELD, shared fixtures and initial contracts. Stop for Roheen's visual approval before Phase B. Do not deploy or initialize paid services, providers or microphone capture. Demo must work with every environment value empty. Preserve existing .env.local values and teammate edits; never print secrets.
 
 ## Living visual foundation
+The latest user request explicitly authorizes the `/agents` frontend extension using `references/agentimage.png`. Keep other Phase B features behind the existing design gate. Agents uses the existing demo mission roster; Memory and Voice are disconnected concept previews, not admitted workers. Preserve this distinction during integration.
+
 Read `references/realstarterpage.png` and `references/realcontrolcenter.png` as well as the original boards. Ambient presence is allowed by the latest brief; execution motion still derives from mission state. Keep Canvas isolated from application logic, share the frame clock, honor visual pause/reduced motion, and preserve SVG/CSS fallbacks. Do not restore bitmap wallpaper.
 
 ## Ownership

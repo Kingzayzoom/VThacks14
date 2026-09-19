@@ -44,6 +44,7 @@ const nav = [
     name: "AGENTS",
     index: "03",
     icon: Network,
+    href: "/agents",
     description: "Workforce directory",
   },
   {
@@ -129,7 +130,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
     }
   }
   return (
-    <div className="workspace-shell">
+    <div className={`workspace-shell ${path === "/agents" ? "agents-workspace" : ""}`}>
       <SignalField compact />
       <aside
         ref={sidebar}

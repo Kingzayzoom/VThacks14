@@ -16,6 +16,7 @@ export function Entry() {
         <nav aria-label="Main navigation">
           <a href="#principles">The system</a>
           <Link href="/field">Operations</Link>
+          <Link href="/agents">Agents</Link>
         </nav>
         <div>
           <MotionControl />

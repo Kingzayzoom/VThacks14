@@ -1,6 +1,24 @@
 # CORTEXAI / Phase A living visual checkpoint
 
-## Current checkpoint / Agents constellation
+## Final visual QA / complete
+
+The no-redesign audit is complete. Homepage composition and neural rendering are unchanged. Removed duplicate workspace demo labels and repetitive roster capability text, made Reset and branch focus contextual, and tightened desktop roster spacing. CORTEXAI branding and backend work are untouched. Typecheck, lint, 6 unit tests, production build and all 10 browser tests pass; tested desktop/mobile axe states report zero violations. [Final comparison and stop point](FINAL_VISUAL_QA.md).
+
+Current verified local preview: `http://127.0.0.1:3021`, built with `CORTEX_BUILD_DIR=.next/final-visual-qa`. No push or deployment.
+
+## Current checkpoint / Design reduction
+
+Completed the requested subtraction pass after directly inspecting Linear, APHELION, the local homepage and the GitHub-linked deployment. Incorporated teammate commit `1c5cec1` first, preserving the CORTEXAI rename and backend work. See [the design audit and comparison](DESIGN_REDUCTION.md).
+
+The homepage now contains the wordmark, concise promise, objective composer and one procedural field. Deleted the side notes, specimen, metadata, duplicate topology, principles and footer philosophy, plus their unused styles. Examples are available through a disclosure. The workspace sidebar contains working destinations; redundant artwork and future-section placeholders are gone.
+
+Agents opens with the network occupying the whole stage. Selection opens a closable inspector; search/filter and recorded activity use disclosures. Actual runtime/review/disconnected states, scope evidence, handoffs, mission actions, roster mode and the shared motion architecture remain. Preview specialists still have no admission or authority. No contracts, providers, credentials or backend behavior changed.
+
+Local review build: `http://127.0.0.1:3020` with `CORTEX_BUILD_DIR=.next/reduction-verified`. This pass is local and awaits visual review. No deployment or GitHub push was performed for this pass.
+
+Validation: typecheck, lint, all 6 unit tests, production build and all 10 browser tests passed. Final desktop/mobile axe checks report zero violations. See [verification details](TEST_RESULTS.md).
+
+## Previous checkpoint / Agents constellation
 
 The owner's explicit Agents request extends the frontend with `/agents`, using `references/agentimage.png` as the direct visual target. The new page is linked from the workspace sidebar and Entry navigation. Broader Phase B work still awaits direction.
 

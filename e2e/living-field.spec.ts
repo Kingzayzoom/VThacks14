@@ -38,6 +38,7 @@ test("canvas failure preserves the composer, contours and selectable agents", as
     HTMLCanvasElement.prototype.getContext = (() => null) as typeof HTMLCanvasElement.prototype.getContext;
   });
   await page.goto("/");
+  await page.getByText("Try an example", { exact: true }).click();
   await page.getByRole("button", { name: "Prepare a launch brief" }).click();
   await expect(page.locator("#objective")).toHaveValue(/Prepare a launch brief/);
   await expect(page.locator(".atmosphere > svg")).toBeVisible();

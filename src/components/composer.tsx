@@ -1,7 +1,7 @@
 "use client";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Plus, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useControl } from "./provider";
 import { EXAMPLE_OBJECTIVE } from "@/lib/demo/fixtures";
 
@@ -69,18 +69,17 @@ export function MissionComposer({
     >
       <label
         htmlFor={compact ? "dialog-objective" : "objective"}
-        className="eyebrow composer-label"
+        className={compact ? "composer-label" : "sr-only"}
       >
-        <Sparkles size={13} /> ONE OBJECTIVE. A COORDINATED FIELD.
+        Your objective
       </label>
       <div className={`composer-input ${error ? "invalid" : ""}`}>
-        <Plus className="input-cross" size={22} strokeWidth={1} />
         <textarea
           ref={input}
           id={compact ? "dialog-objective" : "objective"}
           value={objective}
           maxLength={2000}
-          rows={2}
+          rows={compact ? 2 : 1}
           onChange={(e) => {
             setObjective(e.target.value);
             key.current = null;
@@ -98,9 +97,10 @@ export function MissionComposer({
           type="submit"
           className="button primary run-button"
           disabled={busy}
+          aria-label={busy ? "Opening mission" : "Run objective"}
         >
-          {busy ? "Opening…" : "Run objective"}
-          <ArrowRight size={18} />
+          {compact && (busy ? "Opening…" : "Run objective")}
+          <ArrowRight size={20} aria-hidden="true" />
         </button>
       </div>
       {error && (
@@ -109,11 +109,11 @@ export function MissionComposer({
         </p>
       )}
       <div className="composer-meta" id="composer-hint">
-        <span>Demo mission · public sample data · no external actions</span>
-        <kbd>Ctrl ↵</kbd>
+        <span>Demo mode<span className="sr-only">. Public sample data. No external actions. Press Control or Command and Enter to submit.</span></span>
       </div>
-      <div className="examples">
-        <span className="try-label">Try an objective</span>
+      <details className="composer-examples">
+        <summary>Try an example</summary>
+        <div className="examples">
         {examples.map((example) => (
           <button
             type="button"
@@ -126,10 +126,10 @@ export function MissionComposer({
             }}
           >
             {example.label}
-            <ArrowRight size={12} />
           </button>
         ))}
-      </div>
+        </div>
+      </details>
     </form>
   );
 }

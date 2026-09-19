@@ -72,12 +72,9 @@
 .node-caption, .node-role, .node-state { position: relative; }
 .node-role, .node-state { text-shadow: 0 1px 5px #050808, 0 0 12px #050808; }
 .node-caption { background: #070c0cb8; }
-.preview-agent .agent-signature { animation: preview-presence 9s ease-in-out infinite; }
-.preview-lines { animation: contour-tide 12s ease-in-out infinite alternate; transform-origin: center; }
-.mission-composer, .review-callout, .task-item, .principles article, .agent-list-row {
+.mission-composer, .review-callout, .task-item, .agent-list-row {
   transition: border-color var(--motion-surface), background var(--motion-surface), box-shadow var(--motion-surface), transform var(--motion-surface);
 }
-.principles article:hover { transform: translateY(-3px); border-color: #b5a67b55; background: #a59c7508; }
 .task-item:hover, .agent-list-row:hover { background: linear-gradient(110deg, #cbb78b0c, #92bccb05); }
 .review-callout:focus-within, .review-callout:hover { box-shadow: inset 0 1px #dbc08745; }
 .composer-input-wrap:focus-within { box-shadow: 0 0 35px #d4b17b08; }

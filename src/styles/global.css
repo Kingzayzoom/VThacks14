@@ -320,20 +320,6 @@ svg {
 .hero-heading {
   text-align: center;
 }
-.edition {
-  color: #bbb6aa;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  font-size: 9px;
-  letter-spacing: 0.18em;
-}
-.tiny-rule {
-  width: 28px;
-  height: 1px;
-  background: var(--border-strong);
-}
 .hero-wordmark {
   font-family: var(--font-serif);
   font-size: clamp(64px, 7.4vw, 108px);
@@ -341,37 +327,6 @@ svg {
   padding-left: 0.2em;
   line-height: 1.2;
   margin: 12px 0 0;
-}
-.system-title {
-  letter-spacing: 0.49em;
-  font-size: 10px;
-  color: #d2d0c6;
-  margin-top: 3px;
-}
-.hero-divider {
-  height: 26px;
-  margin: 19px auto 13px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--metadata);
-  font-family: var(--font-mono);
-  font-weight: 400;
-  font-size: 16px;
-  width: 180px;
-  position: relative;
-}
-.hero-divider:before {
-  position: absolute;
-  content: "";
-  height: 1px;
-  width: 100%;
-  background: var(--border);
-}
-.hero-divider span {
-  background: var(--canvas);
-  padding: 0 10px;
-  z-index: 1;
 }
 .hero-heading h1 {
   font-family: var(--font-serif);
@@ -387,37 +342,6 @@ svg {
   margin-top: 15px;
   color: var(--secondary);
   font-size: 14px;
-}
-.edge-note {
-  position: absolute;
-  top: 53px;
-  display: flex;
-  flex-direction: column;
-  gap: 29px;
-}
-.edge-note.left {
-  left: 40px;
-}
-.edge-note.right {
-  right: 40px;
-  text-align: right;
-  top: 70px;
-}
-.edge-note .eyebrow {
-  font-size: 9px;
-  line-height: 1.9;
-  color: #9b9c97;
-}
-.edge-note .muted {
-  color: var(--metadata);
-}
-.annotation-line {
-  width: 23px;
-  height: 1px;
-  background: var(--border-strong);
-}
-.edge-note.right .annotation-line {
-  align-self: flex-end;
 }
 .composer {
   width: min(760px, calc(100% - 48px));
@@ -448,9 +372,6 @@ svg {
 .composer-input:focus-within {
   border-color: var(--amber);
   box-shadow: 0 0 0 3px #ffb65b0b;
-}
-.input-cross {
-  color: #cbbca6;
 }
 .composer textarea {
   width: 100%;
@@ -491,10 +412,6 @@ svg {
   gap: 14px;
   margin: 20px 0 0;
 }
-.try-label {
-  font-size: 10px;
-  color: var(--metadata);
-}
 .examples button {
   display: flex;
   align-items: center;
@@ -508,6 +425,12 @@ svg {
   color: var(--amber);
   border-color: var(--amber);
 }
+.composer-examples { margin-top: 15px; text-align: center; color: var(--secondary); }
+.composer-examples summary { display: inline-block; cursor: pointer; list-style: none; padding: 8px; font: 11px var(--font-sans); }
+.composer-examples summary::-webkit-details-marker { display: none; }
+.composer-examples summary:hover { color: var(--text); }
+.composer-examples .examples { flex-wrap: wrap; margin-top: 4px; gap: 4px 22px; }
+.composer-examples .examples button { min-height: 36px; }
 .form-error {
   color: var(--error);
   font-size: 13px;
@@ -515,114 +438,6 @@ svg {
 }
 .composer-input.invalid {
   border-color: var(--error);
-}
-.entry-field-preview {
-  position: relative;
-  max-width: 900px;
-  height: 174px;
-  margin: 31px auto 0;
-}
-.preview-caption {
-  display: flex;
-  justify-content: space-between;
-  padding: 0 8px;
-}
-.preview-caption .eyebrow {
-  font-size: 8px;
-  color: #aeb2ae;
-  letter-spacing: 0.12em;
-}
-.preview-caption .muted {
-  color: var(--metadata);
-}
-.preview-lines {
-  position: absolute;
-  left: 0;
-  top: 20px;
-  width: 100%;
-  height: 150px;
-  fill: none;
-  stroke: var(--cyan);
-  stroke-width: 0.6;
-  opacity: 0.22;
-}
-.preview-lines path {
-  stroke-width: 1;
-}
-.preview-lines ellipse {
-  stroke: #aa9674;
-  stroke-width: 0.5;
-}
-.preview-agent {
-  position: absolute;
-  top: 75px;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  gap: 12px;
-  font-family: var(--font-mono);
-  font-size: 8px;
-  letter-spacing: 0.18em;
-  color: var(--secondary);
-}
-.preview-agent:before {
-  content: "";
-  position: absolute;
-  top: -12px;
-  width: 48px;
-  height: 48px;
-  border: 1px solid #83d9e81c;
-  border-radius: 50%;
-}
-.preview-agent.scout {
-  left: 11%;
-  color: var(--cyan);
-}
-.preview-agent.coordinator {
-  left: calc(50% - 38px);
-  top: 48px;
-  color: var(--amber);
-}
-.preview-agent.coordinator:before {
-  width: 60px;
-  height: 60px;
-  border-color: #ffb65b38;
-  top: -14px;
-}
-.preview-agent.forge {
-  right: 11%;
-  color: var(--amber);
-}
-.principles {
-  max-width: 1040px;
-  margin: 0 auto 24px;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  background: #070a0b66;
-}
-.principles article {
-  padding: 23px 28px 25px;
-}
-.principles article + article {
-  border-left: 1px solid var(--border);
-}
-.principles .eyebrow {
-  font-size: 9px;
-  color: #b9a17f;
-  letter-spacing: 0.08em;
-}
-.principles h2 {
-  font-family: var(--font-serif);
-  font-size: 24px;
-  margin: 10px 0 6px;
-}
-.principles p {
-  font-size: 12px;
-  line-height: 1.65;
-  color: var(--secondary);
-  max-width: 270px;
 }
 .entry-footer {
   display: flex;
@@ -2193,11 +2008,6 @@ a.nav-item:hover {
     margin-top: 6px;
     line-height: 1.08;
   }
-  .hero-divider {
-    margin-top: 12px;
-    margin-bottom: 8px;
-    height: 22px;
-  }
   .hero-heading h1 {
     font-size: 45px;
   }
@@ -2209,31 +2019,6 @@ a.nav-item:hover {
   }
   .examples {
     margin-top: 13px;
-  }
-  .entry-field-preview {
-    height: 138px;
-    margin-top: 18px;
-  }
-  .preview-agent {
-    top: 60px;
-  }
-  .preview-agent.coordinator {
-    top: 39px;
-  }
-  .preview-lines {
-    height: 125px;
-    top: 13px;
-  }
-  .principles article {
-    padding-top: 18px;
-    padding-bottom: 19px;
-  }
-  .principles h2 {
-    margin-top: 8px;
-  }
-  .principles {
-    margin-bottom: 18px;
-    background: #070a0bdf;
   }
   .atmosphere:after {
     opacity: 0.035;
@@ -2388,12 +2173,6 @@ html[data-hidden="true"] .edge.executing {
   .dock-demo {
     display: none;
   }
-  .edge-note {
-    display: none;
-  }
-  .principles {
-    max-width: calc(100% - 100px);
-  }
 }
 @media (max-width: 1050px) {
   .workspace-shell {
@@ -2506,9 +2285,6 @@ html[data-hidden="true"] .edge.executing {
   .entry-nav > div {
     gap: 12px;
   }
-  .entry-field-preview {
-    width: 82%;
-  }
   .hero-heading h1 {
     font-size: 44px;
   }
@@ -2546,28 +2322,11 @@ html[data-hidden="true"] .edge.executing {
   .entry-main {
     padding-top: 46px;
   }
-  .edition {
-    font-size: 7px;
-    letter-spacing: 0.08em;
-    gap: 8px;
-  }
-  .tiny-rule {
-    width: 14px;
-  }
   .hero-wordmark {
     font-size: clamp(45px, 9.8vw, 74px);
     letter-spacing: 0.12em;
     padding-left: 0.12em;
     margin-top: 19px;
-  }
-  .system-title {
-    font-size: 8px;
-    letter-spacing: 0.3em;
-    margin-top: 7px;
-  }
-  .hero-divider {
-    margin-top: 20px;
-    margin-bottom: 15px;
   }
   .hero-heading h1 {
     font-size: 42px;
@@ -2618,62 +2377,10 @@ html[data-hidden="true"] .edge.executing {
     margin-top: 16px;
     justify-content: flex-start;
   }
-  .try-label {
-    width: 100%;
-    font-size: 9px;
-  }
   .examples button {
     font-size: 10px;
     padding: 8px 0;
     min-height: 30px;
-  }
-  .entry-field-preview {
-    width: calc(100% - 40px);
-    margin-top: 32px;
-    height: 155px;
-  }
-  .preview-caption .eyebrow {
-    font-size: 7px;
-  }
-  .preview-caption .muted {
-    display: none;
-  }
-  .preview-agent {
-    font-size: 7px;
-  }
-  .preview-agent.scout {
-    left: 6%;
-  }
-  .preview-agent.forge {
-    right: 6%;
-  }
-  .preview-agent.coordinator {
-    left: calc(50% - 33px);
-  }
-  .preview-lines {
-    height: 135px;
-  }
-  .principles {
-    max-width: calc(100% - 40px);
-    grid-template-columns: 1fr;
-    margin-bottom: 22px;
-  }
-  .principles article {
-    padding: 22px 8px;
-  }
-  .principles article + article {
-    border-left: 0;
-    border-top: 1px solid var(--border);
-  }
-  .principles h2 {
-    font-size: 27px;
-  }
-  .principles p {
-    font-size: 13px;
-    max-width: 100%;
-  }
-  .principles .eyebrow {
-    font-size: 9px;
   }
   .entry-footer {
     padding: 0 20px 24px;
@@ -3060,9 +2767,6 @@ html[data-hidden="true"] .edge.executing {
   }
   .dialog .examples button {
     font-size: 9px;
-  }
-  .dialog .try-label {
-    display: none;
   }
   .dialog .button {
     min-height: 44px;

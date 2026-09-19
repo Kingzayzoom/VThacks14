@@ -6,11 +6,7 @@ import {
   Aperture,
   Layers2,
   Network,
-  Scan,
-  Shield,
   MicOff,
-  AudioLines,
-  List,
   Settings2,
   Plus,
   ArrowUpRight,
@@ -47,25 +43,6 @@ const nav = [
     href: "/agents",
     description: "Workforce directory",
   },
-  {
-    name: "ANS DIRECTORY",
-    index: "04",
-    icon: Scan,
-    description: "Identity discovery",
-  },
-  {
-    name: "GUARDIAN",
-    index: "05",
-    icon: Shield,
-    description: "Policies and approvals",
-  },
-  {
-    name: "VOICE",
-    index: "06",
-    icon: AudioLines,
-    description: "Voice interface",
-  },
-  { name: "EVENTS", index: "07", icon: List, description: "Audit history" },
 ];
 export function Shell({ children }: { children: React.ReactNode }) {
   const { api, state } = useControl();
@@ -151,14 +128,8 @@ export function Shell({ children }: { children: React.ReactNode }) {
           </button>
         </div>
         <div className="sidebar-body">
-          <p className="eyebrow sidebar-caption">
-            AGENTIC OPERATIONS
-            <br />
-            CONTROL CENTER
-          </p>
           <nav aria-label="Workspace navigation">
-            {nav.map((item) =>
-              item.href ? (
+            {nav.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
@@ -171,40 +142,9 @@ export function Shell({ children }: { children: React.ReactNode }) {
                   <span>{item.name}</span>
                   <span className="nav-index">{item.index}</span>
                 </Link>
-              ) : (
-                <div
-                  key={item.name}
-                  className="nav-item deferred"
-                  title={`${item.description} — planned for Phase B`}
-                >
-                  <item.icon size={18} />
-                  <span>{item.name}</span>
-                  <span className="nav-index">{item.index}</span>
-                  <span className="sr-only"> — planned for Phase B</span>
-                </div>
-              ),
+              )
             )}
           </nav>
-          <p className="phase-note">Dimmed sections open in Phase B.</p>
-          <div className="sidebar-art" aria-hidden="true">
-            <svg viewBox="0 0 160 88">
-              {Array.from({ length: 18 }, (_, i) => (
-                <ellipse
-                  key={i}
-                  cx={70 + i}
-                  cy="45"
-                  rx={20 + i * 3}
-                  ry={8 + i * 2}
-                  transform={`rotate(${-25 + i * 3} 80 44)`}
-                />
-              ))}
-            </svg>
-            <span className="eyebrow">
-              INTELLIGENCE IN MOTION.
-              <br />
-              HUMANITY IN CONTROL.
-            </span>
-          </div>
           <div className="sidebar-bottom">
             <Link
               href="/settings"
@@ -215,11 +155,6 @@ export function Shell({ children }: { children: React.ReactNode }) {
               <span>SETTINGS</span>
               <ArrowUpRight size={13} />
             </Link>
-            <div className="sidebar-mode">
-              <ModeBadge />
-              <span>Local simulation</span>
-            </div>
-            <span className="eyebrow muted version">PHASE A / V0.1</span>
           </div>
         </div>
       </aside>
@@ -240,10 +175,6 @@ export function Shell({ children }: { children: React.ReactNode }) {
           <div className="topbar-right">
             <MotionControl />
             <ModeBadge />
-            <span className="topbar-demo-note">No live integrations</span>
-            <span className="avatar" title="Local demo operator">
-              OP
-            </span>
           </div>
         </header>
         <div className="mission-context">
@@ -284,10 +215,6 @@ export function Shell({ children }: { children: React.ReactNode }) {
           >
             <MicOff size={19} />
           </button>
-          <div className="dock-channel">
-            <span className="eyebrow">COMMAND CHANNEL</span>
-            <span>Voice not configured</span>
-          </div>
           <form onSubmit={submitCommand}>
             <label className="sr-only" htmlFor="dock-command">
               New mission objective
@@ -307,7 +234,6 @@ export function Shell({ children }: { children: React.ReactNode }) {
               <ArrowRight size={19} />
             </button>
           </form>
-          <span className="dock-demo eyebrow">TEXT / DEMO</span>
           {commandError && (
             <p className="dock-error" role="alert">
               {commandError}

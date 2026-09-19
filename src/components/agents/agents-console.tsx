@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useRef, useState, useSyncExternalStore, type CSSProperties, type RefObject } from "react";
-import { ArrowDownRight, ArrowUpRight, Check, ChevronRight, Focus, List, Network, Pause, Play, RotateCcw, Search, Shield, X } from "lucide-react";
+import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type RefObject } from "react";
+import { ArrowUpRight, Check, ChevronRight, Focus, List, Network, Pause, Play, RotateCcw, Search, Shield, X } from "lucide-react";
 import type { Agent, Mission, Task } from "@/contracts";
 import { agentInMission } from "@/lib/demo/fixtures";
 import { useControl } from "../provider";
@@ -39,6 +39,8 @@ export function AgentsConsole() {
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [commandError, setCommandError] = useState("");
   const inspector = useRef<HTMLElement>(null);
+  const selectionTrigger = useRef<HTMLElement | null>(null);
+  const [inspectorOpen, setInspectorOpen] = useState(false);
   const mission = state.missions.find((m) => m.id === state.selectedMissionId) ?? state.missions[0];
   const members = state.agents.filter((agent) => mission.agentIds.includes(agent.id))
     .map((agent) => agentInMission(agent, state, mission.id));
@@ -47,25 +49,31 @@ export function AgentsConsole() {
   const selected = agents.find((agent) => agent.id === selectedId) ?? members[0];
   const tasks = state.tasks.filter((task) => task.missionId === mission.id);
   const currentTask = tasks.find((task) => task.id === selected.currentTaskId);
-  const running = members.filter((agent) => agent.runtimeStatus === "running");
-  const review = tasks.filter((task) => task.status === "waiting_approval");
   const normalizedQuery = query.trim().toLowerCase();
   const visible = agents.filter((agent) => {
     const matches = `${agent.name} ${agent.role} ${visualFor(agent.id).family} ${agent.capabilities.join(" ")}`.toLowerCase().includes(normalizedQuery);
     return matches && (filter === "all" || (filter === "mission" && mission.agentIds.includes(agent.id)) || (filter === "review" && agent.runtimeStatus === "waiting_approval"));
   });
   const visibleIds = new Set(visible.map((agent) => agent.id));
-  function selectAgent(id: string, reveal = true) {
-    if (previewAgents.some((agent) => agent.id === id)) setPreviewId(id);
-    else { setPreviewId(null); api.selectAgent(id); }
-    if (compact && reveal) {
+  useEffect(() => {
+    if (inspectorOpen && compact) {
       inspector.current?.focus({ preventScroll: true });
       inspector.current?.scrollIntoView({ behavior: still ? "instant" : "smooth", block: "start" });
     }
+  }, [inspectorOpen, compact, selected.id, still]);
+  function closeInspector() {
+    setInspectorOpen(false); setFocus(false);
+    selectionTrigger.current?.focus();
+  }
+  function selectAgent(id: string, reveal = true) {
+    if (reveal && document.activeElement instanceof HTMLElement) selectionTrigger.current = document.activeElement;
+    setInspectorOpen(true);
+    if (previewAgents.some((agent) => agent.id === id)) setPreviewId(id);
+    else { setPreviewId(null); api.selectAgent(id); }
   }
   function reset() {
     setQuery(""); setFilter("all"); setFocus(false); setHovered(null); setView(null);
-    selectAgent("coordinator", false);
+    setPreviewId(null); api.selectAgent("coordinator"); setInspectorOpen(false);
   }
   async function toggleMission() {
     setCommandError("");
@@ -73,21 +81,14 @@ export function AgentsConsole() {
     catch (error) { setCommandError(error instanceof Error ? error.message : "Unable to update mission."); }
   }
   return (
-    <section className="agents-console" aria-label="Agent command center">
+    <section className={`agents-console ${inspectorOpen ? "inspector-open" : ""}`} aria-label="Agent command center" onKeyDown={(event) => { if (event.key === "Escape" && inspectorOpen) { event.stopPropagation(); closeInspector(); } }}>
       <div className={`agents-constellation ${focus ? "branch-focus" : ""}`} data-view={view}>
         <header className="agents-heading">
-          <p className="eyebrow">{"// AGENTS"} <span>FIELD NOTES / 002</span></p>
           <h1>AGENTS<span>.</span></h1>
-          <p className="agents-motto">INDEPENDENT MINDS. SHARED DIRECTION.</p>
-          <p className="agents-intro">A constellation of specialists.<br />One coordinated intent.</p>
         </header>
         <FieldControls view={view} setView={setView} focus={focus} setFocus={setFocus}
-          query={query} setQuery={setQuery} filter={filter} setFilter={setFilter} reset={reset} />
-        <dl className="constellation-stats" aria-label="Selected mission summary">
-          <div><dt>IN MISSION</dt><dd>{String(members.length).padStart(2, "0")}</dd></div>
-          <div><dt>EXECUTING</dt><dd>{String(running.length).padStart(2, "0")}</dd></div>
-          <div><dt>NEEDS REVIEW</dt><dd>{String(review.length).padStart(2, "0")}</dd></div>
-        </dl>
+          query={query} setQuery={setQuery} filter={filter} setFilter={setFilter} reset={reset} selected={inspectorOpen}
+          canReset={inspectorOpen || !!query || filter !== "all" || view !== (compact ? "list" : "map")} />
         {view === "map" ? (
           <div className="constellation-map-viewport" tabIndex={compact ? 0 : undefined} aria-label="Agent constellation; scroll horizontally on small screens">
             <div className="constellation-map" data-selected={selected.id}>
@@ -105,41 +106,36 @@ export function AgentsConsole() {
                     hovered={hovered === node.id} dim={focus && selected.id !== "coordinator" && selected.id !== node.id} />;
                 })}
               </svg>
-              <p className="constellation-north eyebrow" aria-hidden="true">ALIGNMENT<br /><span>HUMAN AUTHORITY</span><i /></p>
               {visible.filter((agent) => agent.id !== "guardian").map((agent) => (
-                <ConstellationNode key={agent.id} agent={agent} selected={selected.id === agent.id}
+                <ConstellationNode key={agent.id} agent={agent} selected={inspectorOpen && selected.id === agent.id}
                   dim={focus && selected.id !== "coordinator" && agent.id !== selected.id && agent.id !== "coordinator"}
                   task={tasks.find((task) => task.id === agent.currentTaskId)} select={() => selectAgent(agent.id)}
                   hover={(value) => setHovered(value ? agent.id : null)} />
               ))}
-              {visibleIds.has("guardian") && <button className={`constellation-guardian ${selected.id === "guardian" ? "selected" : ""}`}
-                aria-label="Inspect Guardian" aria-pressed={selected.id === "guardian"} aria-controls="agent-inspector" onClick={() => selectAgent("guardian")}>
+              {visibleIds.has("guardian") && <button className={`constellation-guardian ${inspectorOpen && selected.id === "guardian" ? "selected" : ""}`}
+                aria-label="Inspect Guardian" aria-pressed={inspectorOpen && selected.id === "guardian"} aria-controls={inspectorOpen ? "agent-inspector" : undefined} onClick={() => selectAgent("guardian")}>
                 <Shield size={20} strokeWidth={1.2} /><span><strong>GUARDIAN</strong><small>Independent oversight</small></span>
-                <span className="guardian-scope-label">DEMO BOUNDARY</span>
               </button>}
               {!visible.length && <div className="constellation-empty"><Search size={24} /><h2>No matching agents.</h2><p>Try a name, role, or capability.</p><button className="button subtle" onClick={reset}>Clear filters</button></div>}
-              <div className="constellation-legend" aria-hidden="true"><span><i /> RELATIONSHIP</span><span><i className="legend-signal" /> EXECUTING</span><span><i className="legend-preview" /> NOT CONNECTED</span></div>
-              <p className="constellation-caption eyebrow" aria-hidden="true">A COORDINATED FIELD.<br />A WIDER HORIZON.</p>
             </div>
           </div>
         ) : (
           <div className="agents-roster" aria-label="Agent roster">
-            <p className="roster-caption"><span>{visible.length} SPECIALISTS IN VIEW</span><span>SELECT TO INSPECT <ArrowDownRight size={12} /></span></p>
-            {visible.map((agent) => <button key={agent.id} className={`constellation-roster-row ${selected.id === agent.id ? "selected" : ""}`}
-              style={nodeStyle(visualFor(agent.id))} aria-label={`Inspect ${agent.name}`} aria-pressed={selected.id === agent.id}
-              aria-controls="agent-inspector" onClick={() => selectAgent(agent.id)}>
-              <NeuronGlyph id={agent.id} /><span className="roster-agent-name"><small>{visualFor(agent.id).family}</small><strong>{agent.name}</strong><span>{agent.role}</span></span>
-              <span className="roster-capability">{agent.capabilities[0]}</span><AgentState agent={agent} /><ChevronRight size={14} />
+            {visible.map((agent) => <button key={agent.id} className={`constellation-roster-row ${inspectorOpen && selected.id === agent.id ? "selected" : ""}`}
+              style={nodeStyle(visualFor(agent.id))} aria-label={`Inspect ${agent.name}`} aria-pressed={inspectorOpen && selected.id === agent.id}
+              aria-controls={inspectorOpen ? "agent-inspector" : undefined} onClick={() => selectAgent(agent.id)}>
+              <NeuronGlyph id={agent.id} /><span className="roster-agent-name"><strong>{agent.name}</strong><span>{agent.role}</span></span>
+              <AgentState agent={agent} /><ChevronRight size={14} />
             </button>)}
             {!visible.length && <div className="roster-empty"><h2>No matching agents.</h2><p>Try a name, role, or capability.</p><button className="button subtle" onClick={reset}>Clear filters</button></div>}
           </div>
         )}
         <span className="sr-only" role="status">{visible.length} agents shown</span>
       </div>
-      <AgentInspector agent={selected} mission={mission} tasks={tasks} task={currentTask} members={members}
-        inspectorRef={inspector} select={selectAgent} />
-      <div className="agents-activity">
-        <header><span className="eyebrow">{"// MISSION ACTIVITY"}</span><span className="activity-demo-label">RECORDED DEMO EVENTS <i /></span></header>
+      {inspectorOpen && <AgentInspector agent={selected} mission={mission} tasks={tasks} task={currentTask} members={members}
+        inspectorRef={inspector} select={selectAgent} close={closeInspector} />}
+      <details className="agents-activity">
+        <summary>Mission activity <span>Recorded demo events</span></summary>
         <div className="agents-event-strip">
           {state.events.filter((event) => event.missionId === mission.id).slice(-4).map((event) => {
             const agent = agents.find((item) => item.id === event.agentId) ?? members[0];
@@ -149,9 +145,9 @@ export function AgentsConsole() {
             </button>;
           })}
         </div>
-      </div>
+      </details>
       <div className="agents-mission-control">
-        <span className="eyebrow">MISSION / DEMO</span><p>{mission.status === "paused" ? "Execution paused" : mission.currentStage}</p>
+        <p>{mission.status === "paused" ? "Execution paused" : mission.currentStage}</p>
         <button className="button subtle" onClick={toggleMission} aria-label={mission.status === "paused" ? "Resume demo mission" : "Pause demo mission"}>
           {mission.status === "paused" ? <Play size={14} /> : <Pause size={14} />}{mission.status === "paused" ? "Resume mission" : "Pause mission"}
         </button>
@@ -161,22 +157,28 @@ export function AgentsConsole() {
   );
 }
 
-function FieldControls({ view, setView, focus, setFocus, query, setQuery, filter, setFilter, reset }: {
+function FieldControls({ view, setView, focus, setFocus, query, setQuery, filter, setFilter, reset, selected, canReset }: {
   view: View; setView: (view: View) => void; focus: boolean; setFocus: (value: boolean) => void;
-  query: string; setQuery: (value: string) => void; filter: Filter; setFilter: (value: Filter) => void; reset: () => void;
+  query: string; setQuery: (value: string) => void; filter: Filter; setFilter: (value: Filter) => void; reset: () => void; selected: boolean; canReset: boolean;
 }) {
   return <div className="agents-field-controls">
     <div className="field-view-controls" role="group" aria-label="Field view">
       <button aria-label="Map view" aria-pressed={view === "map"} onClick={() => setView("map")}><Network size={14} /><span>Map</span></button>
       <button aria-label="List view" aria-pressed={view === "list"} onClick={() => setView("list")}><List size={14} /><span>List</span></button>
-      <button aria-label="Focus selected branch" title="Focus selected branch" aria-pressed={focus} onClick={() => setFocus(!focus)} disabled={view === "list"}><Focus size={15} /></button>
-      <button aria-label="Reset field view" title="Reset field view" onClick={reset}><RotateCcw size={14} /></button>
+      {selected && view === "map" && <button aria-label="Focus selected branch" title="Focus selected branch" aria-pressed={focus} onClick={() => setFocus(!focus)}><Focus size={15} /></button>}
+      {canReset && <button aria-label="Reset field view" title="Reset field view" onClick={(event) => {
+        event.currentTarget.parentElement?.querySelector("button")?.focus();
+        reset();
+      }}><RotateCcw size={14} /></button>}
     </div>
-    <div className="field-search-controls">
+    <details className="field-search-disclosure">
+      <summary>Find agents{(query || filter !== "all") && " · filtered"}</summary>
+      <div className="field-search-controls">
       <label className="agent-search"><Search size={13} /><span className="sr-only">Search agents</span><input placeholder="Find an agent…" value={query} onChange={(event) => setQuery(event.target.value)} />
         {query && <button aria-label="Clear agent search" onClick={() => setQuery("")}><X size={12} /></button>}</label>
       <label className="agent-filter"><span className="sr-only" id="agent-filter-label">Filter agents</span><select aria-labelledby="agent-filter-label" value={filter} onChange={(event) => setFilter(event.target.value as Filter)}><option value="all">All agents</option><option value="mission">In mission</option><option value="review">Needs review</option></select></label>
-    </div>
+      </div>
+    </details>
   </div>;
 }
 
@@ -212,11 +214,11 @@ function ConstellationNode({ agent, selected, dim, task, select, hover }: {
 }) {
   const node = visualFor(agent.id);
   return <button className={`constellation-node ${selected ? "is-selected" : ""} ${dim ? "is-dim" : ""} ${agent.id === "coordinator" ? "is-core" : ""} ${agent.runtimeStatus === "disconnected" ? "is-preview" : ""}`}
-    style={nodeStyle(node)} aria-label={`Inspect ${agent.name}`} aria-pressed={selected} aria-controls="agent-inspector"
+    style={nodeStyle(node)} aria-label={`Inspect ${agent.name}`} aria-pressed={selected} aria-controls={selected ? "agent-inspector" : undefined}
     onClick={select} onMouseEnter={() => hover(true)} onMouseLeave={() => hover(false)} onFocus={() => hover(true)} onBlur={() => hover(false)}>
     <span className="neuron-satellites" aria-hidden="true"><i /><i /><i /></span>
     <span className="neuron-aura" aria-hidden="true" /><NeuronGlyph id={agent.id} />
-    <span className="neuron-label"><span className="neuron-family">{node.family}</span><strong>{agent.id === "coordinator" ? "CortexAi" : agent.name}</strong><AgentState agent={agent} /></span>
+    <span className="neuron-label"><strong>{agent.id === "coordinator" ? "CortexAi" : agent.name}</strong><AgentState agent={agent} /></span>
     <span className="neuron-tooltip"><span>{agent.capabilities[0]}</span>{task?.title ?? agent.role}<ArrowUpRight size={12} /></span>
   </button>;
 }
@@ -235,9 +237,9 @@ function ConnectionPath({ node, running, disconnected, selected, hovered, dim }:
   </g>;
 }
 
-function AgentInspector({ agent, mission, tasks, task, members, inspectorRef, select }: {
+function AgentInspector({ agent, mission, tasks, task, members, inspectorRef, select, close }: {
   agent: Agent; mission: Mission; tasks: Task[]; task?: Task; members: Agent[];
-  inspectorRef: RefObject<HTMLElement | null>; select: (id: string, reveal?: boolean) => void;
+  inspectorRef: RefObject<HTMLElement | null>; select: (id: string, reveal?: boolean) => void; close: () => void;
 }) {
   const { still } = useFieldMotion();
   const node = visualFor(agent.id);
@@ -246,10 +248,9 @@ function AgentInspector({ agent, mission, tasks, task, members, inspectorRef, se
   const parentTasks = tasks.filter((item) => task?.dependencies.includes(item.id));
   const relations = agent.id === "coordinator" ? tasks : [...parentTasks, ...(task ? [task] : []), ...childTasks];
   return <aside className="agent-inspector" ref={inspectorRef} id="agent-inspector" aria-label="Agent inspector" tabIndex={-1} style={nodeStyle(node)}>
-    <header className="agent-inspector-header"><span className="eyebrow">{"// AGENT INSPECTOR"}</span><span>{preview ? "PREVIEW" : "DEMO"}<i /></span></header>
+    <header className="agent-inspector-header"><span>{preview ? "Preview agent" : "Agent details"}</span><button className="icon-button" aria-label="Close agent inspector" onClick={close}><X size={16} /></button></header>
     <motion.div className="agent-inspector-content" key={agent.id} initial={still ? false : { opacity: 0, y: 7 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: still ? 0 : 0.32 }}>
-      <div className="inspector-identity"><NeuronGlyph id={agent.id} /><div><span className="eyebrow">A // {node.index}</span><h2>{agent.name}</h2><p>{agent.role}</p></div></div>
-      <p className="inspector-thesis">{node.description}</p>
+      <div className="inspector-identity"><NeuronGlyph id={agent.id} /><div><h2>{agent.name}</h2><p>{agent.role}</p></div></div>
       <dl className="inspector-state-grid">
         <div><dt>RUNTIME</dt><dd><AgentState agent={agent} /></dd></div>
         <div><dt>IDENTITY</dt><dd>{agent.identityStatus === "demo_verified" ? "Demo fixture" : agent.identityStatus === "verified" ? "Verified" : "Unverified"}</dd></div>

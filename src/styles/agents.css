@@ -20,23 +20,26 @@
 .agents-workspace .command-dock { margin: 0; border-width: 1px 0 0; min-height: 57px; padding: 9px 22px; background: #090d0e; }
 .agents-workspace .nav-item { font-size: 10px; padding-inline: 18px; }
 .agents-workspace .nav-item.active { border-left-color: transparent; border-right: 2px solid #d9bd88; color: #e7cc99; }
-.agents-console { display: grid; grid-template-columns: minmax(0, 1fr) 286px; color: var(--agents-ivory); }
-.agents-constellation { position: relative; min-width: 0; height: max(570px, calc(100svh - 342px)); isolation: isolate; background: #070b0b; }
+.agents-console { display: grid; grid-template-columns: minmax(0, 1fr); color: var(--agents-ivory); }
+.agents-console.inspector-open { grid-template-columns: minmax(0, 1fr) 286px; }
+.agents-constellation { position: relative; min-width: 0; height: max(650px, calc(100svh - 264px)); isolation: isolate; background: #070b0b; }
 .agents-heading { position: absolute; left: 30px; top: 30px; z-index: 3; pointer-events: none; }
 .agents-heading > .eyebrow { color: #bec2b7; font-size: 9px; letter-spacing: .18em; margin: 0 0 3px; }
 .agents-heading > .eyebrow span { display: none; }
 .agents-heading h1 { font: 400 68px/.98 var(--font-serif); letter-spacing: .14em; margin: 4px 0 14px; color: #f3eddc; }
 .agents-heading h1 > span { color: #d0b47b; letter-spacing: 0; }
-.agents-motto { font: 9px/1.6 var(--font-mono); letter-spacing: .13em; color: #c0c7be; margin: 0 0 12px; }
-.agents-intro { font: 12px/1.75 var(--font-sans); color: #a6b0a8; margin: 0; }
 .agents-field-controls { position: absolute; top: 24px; right: 22px; z-index: 5; display: flex; align-items: flex-end; flex-direction: column; gap: 12px; }
-.field-view-controls { display: flex; align-items: center; border: 1px solid var(--agents-line); background: #090e0ee8; }
+.field-view-controls { display: flex; align-items: center; background: #090e0e80; }
 .field-view-controls button { display: flex; align-items: center; gap: 7px; justify-content: center; min-width: 35px; min-height: 32px; padding: 0 9px; border-right: 1px solid #b7c5b510; font: 10px var(--font-sans); color: #a3aea6; transition: color .2s, background .2s; }
 .field-view-controls button:last-child { border: 0; }
 .field-view-controls button[aria-pressed="true"] { color: #ebd2a2; background: #d9bd8810; }
 .field-view-controls button:hover:not(:disabled) { color: #f2e6cc; background: #d9bd881a; }
 .field-view-controls button:disabled { opacity: .4; cursor: default; }
 .field-search-controls { display: flex; align-items: center; gap: 9px; }
+.field-search-disclosure { position: relative; color: var(--agents-muted); }
+.field-search-disclosure summary { cursor: pointer; font: 11px var(--font-sans); padding: 8px 0; text-align: right; list-style: none; }
+.field-search-disclosure summary::-webkit-details-marker { display: none; }
+.field-search-disclosure .field-search-controls { position: absolute; right: 0; top: 100%; padding: 12px; background: #0b1010f5; border: 1px solid var(--agents-line); }
 .agent-search { display: flex; align-items: center; gap: 7px; color: #a5afa6; border-bottom: 1px solid #b7c5b52b; width: 130px; min-height: 32px; }
 .agent-search input { width: 100%; min-width: 0; padding: 5px 0; border: 0; outline: 0; background: transparent; color: #e8dfcb; font: 10px var(--font-sans); }
 .agent-search input::placeholder { color: #98a39a; }
@@ -44,11 +47,6 @@
 .agent-search > svg { flex-shrink: 0; }
 .agent-search button { display: grid; place-items: center; min-width: 24px; min-height: 30px; }
 .agent-filter select { width: 100px; border: 0; background: #080d0d; color: #b3bdb4; font: 10px var(--font-sans); padding: 7px 0; min-height: 32px; }
-.constellation-stats { position: absolute; top: 235px; left: 31px; z-index: 3; margin: 0; display: flex; flex-direction: column; gap: 19px; pointer-events: none; }
-.constellation-stats > div { display: flex; flex-direction: column-reverse; gap: 3px; }
-.constellation-stats dd { margin: 0; font: 400 28px/1 var(--font-serif); }
-.constellation-stats dt { color: #b9c0b5; font: 8px var(--font-mono); letter-spacing: .12em; }
-.constellation-stats > div:last-child dd { color: #d9bd88; }
 .constellation-map-viewport { width: 100%; height: 100%; }
 .constellation-map { position: relative; width: 100%; height: 100%; overflow: hidden; isolation: isolate; background: radial-gradient(ellipse at 56% 44%, #c8a36807, transparent 36%), radial-gradient(ellipse at 34% 33%, #50897008, transparent 45%); }
 .constellation-map:before { content: ""; position: absolute; z-index: 1; inset: 0; pointer-events: none; background: linear-gradient(90deg, #070b0bba 0%, transparent 28%), linear-gradient(180deg, #070b0b30, transparent 28%, transparent 91%, #070b0b8c); }
@@ -64,9 +62,6 @@
 .constellation-link.is-dim { opacity: .12; }
 .constellation-link.preview-link .constellation-link-line { stroke-dasharray: 2 7; opacity: .27; }
 .constellation-signal { stroke: #e0f4f7; stroke-width: 2.5; stroke-dasharray: .8 99.2; stroke-linecap: round; filter: drop-shadow(0 0 4px #b6e7fc); animation: constellation-transfer 4s linear infinite; }
-.constellation-north { position: absolute; z-index: 2; top: 14%; left: 56%; transform: translateX(-50%); color: #c0c1af; text-align: center; font-size: 8px; line-height: 1.8; letter-spacing: .14em; margin: 0; }
-.constellation-north span { color: #939e92; }
-.constellation-north i { display: block; width: 3px; height: 3px; border-radius: 50%; background: #e8d1a0; margin: 20px auto 0; box-shadow: 0 0 9px #e8d1a0; }
 .constellation-node { --glyph-size: 98px; position: absolute; z-index: 3; left: var(--node-x); top: var(--node-y); width: 150px; padding: 0; color: var(--node-color); display: flex; flex-direction: column; align-items: center; transform: translate(-50%, calc(var(--glyph-size) / -2)); border: 0; background: transparent; transition: opacity .4s; animation: constellation-arrive .9s both; }
 .constellation-node.is-core { --glyph-size: 159px; width: 180px; z-index: 4; }
 .constellation-node.is-dim { opacity: .25; }
@@ -82,11 +77,9 @@
 .neuron-aura { position: absolute; top: calc(var(--glyph-size) / 2); left: 50%; width: calc(var(--glyph-size) * 1.6); height: calc(var(--glyph-size) * 1.6); transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--node-color) 21%, transparent), transparent 64%); pointer-events: none; animation: neuron-aura 8s ease-in-out infinite alternate; }
 .is-core .neuron-aura { width: 320px; height: 320px; background: radial-gradient(circle, #efc88323, #dcc59c08 38%, transparent 67%); }
 .neuron-label { display: flex; align-items: center; flex-direction: column; gap: 4px; margin-top: 1px; text-shadow: 0 1px 7px #000, 0 0 12px #070b0b; }
-.neuron-family { font: 8px/1.3 var(--font-mono); letter-spacing: .19em; text-transform: uppercase; color: var(--node-color); }
 .neuron-label > strong { color: #e3e0d4; font: 400 22px/1.1 var(--font-serif); }
 .neuron-label .status { font-size: 9px; gap: 4px; }
 .neuron-label .status svg { width: 10px; height: 10px; }
-.is-core .neuron-family { font-size: 10px; letter-spacing: .25em; }
 .is-core .neuron-label > strong { font-size: 26px; }
 .is-preview .neuron-glyph { opacity: .8; }
 .agent-disconnected { color: #a5aaa5; font: 9px/1.4 var(--font-mono); }
@@ -103,23 +96,13 @@
 .constellation-guardian { position: absolute; left: 28px; bottom: 66px; z-index: 4; display: flex; gap: 9px; align-items: center; text-align: left; padding: 10px 11px 10px 0; color: #b7c7bb; border-block: 1px dashed #b5c7b433; background: #070c0cd9; transition: border-color .3s, background .3s; }
 .constellation-guardian strong { display: block; color: #dde3d5; font: 9px var(--font-mono); letter-spacing: .1em; }
 .constellation-guardian small { display: block; font-size: 10px; margin-top: 4px; }
-.constellation-guardian .guardian-scope-label { display: none; }
 .constellation-guardian:hover, .constellation-guardian.selected { border-color: #e0cf93aa; background: #cbb77708; }
-.constellation-legend { position: absolute; bottom: 24px; left: 30px; z-index: 2; display: flex; align-items: center; gap: 18px; color: #a5b1a6; font: 7px var(--font-mono); letter-spacing: .055em; }
-.constellation-legend > span { display: flex; align-items: center; gap: 7px; }
-.constellation-legend i { width: 19px; height: 1px; background: #cbbb9c; }
-.constellation-legend .legend-signal { width: 4px; height: 4px; background: #bbdef0; border-radius: 50%; box-shadow: 0 0 6px #bbdef0; }
-.constellation-legend .legend-preview { background: transparent; border-top: 1px dashed #a7a4b1; }
-.constellation-caption { position: absolute; right: 25px; bottom: 23px; z-index: 2; font-size: 7px; line-height: 1.8; letter-spacing: .1em; color: #9aa89a; margin: 0; }
 .constellation-empty { position: absolute; z-index: 7; inset: 36% 15% auto; text-align: center; background: #080c0ce8; border: 1px solid var(--agents-line); padding: 26px; }
 .constellation-empty h2, .roster-empty h2 { font: 30px var(--font-serif); margin: 12px 0; }
 .constellation-empty p, .roster-empty p { color: #aab4ab; font-size: 13px; }
 .constellation-empty .button, .roster-empty .button { margin: 18px auto 0; }
 .agents-constellation[data-view="list"] { height: auto; min-height: max(570px, calc(100svh - 342px)); background: radial-gradient(ellipse at 70% 5%, #c6b08b0a, transparent 70%), #080c0c; }
-.agents-constellation[data-view="list"] .constellation-stats { display: none; }
-.agents-roster { padding: 220px 28px 25px; }
-.roster-caption { display: flex; align-items: center; justify-content: space-between; margin: 0 0 15px; font: 8px var(--font-mono); color: #aab5aa; letter-spacing: .08em; }
-.roster-caption > span { display: inline-flex; align-items: center; gap: 5px; }
+.agents-roster { padding: 150px 28px 25px; }
 .constellation-roster-row { display: flex; align-items: center; width: 100%; text-align: left; border-block-start: 1px solid #b7c5b51a; gap: 13px; min-height: 82px; padding: 7px 10px 7px 0; transition: background .3s, border-color .3s; }
 .constellation-roster-row:last-child { border-block-end: 1px solid #b7c5b51a; }
 .constellation-roster-row:hover, .constellation-roster-row.selected { background: linear-gradient(90deg, color-mix(in srgb, var(--node-color) 7%, transparent), transparent); border-top-color: color-mix(in srgb, var(--node-color) 35%, transparent); }
@@ -128,7 +111,6 @@
 .roster-agent-name small { color: var(--node-color); text-transform: uppercase; font: 8px var(--font-mono); letter-spacing: .09em; }
 .roster-agent-name strong { font: 25px var(--font-serif); color: #eae2d1; }
 .roster-agent-name > span { font-size: 10px; color: #a6b1a7; }
-.roster-capability { color: #aab4a9; font-size: 11px; margin: 0 auto; }
 .constellation-roster-row > .status, .constellation-roster-row > .agent-disconnected { margin-left: auto; flex-shrink: 0; font-size: 10px; }
 .constellation-roster-row > svg:last-child { color: #a7afa2; }
 .roster-empty { padding: 25px 0; text-align: center; }
@@ -143,7 +125,6 @@
 .inspector-identity .eyebrow { font-size: 8px; color: #939f94; }
 .inspector-identity h2 { font: 400 30px/1.1 var(--font-serif); margin: 6px 0; color: #efe6d2; }
 .inspector-identity p { font: 9px/1.5 var(--font-mono); color: #a6b0a5; margin: 0; }
-.inspector-thesis { color: #b4bdb0; font: 11px/1.8 var(--font-sans); padding: 16px 0 20px; margin: 0; }
 .inspector-state-grid { display: grid; grid-template-columns: 1fr 1fr; margin: 0; padding: 13px 0; border-block: 1px solid var(--agents-line); gap: 16px 10px; }
 .inspector-state-grid dt { font: 7px var(--font-mono); letter-spacing: .12em; color: #a0ac9d; margin-bottom: 5px; }
 .inspector-state-grid dd { font: 10px/1.4 var(--font-sans); margin: 0; color: #dfdfd1; }
@@ -180,8 +161,6 @@
 .agents-activity { grid-column: 1; min-width: 0; border-top: 1px solid #c1cbb52b; padding: 13px 14px 12px; background: #080c0ceb; }
 .agents-activity header { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 0 10px; }
 .agents-activity header .eyebrow { font-size: 8px; color: #b6c0ae; letter-spacing: .09em; }
-.activity-demo-label { display: flex; align-items: center; gap: 7px; font: 7px var(--font-mono); color: #a4b099; }
-.activity-demo-label i { width: 3px; height: 3px; background: #cbb688; border-radius: 50%; }
 .agents-event-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid #c1cbb51c; }
 .agents-event { min-width: 0; display: flex; flex-direction: column; gap: 5px; padding: 8px 12px; text-align: left; border-right: 1px solid #c1cbb51c; background: linear-gradient(140deg, #c1cbb503, transparent); transition: background .3s, box-shadow .3s; }
 .agents-event:last-child { border-right: 0; }
@@ -208,17 +187,14 @@
 .constellation-map[data-in-view="false"] *, .constellation-map[data-in-view="false"]:after { animation-play-state: paused !important; }
 @media (min-width: 1700px) {
   .agents-workspace { grid-template-columns: 210px minmax(0, 1fr); }
-  .agents-console { grid-template-columns: minmax(0, 1fr) 315px; }
+  .agents-console.inspector-open { grid-template-columns: minmax(0, 1fr) 315px; }
   .agents-heading { top: 34px; left: 35px; }
   .agents-heading h1 { font-size: 80px; }
   .agents-heading > .eyebrow span { display: inline; margin-left: 36px; font-size: 7px; color: #82917f; }
   .constellation-node { --glyph-size: 119px; }
   .constellation-node.is-core { --glyph-size: 182px; }
-  .constellation-stats { top: 270px; left: 36px; gap: 27px; }
-  .constellation-stats dd { font-size: 32px; }
-  .constellation-guardian .guardian-scope-label { display: block; font: 7px var(--font-mono); border: 1px solid #adbea22e; padding: 4px; margin-left: 10px; }
   .agent-inspector { padding-inline: 26px; }
-  .inspector-thesis, .inspector-block > p, .inspector-capabilities li { font-size: 12px; }
+.inspector-block > p, .inspector-capabilities li { font-size: 12px; }
   .agents-event > span:not(.event-sequence) { font-size: 10px; }
 }
 @media (min-width: 761px) and (max-width: 1200px) {
@@ -226,27 +202,22 @@
   .agents-workspace .sidebar .brand > span:last-child, .agents-workspace .sidebar .nav-item > span, .agents-workspace .sidebar-caption, .agents-workspace .phase-note, .agents-workspace .sidebar-art, .agents-workspace .sidebar-mode, .agents-workspace .version { display: none; }
   .agents-workspace .sidebar-brand, .agents-workspace .sidebar .nav-item { justify-content: center; padding-inline: 0; }
   .agents-workspace .sidebar-bottom { margin-top: auto; }
-  .agents-console { grid-template-columns: minmax(0, 1fr) 255px; }
+  .agents-console.inspector-open { grid-template-columns: minmax(0, 1fr) 255px; }
   .agent-inspector { padding-inline: 18px; }
   .agents-heading h1 { font-size: 58px; }
-  .agents-heading, .constellation-stats { left: 20px; }
-  .agents-motto { font-size: 8px; max-width: 205px; }
-  .agents-intro { font-size: 11px; }
+.agents-heading { left: 20px; }
   .constellation-node { --glyph-size: 82px; width: 126px; }
   .constellation-node.is-core { --glyph-size: 130px; }
   .neuron-label > strong { font-size: 20px; }
   .neuron-label .status { font-size: 8px; }
-  .constellation-caption { display: none; }
   .neuron-satellites i:nth-child(1) { transform: translate(-36px, -46px); }
   .neuron-satellites i:nth-child(2) { transform: translate(36px, -32px); }
   .neuron-satellites i:nth-child(3) { transform: translate(-48px, 14px); }
-  .roster-capability { display: none; }
 }
 @media (min-width: 761px) and (max-width: 980px) {
-  .agents-console { grid-template-columns: minmax(0, 1fr); }
+  .agents-console.inspector-open { grid-template-columns: minmax(0, 1fr); }
   .agent-inspector { grid-column: 1; grid-row: 4; border-left: 0; border-top: 1px solid var(--agents-line); max-height: none; }
   .agent-inspector-content { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; }
-  .inspector-thesis { align-self: center; }
   .agents-constellation { height: 650px; }
 }
 @media (max-width: 760px) {
@@ -262,29 +233,24 @@
   .agents-heading { position: relative; left: auto; top: auto; padding: 27px 23px 0; }
   .agents-heading h1 { font-size: 62px; margin-top: 6px; margin-bottom: 10px; }
   .agents-heading > .eyebrow { font-size: 8px; }
-  .agents-motto { font-size: 8px; letter-spacing: .13em; }
-  .agents-intro { font-size: 12px; }
   .agents-field-controls { position: relative; top: auto; right: auto; align-items: stretch; padding: 22px 23px 17px; gap: 16px; }
   .field-view-controls { width: 100%; }
   .field-view-controls button { min-height: 39px; flex: 1; }
   .field-search-controls { gap: 18px; }
+  .field-search-disclosure .field-search-controls { position: static; padding: 8px 0; border: 0; background: transparent; }
   .agent-search { flex: 1; min-height: 40px; }
   .agent-search input { font-size: 12px; }
   .agent-filter select { width: 117px; min-height: 40px; font-size: 11px; }
-  .constellation-stats { display: none; }
   .constellation-map-viewport { height: 590px; overflow-x: auto; scrollbar-width: thin; scrollbar-color: #a9956855 transparent; border-top: 1px solid var(--agents-line); }
   .constellation-map { width: 800px; height: 590px; }
   .constellation-node { --glyph-size: 95px; }
   .constellation-node.is-core { --glyph-size: 147px; }
-  .constellation-north { top: 9%; }
   .agents-roster { padding: 7px 20px 24px; }
-  .roster-caption { font-size: 7px; margin-bottom: 13px; }
   .constellation-roster-row { gap: 8px; padding-right: 0; min-height: 96px; }
   .constellation-roster-row .neuron-glyph { width: 62px; height: 62px; }
   .roster-agent-name { min-width: 0; flex: 1; }
   .roster-agent-name > strong { font-size: 25px; }
   .roster-agent-name > span { font-size: 10px; max-width: 145px; }
-  .roster-capability { display: none; }
   .constellation-roster-row > .status, .constellation-roster-row > .agent-disconnected { font-size: 8px; max-width: 86px; }
   .constellation-roster-row > .status > svg { width: 10px; }
   .constellation-roster-row > svg:last-child { display: none; }
@@ -293,7 +259,7 @@
   .agent-inspector-header > .eyebrow { font-size: 9px; }
   .inspector-identity .neuron-glyph { width: 93px; height: 93px; }
   .inspector-identity h2 { font-size: 35px; }
-  .inspector-thesis, .inspector-block > p, .inspector-capabilities li { font-size: 13px; }
+.inspector-block > p, .inspector-capabilities li { font-size: 13px; }
   .inspector-state-grid dt { font-size: 8px; }
   .inspector-state-grid dd, .inspector-state-grid dd .status { font-size: 12px; }
   .inspector-block { padding-block: 19px; }
@@ -315,6 +281,11 @@
   .agents-mission-control > .eyebrow { flex-basis: 100%; }
   .agents-mission-control .button { min-height: 38px; }
 }
+.agents-activity { padding-block: 0; }
+.agents-activity > summary { min-height: 44px; padding-block: 14px; cursor: pointer; font-size: 11px; color: var(--agents-muted); }
+.agents-activity > summary > span { float: right; font-size: 10px; }
+.agents-activity[open] { padding-bottom: 16px; }
+.agent-inspector-header { font-size: 11px; }
 @media (prefers-reduced-motion: reduce) {
   .agents-console *, .agents-console *:before, .agents-console *:after { animation: none !important; transition: none !important; }
 }

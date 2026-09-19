@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import fs from "node:fs";
-const captures = "docs/screenshots/finish";
+const captures = "docs/screenshots/layering/verification";
 
 test("roster reflects assignments, selection, events and real demo pause state", async ({ page }) => {
  const errors:string[]=[]; const external:string[]=[];

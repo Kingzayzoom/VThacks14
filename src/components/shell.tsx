@@ -18,6 +18,7 @@ import { Brand, ModeBadge } from "./ui";
 import { Dialog } from "./dialog";
 import { MissionComposer } from "./composer";
 import { VoicePanel } from "./voice/voice-panel";
+import { WorkspaceAtmosphere } from "./workspace-atmosphere";
 
 const nav = [
   {
@@ -129,6 +130,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
       <div className="workspace-body" inert={mobileNav}>
+        <WorkspaceAtmosphere />
         <header className="workspace-topbar">
           <div className="breadcrumb">
             <button

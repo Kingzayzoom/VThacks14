@@ -44,8 +44,8 @@ for (const [size, viewport] of Object.entries({ desktop: { width: 1440, height: 
     await page.getByLabel("Filter agents").selectOption("category:Voice");
     await expect(page.getByRole("button", { name: "Inspect Voice", exact: true })).toBeVisible();
     await expect(page.locator(".constellation-roster-row")).toHaveCount(1);
-    fs.mkdirSync("docs/screenshots/finish/voice", { recursive: true });
-    await page.screenshot({ path: `docs/screenshots/finish/voice/categories-${size}.png`, fullPage: true });
+    fs.mkdirSync("docs/screenshots/layering/verification/voice", { recursive: true });
+    await page.screenshot({ path: `docs/screenshots/layering/verification/voice/categories-${size}.png`, fullPage: true });
     await page.getByRole("button", { name: "Voice connection information" }).click();
     const dialog = page.getByRole("dialog", { name: "Voice channel" });
     await expect(dialog.getByText("Microphone inactive. No audio is captured.")).toBeVisible();
@@ -54,7 +54,7 @@ for (const [size, viewport] of Object.entries({ desktop: { width: 1440, height: 
     await expect(dialog.getByRole("alert")).toContainText("access code was not accepted");
     expect(sessionRequests).toBe(1);
     await expect(dialog.getByLabel("Team voice access code")).toHaveValue("");
-    await page.screenshot({ path: `docs/screenshots/finish/voice/dialog-${size}.png`, fullPage: true });
+    await page.screenshot({ path: `docs/screenshots/layering/verification/voice/dialog-${size}.png`, fullPage: true });
     const accessibility = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
     expect(accessibility.violations).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

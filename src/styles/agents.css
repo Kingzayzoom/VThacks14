@@ -3,7 +3,7 @@
 .agents-heading h1 { margin-bottom:8px; }
 .roster-count { display:flex; gap:20px; color:var(--secondary); font-size:13px; white-space:nowrap; }
 .roster-count span + span { border-left:1px solid var(--border-strong); padding-left:20px; }
-.agents-constellation { grid-column:1; min-width:0; border:1px solid var(--border); border-radius:12px; background:var(--surface); overflow:hidden; box-shadow:0 2px 6px #0002; }
+.agents-constellation { grid-column:1; min-width:0; border:1px solid var(--border); border-radius:12px; background:var(--surface-material); overflow:hidden; box-shadow:var(--surface-shadow); }
 .agents-field-controls { padding:20px; display:flex; align-items:center; gap:12px; }
 .field-search-controls { display:flex; gap:12px; flex:1; min-width:0; }
 .agent-search { display:flex; align-items:center; gap:8px; border:1px solid var(--border); padding:0 12px; border-radius:7px; width:320px; min-width:0; background:var(--navigation); }
@@ -16,21 +16,24 @@
 .roster-heading { min-height:44px; color:var(--secondary); font-size:12px; background:var(--navigation); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
 .roster-heading > span:first-child { grid-column:1/3; }
 .roster-heading .roster-assignment { font-size:12px; }
-.constellation-roster-row { width:100%; min-height:86px; border-bottom:1px solid var(--border); text-align:left; }
+.constellation-roster-row { width:100%; min-height:86px; border-bottom:1px solid var(--separator); text-align:left; }
 .constellation-roster-row:last-child { border-bottom:0; }
-.constellation-roster-row:hover,.constellation-roster-row:focus-visible { background:var(--raised); }
+.constellation-roster-row:hover,.constellation-roster-row:focus-visible { background-color:#ffffff05; box-shadow:inset 0 1px 0 #ffffff06; }
 .constellation-roster-row:focus-visible { outline-offset:-3px; }
-.constellation-roster-row.selected { background:#8fa8ff0b; }
-.constellation-roster-row.selected .agent-icon { color:var(--accent); border-color:#8fa8ff60; }
-.agent-icon { display:grid; place-items:center; width:42px; height:42px; background:#242933; border:1px solid #39414e; border-radius:10px; color:#c1c9d6; flex-shrink:0; box-shadow:inset 0 1px 0 #ffffff08; }
-.preview-row .agent-icon { border-style:dashed; background:transparent; color:var(--secondary); }
+.constellation-roster-row.selected { background:linear-gradient(100deg,#8fa8ff14,#8fa8ff05 65%); box-shadow:inset 0 1px 0 #8fa8ff12; }
+.constellation-roster-row.selected .agent-icon { color:var(--accent); border-color:#8fa8ff60; background-color:#34415b; box-shadow:inset 0 1px 0 #b1c5ff20,0 2px 4px #0004; }
+.agent-icon { display:grid; place-items:center; width:42px; height:42px; background:linear-gradient(145deg,#c2d1e610,transparent 70%),#242933; border:1px solid #39414e; border-radius:10px; color:#c1c9d6; flex-shrink:0; box-shadow:inset 0 1px 0 #ffffff0c,0 2px 3px #0003; transition:background-color 140ms,border-color 140ms,color 140ms; }
+.agent-icon[data-family="Analysis"] { background-color:#262b37; }
+.agent-icon[data-family="Execution"] { background-color:#2c2b2a; }
+.agent-icon[data-family="Research"] { background-color:#242e30; }
+.preview-row .agent-icon { border-style:dashed; background:transparent; color:var(--secondary); box-shadow:none; }
 .roster-agent-name strong { font-weight:500; display:block; font-size:15px; }
 .roster-agent-name > span { display:block; font-size:12px; color:var(--secondary); margin-top:5px; }
 .roster-assignment { color:#c0c5ce; font-size:13px; line-height:1.5; }
 .constellation-roster-row > .status { justify-self:start; }
 .constellation-roster-row > svg:last-child { color:var(--secondary); }
 .agent-disconnected { font-size:12px; color:var(--secondary); }
-.agent-inspector { grid-column:2; grid-row:2/5; position:sticky; top:24px; min-width:0; max-height:calc(100dvh - 48px); background:var(--surface); color:var(--text); border:1px solid var(--border); border-radius:12px; padding:24px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--border-strong) transparent; }
+.agent-inspector { grid-column:2; grid-row:2/5; position:sticky; top:24px; min-width:0; max-height:calc(100dvh - 48px); background:radial-gradient(ellipse 320px 220px at 40px 100px,#8fa8ff0b,transparent),var(--surface-material); color:var(--text); border:1px solid var(--border-strong); box-shadow:var(--raised-shadow); border-radius:12px; padding:24px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--border-strong) transparent; }
 .agent-inspector:focus { outline:none; }
 .agent-inspector .inspector-identity { margin:24px 0; }
 .agent-inspector .inspector-identity h2 { font-size:25px; }

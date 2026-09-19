@@ -1,3 +1,9 @@
+## Layering and atmosphere validation - September 19, 2026
+
+Final build at http://127.0.0.1:3026 (`CORTEX_BUILD_DIR=.next/layering`): typecheck, lint, production build passed; **11 unit tests and all 14 browser tests passed**, zero failures. Axe reports zero violations in tested desktop/mobile states. Existing assertions preserved; added single-background, reduced-motion/mobile suppression and hidden-page lifecycle checks.
+
+[Before/after evidence, references and performance measurements](LAYERING_CHECKPOINT.md): 1440x900, 1920x1080, 390x844, identical measured shell/panel bounds, no overflow. Added resources: 160 B JS + 794 B CSS gzip estimate; no new dependencies. Local 120-frame samples: median 16.7ms / maximum p95 16.8ms before and after, zero intervals above 34ms. Hardware-specific GPU/mobile and full LCP/input-latency benchmarks were not performed. Hidden visibility event is simulated for deterministic headless testing. No live provider calls, push or deployment.
+
 ## Design finish validation - September 19, 2026
 
 Production preview: http://127.0.0.1:3025 (`CORTEX_BUILD_DIR=.next/design-finish`), branch `feat/finish-product-design`, based on `30aec66`.

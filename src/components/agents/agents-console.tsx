@@ -137,7 +137,7 @@ function AgentState({ agent }: { agent: Agent }) {
 }
 
 export function NeuronGlyph({ id }: { id: string }) {
-  return <span className="agent-icon"><AgentGlyph id={id} size={20} /></span>;
+  return <span className="agent-icon" data-family={visualFor(id).family}><AgentGlyph id={id} size={20} /></span>;
 }
 
 function AgentInspector({ agent, mission, tasks, task, members, inspectorRef, compact, select, close }: {

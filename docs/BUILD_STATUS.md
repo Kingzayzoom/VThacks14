@@ -1,3 +1,9 @@
+## Current checkpoint: layering and atmosphere ready for review
+
+Implemented on `feat/layering-atmosphere` from `98d924a`. The approved design-finish composition is preserved; one shared CSS light field and restrained surface material provide depth. Local production preview: http://127.0.0.1:3026 (`CORTEX_BUILD_DIR=.next/layering`). See [layering evidence and before/after comparisons](LAYERING_CHECKPOINT.md). No dependencies, backend/API/security, credentials or mission behavior changed. No push, deployment or connection pass.
+
+> **Active layering checkpoint (2026-09-19):** The owner approved the design-finish information architecture, type scale, spacing and interaction model. `CORTEXAI_LAYERING_ATMOSPHERE.md` now authorizes one quiet ambient light field and restrained surface depth. Preserve all geometry. The shared CSS environment sits behind opaque content, moves only transform/opacity over 48 seconds each direction, freezes on hidden pages and becomes static on mobile/coarse pointers and reduced motion. Material gradients, inner highlights and shallow shadows distinguish base, mission, decision and inspector surfaces. No WebGL dependency, particles, blur, neon, decorative relationship lines or additional UI controls. This supersedes older blanket prohibitions on background atmosphere. No connection pass or deployment.
+
 ## Current checkpoint: design finish ready for owner review
 
 Implemented on `feat/finish-product-design` from reset commit `30aec66`. The existing information architecture now has stronger type hierarchy, deliberate graphite surfaces, a composed Overview, aligned mission rows and tonal agent identities. The desktop inspector sits beside the roster; smaller screens use a focus-contained modal sheet. Existing routes, mission behavior, search/categories, identity/standing/authority/runtime distinctions and reviewed voice drafts are preserved.

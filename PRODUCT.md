@@ -14,7 +14,7 @@ Turn an objective into inspectable work with clear assignments, evidence and res
 Clear, steady, precise.
 
 ## Anti-references
-Neural wallpaper, orbital agents, giant serif branding, perpetual motion, fake live verification.
+Neural wallpaper, orbital agents, giant serif branding, perpetual foreground motion, fake live verification.
 
 ## Design Principles
 The work feels alive. The interface stays steady. Prioritize tasks and decisions; distinguish identity, standing, authority and runtime. Show real state and honest demo provenance.
@@ -22,4 +22,4 @@ The work feels alive. The interface stays steady. Prioritize tasks and decisions
 ## Accessibility & Inclusion
 Keyboard navigation, visible focus, responsive mobile layouts, readable contrast and reduced motion are required.
 
-The owner-approved direction is CORTEXAI_VISUAL_RESET.md. This supersedes historical visual instructions.
+The owner-approved product structure is CORTEXAI_DESIGN_FINISH.md. CORTEXAI_LAYERING_ATMOSPHERE.md permits one quiet background light field and restrained surface depth while freezing that structure. These briefs supersede historical visual instructions.

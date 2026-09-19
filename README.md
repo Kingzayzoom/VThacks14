@@ -6,14 +6,16 @@ CortexAi turns a plain-English goal into finished work by hiring specialist AI a
 
 ### Start here
 
-- **[Context primer](docs/onboarding.md)** — what this is and how it works. Read it, then paste
-  it into your AI assistant before asking it for help with this project.
-- **[Who owns what](docs/team/README.md)** — four people, four territories, and your brief.
-- **[Project status](docs/status.md)** — what works, what is open, what we still need.
+- **[The guide](docs/GUIDE.md)** — the single source of truth: what this is, what is real, what
+  is left, and the house rules. Paste it into your AI assistant before asking it for help.
+- **[Work packets](docs/work/README.md)** — the open work, who owns which files, and
+  [ready-to-paste prompts](docs/work/CODEX_PROMPT.md) for a coding agent.
+- **[Technical reference](docs/REFERENCE.md)** — every module and gap, each claim marked by how
+  we know it.
 
 ### Reference
 
-- [Frontend contract](docs/contracts.md) — every route, event and object the dashboard needs
+- [API and event contract](docs/contracts.md) — every route, event and object the frontend needs
 - [Questions for GoDaddy](docs/godaddy-questions.md) — what the public ANS docs do not settle
 - [Product spec](docs/product-spec.html) — what it does, for whom, and why
 - [Field guide](docs/field-guide.html) — ANS concepts, architecture and the build plan
@@ -30,7 +32,14 @@ copy .env.example .env            # macOS/Linux: cp .env.example .env
 python scripts/run_all.py --fresh
 ```
 
-The dashboard opens at http://127.0.0.1:8000. Press **Launch mission**.
+The fallback dashboard opens at http://127.0.0.1:8000. Press **Launch mission**.
+
+The Next.js app is the frontend that ships. With the backend running, in a second terminal:
+
+```bash
+npm install
+set CORTEX_RUNTIME_MODE=live && npm run dev   # proxies to the hub on :8000
+```
 
 The policy rules have unit tests that need nothing running:
 
@@ -118,9 +127,11 @@ services/
   hub/                   event stream, demo controls, serves the dashboard
     guardian.py          the gateway agents must ask before they act
   agents/                commander.py, vendor.py, impostor.py
-dashboard/               plain HTML/CSS/JS, no build step
-scripts/                 run_all.py, smoke_test.py, register_agents.py
-tests/                   the Guardian's rules, one at a time (pytest, no server needed)
+src/                     the Next.js frontend (ships)
+dashboard/               plain HTML/CSS/JS fallback, no build step
+scripts/                 run_all.py, smoke_test.py, check_ans.py, register_agents.py
+tests/                   pytest suite (no server needed) plus frontend unit tests
+docs/                    GUIDE.md, REFERENCE.md, contracts.md, work/ packets and fixtures
 ```
 
 ## Configuration (`.env`)

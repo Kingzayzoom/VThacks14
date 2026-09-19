@@ -1,10 +1,10 @@
 # CortexAi — everything left to do
 
-Eight packets, drawn so **no two touch the same file**. Each is a self-contained brief you can
-hand to a separate person or AI session.
+Seven open packets (P1 is done), drawn so **no two touch the same file**. Each is a
+self-contained brief you can hand to a separate person or AI session.
 
-**Updated after:** the frontend merged and was chosen, the rename to CortexAi, live GoDaddy
-discovery proving out, and two dead Gemini keys.
+**Updated after:** P1 landed (the frontend is wired to the hub), the rename to CortexAi, live
+GoDaddy discovery proving out, and two dead Gemini keys.
 
 > New to the project? Read [`../GUIDE.md`](../GUIDE.md) first — it is the complete picture.
 
@@ -17,7 +17,7 @@ discoverable from the code.
 Or by hand:
 
 1. Fresh session.
-2. Paste [`../onboarding.md`](../onboarding.md) — the project context primer.
+2. Paste [`../GUIDE.md`](../GUIDE.md) — the project context.
 3. Paste the packet file.
 4. Work on that packet's branch, only in that packet's files.
 
@@ -35,8 +35,8 @@ Or by hand:
 | **Domain** | `getcortex.vip` (Porkbun), wired as an `ANS_DOMAIN` switch, both modes tested. |
 | **Name** | CortexAi. Settled, renamed across both halves. |
 
-The two things that decide the demo: **the frontend is not connected to the backend**, and
-**no agent is thinking**. Everything else is polish or reach.
+The two things that decide the demo: **the Trust Gate, Guardian and Recruitment views do not
+exist yet** (P2), and **no agent is thinking** (P8). Everything else is polish or reach.
 
 ---
 
@@ -44,7 +44,7 @@ The two things that decide the demo: **the frontend is not connected to the back
 
 | | Packet | Blocked? | Owns | Priority |
 |---|---|---|---|---|
-| ~~P1~~ | ~~[Frontend data adapter](p1-frontend-adapter.md)~~ | **DONE 19 Sep** | — | — |
+| ~~P1~~ | ~~Frontend data adapter~~ — see [`../LIVE_INTEGRATION.md`](../LIVE_INTEGRATION.md) | **DONE 19 Sep** | — | — |
 | **P2** | [Trust & Guardian views](p2-frontend-views.md) | no | new components + routes | **critical** |
 | **P3** | [Backend API for the frontend](p3-backend-api.md) | no | `services/hub/app.py`, contracts | high |
 | **P7** | [Live discovery over 216k agents](p7-live-discovery.md) | no | `mc/discovery.py` (new) | **high — prize track** |
@@ -105,11 +105,11 @@ P6   docs/demo-script.md             scripts/smoke_test.py
 
 ---
 
-## Fixtures — why P1 and P2 do not block each other
+## Fixtures — build views without running the backend
 
 [`fixtures/`](fixtures/) holds **real captured output** from a complete demo run, not invented
-shapes. P2 builds the views against these today; when P1 lands the adapter, the same shapes
-arrive live and the views keep working.
+shapes. P2 can build its views against these; the same shapes arrive live through the P1
+adapter, so the views keep working when switched to live data.
 
 | File | What |
 |---|---|
@@ -125,15 +125,25 @@ arrive live and the views keep working.
 
 ## Rules for every packet
 
-1. **Branch per packet.** `git checkout -b p1-adapter`. Merge to `main` twice a day minimum.
+1. **Branch per packet.** `git checkout -b p7-discovery`. Merge to `main` twice a day minimum.
 2. **Run the checks before pushing.** `pytest` (137, under a second) · `npm run typecheck && npm run build` · anything structural: `python scripts/smoke_test.py`.
 3. **Stay in your files.** Need something elsewhere? Ask; don't reach in.
-4. **The house rules in [`../onboarding.md`](../onboarding.md) §10 are not negotiable.** Never show
+4. **The house rules in [`../GUIDE.md`](../GUIDE.md) §14 are not negotiable.** Never show
    a green check you did not earn. `unverified` is not `pass`. No secret reaches the browser. No
    fake progress. Deterministic code decides; the model only explains.
 5. **Only one process can hold the ports.** `run_all.py` fails to bind if another instance is up,
    and you will then be testing stale services with accumulated state. This has already cost two
    confusing debugging sessions. If results look strange, check this first.
+
+### Reviewing someone else's branch
+
+- Does any UI path render `unverified` as a pass?
+- Does any new code let model output reach a policy decision?
+- Does any event carry a key, token or PAT?
+- Does anything appear in the UI on a timer rather than an event?
+- If an API shape or event changed, was [`../contracts.md`](../contracts.md) updated in the same
+  commit?
+- Does `pytest` pass, and does `scripts/smoke_test.py` still assert all five scenarios?
 
 ---
 
@@ -160,4 +170,4 @@ performed by the Guardian, not the agent. Plans as validated dependency graphs w
 retry. Roster-based recruitment with replacement. Eight ANS lifecycle states told apart. Live
 registry mapping pinned to a verbatim captured response.
 
-Full detail in [`../status.md`](../status.md) §4.
+Full detail in [`../REFERENCE.md`](../REFERENCE.md) Part V.

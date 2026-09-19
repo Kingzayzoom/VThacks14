@@ -1,6 +1,6 @@
 # P6 — Demo script, rehearsal and failure drills
 
-**Paste [`../onboarding.md`](../onboarding.md) first, then this file.**
+**Paste [`../GUIDE.md`](../GUIDE.md) first, then this file.**
 
 Branch: `p6-demo`. High priority by Saturday.
 

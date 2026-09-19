@@ -1,6 +1,6 @@
 # P2 — Trust Gate, Guardian and Recruitment views
 
-**Paste [`../onboarding.md`](../onboarding.md) first, then this file.**
+**Paste [`../GUIDE.md`](../GUIDE.md) first, then this file.**
 
 Branch: `p2-views`. Critical path.
 

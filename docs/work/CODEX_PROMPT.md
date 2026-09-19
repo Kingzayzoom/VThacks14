@@ -12,10 +12,10 @@ You are joining CortexAi, an in-progress hackathon project. Demo is Sunday.
 
 STEP 1 — READ BEFORE WRITING ANYTHING. In this order:
   1. docs/GUIDE.md             the complete picture — product, status, what is real, house rules
-  2. docs/status.md            deeper detail on risks and open decisions
-  3. docs/work/README.md       how work is split so we do not collide
-  4. docs/work/<PACKET>.md     YOUR brief — scope, tasks, done-criteria
-  5. docs/contracts.md         only if your packet touches the API or event stream
+  2. docs/work/README.md       how work is split so we do not collide
+  3. docs/work/<PACKET>.md     YOUR brief — scope, tasks, done-criteria
+  4. docs/contracts.md         only if your packet touches the API or event stream
+  5. docs/REFERENCE.md         only for deep detail on a specific module or gap
 
 Do not skim these. The briefs contain traps that are not obvious from the code, and every
 one of them has already cost someone hours.
@@ -126,57 +126,9 @@ verified, not what you expect to work.
 
 ---
 
-## Ready to paste — P1, connect the frontend
-
-Critical path. The Next.js app currently makes zero network calls.
-
-```
-You are joining CortexAi, an in-progress hackathon project. Demo is Sunday.
-
-Read these before writing anything, in order:
-  docs/GUIDE.md, docs/work/README.md,
-  docs/work/p1-frontend-adapter.md, docs/contracts.md
-
-Then orient: git log --oneline -15 && pytest -q && ls docs/work/fixtures/
-
-Your packet is P1 — the frontend data adapter. The Next.js app is complete, builds clean
-and makes NO network calls at all: HttpControlApi.ts throws NOT_CONFIGURED, the provider
-is hardwired to a localStorage mock, and live mode reports available: false. The backend
-is finished and running. Your job is to connect them WITHOUT changing a single component.
-
-The shapes do not line up, because the frontend was built from a design brief while the
-backend grew into docs/contracts.md. You are writing the translation layer. Real captured
-backend output is in docs/work/fixtures/ — 95 events, one example of each of the 32 event
-types, and every REST response. Build against those; they are exact.
-
-Three rules for the mapping, in order of importance:
-  1. Never invent a value. If the backend does not send it, map it to null. Do not
-     compute a plausible-looking number.
-  2. Never collapse "unverified" into "pass". Trust checks have four states: pass, fail,
-     unverified, not_run. If the target enum has no room for unverified, WIDEN THE ENUM.
-     Rounding it to something that looks fine destroys the product's whole claim.
-  3. Carry the detail through. The five per-check rows, their detail strings and their
-     evidence objects are the product. Losing them in translation is the failure mode.
-
-Backend down must render as "backend unavailable", never as an empty successful-looking
-dashboard.
-
-Read dashboard/app.js first — it is plain JavaScript, about 60 lines of data handling,
-and it is wired to everything. It is the reference implementation for what you are doing.
-
-Verify: npm run typecheck && npm run build, then run the backend with
-python scripts/run_all.py --fresh and confirm live mode shows a real mission.
-
-Branch: p1-adapter. Work only in src/lib/api/, src/lib/env/config.ts and
-src/components/provider.tsx. Do not touch src/contracts/index.ts — P2 may be extending
-it. Report what you actually verified.
-```
-
----
-
 ## Why the prompts are shaped this way
 
-**Read first, in a fixed order.** A coding agent that starts editing before reading `onboarding.md`
+**Read first, in a fixed order.** A coding agent that starts editing before reading `GUIDE.md`
 will reinvent things that exist and violate rules it never saw.
 
 **The traps are stated explicitly.** "Only one process can hold the ports" and "`unverified` is not

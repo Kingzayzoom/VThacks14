@@ -1,6 +1,6 @@
 # P3 — Backend API for the frontend
 
-**Paste [`../onboarding.md`](../onboarding.md) first, then this file.**
+**Paste [`../GUIDE.md`](../GUIDE.md) first, then this file.**
 
 Branch: `p3-api`. High priority — P1 is blocked on two of these.
 

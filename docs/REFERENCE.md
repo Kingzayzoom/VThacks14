@@ -827,7 +827,6 @@ First two: done well. **Third: not written.** That is a 30-minute gap against an
 | Document | For |
 |---|---|
 | [`GUIDE.md`](GUIDE.md) | the shorter orientation — read first if this is too long |
-| [`status.md`](status.md) | risks, open decisions, history |
 | [`contracts.md`](contracts.md) | every route, event and object shape |
 | [`work/README.md`](work/README.md) | the work packets and file ownership |
 | [`work/CODEX_PROMPT.md`](work/CODEX_PROMPT.md) | ready-to-paste prompts for an AI session |

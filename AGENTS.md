@@ -25,7 +25,7 @@ Roheen owns product, frontend, design and visual approval. Zabish and Ashraf own
 ## Architecture / commands
 Next.js App Router, React, strict TypeScript; native CSS tokens plus Tailwind utilities without preflight; Framer Motion for short interaction transitions; Zod application contracts. UI -> ControlApi -> MockControlApi. No provider calls in components. Run npm.cmd install, npm.cmd run dev. Checks: npm.cmd run typecheck, npm.cmd run lint, npm.cmd test, npm.cmd run build, npm.cmd run test:e2e (local server running). Use .cmd wrappers in PowerShell; do not change execution policy.
 
-Original source package was nested under PERIHLEION_MASTER_PROMPT.md/, documents/ and references/. Canonical copies now live at the brief's expected paths; originals preserved. This workspace initially had no app/package configuration or git repository.
+Original source package was nested under PERIHLEION_MASTER_PROMPT.md/, documents/ and references/. Canonical copies live at the brief's expected paths (MASTER_PROMPT.md, docs/RESEARCH_NOTES.md, public/references/); the duplicate PERIHLEION_MASTER_PROMPT.md/ and documents/ copies were removed and remain in git history. This workspace initially had no app/package configuration or git repository.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

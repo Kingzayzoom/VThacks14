@@ -1,6 +1,6 @@
 # P8 — Make the agents actually think
 
-**Paste [`../onboarding.md`](../onboarding.md) first, then this file.**
+**Paste [`../GUIDE.md`](../GUIDE.md) first, then this file.**
 
 Branch: `p8-llm`. Blocked on one errand, then ~2 hours of work.
 

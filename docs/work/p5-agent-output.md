@@ -1,6 +1,6 @@
 # P5 — Agent output quality
 
-**Paste [`../onboarding.md`](../onboarding.md) first, then this file.**
+**Paste [`../GUIDE.md`](../GUIDE.md) first, then this file.**
 
 Branch: `p5-output`. Medium priority, high visible payoff.
 
@@ -59,7 +59,7 @@ accessibility basics and it would be embarrassing to fail our own review.
 JSON shape, fewer ways to go wrong.
 
 **You cannot test these against a real model yet** — the Gemini key we have belongs to a project
-with zero generation quota (see `../status.md` §7). Someone is getting a working one. Write the
+with zero generation quota (see `../GUIDE.md` §11). Someone is getting a working one. Write the
 prompts so that a failure still lands on a good fallback, which is the right design regardless.
 
 ## Task 4 — a second look at the routing

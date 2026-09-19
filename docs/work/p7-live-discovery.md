@@ -1,6 +1,6 @@
 # P7 — Live discovery across 216,000 real agents
 
-**Paste [`../onboarding.md`](../onboarding.md) first, then this file.**
+**Paste [`../GUIDE.md`](../GUIDE.md) first, then this file.**
 
 Branch: `p7-discovery`. **Ready now — needs no credential.** High value: this is the difference
 between "we integrated ANS" and "watch it search the real registry live."
@@ -78,7 +78,7 @@ Stage 2 is the interesting one: **you learn the vocabulary from the search resul
 knowing it up front. That is the part worth building well.
 
 Turning "I need a logo" into candidate phrasings is model-shaped work — but it must degrade
-gracefully, because there may be no model (see `../status.md` §7). A static synonym map per
+gracefully, because there may be no model (see `../GUIDE.md` §11). A static synonym map per
 capability is a perfectly good fallback and should be the default.
 
 ## Tasks
@@ -91,7 +91,7 @@ capability is a perfectly good fallback and should be the default.
    candidate found in the real registry should carry `source: "GoDaddy ANS"` so a judge can see
    the difference between that and a local one.
 4. **Cap it.** 216k agents, paginated 20 at a time. Bound the number of pages and candidates —
-   `../onboarding.md` §10 rule 1. A mission must not spend ninety seconds searching.
+   `../GUIDE.md` §14. A mission must not spend ninety seconds searching.
 5. **Handle the registry being unreachable** as `discovery.failed`, not a crash.
 
 ## The honest ending, and why it is the point

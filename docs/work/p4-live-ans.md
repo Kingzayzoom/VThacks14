@@ -1,6 +1,6 @@
 # P4 — Live GoDaddy ANS and deployment
 
-**Paste [`../onboarding.md`](../onboarding.md) first, then this file, then
+**Paste [`../GUIDE.md`](../GUIDE.md) first, then this file, then
 [`../godaddy-questions.md`](../godaddy-questions.md).**
 
 Branch: `p4-live-ans`. High priority — this is the prize track.

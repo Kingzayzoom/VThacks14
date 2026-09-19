@@ -475,10 +475,11 @@ scripts/
   register_agents.py   registration
 docs/
   GUIDE.md             this file — start here
-  onboarding.md        shorter context primer
-  status.md            detailed done / not done / risks
+  REFERENCE.md         the exhaustive version, every claim marked by how we know it
   contracts.md         every route, event and object shape
-  work/                the eight work packets + fixtures
+  godaddy-questions.md what to ask at the sponsor table
+  work/                the work packets, AI prompts + fixtures
+  (the rest of docs/ is frontend design and integration checkpoints)
 tests/                 137 tests
 ```
 
@@ -512,6 +513,9 @@ python scripts/check_ans.py          # live ANS preflight, read-only
 Useful: `DEMO_PACE=0` removes the deliberate pauses, `2.0` slows it for an audience.
 `POST /api/reset` or the Reset button for a clean slate.
 
+Uvicorn does not auto-reload: after changing Python, stop `run_all.py` and start it again. Never
+commit `.env`, `keys/` or anything in `data/` — they are gitignored; keep it that way.
+
 ### The trap that has cost us three debugging sessions
 
 **Only one instance can hold the ports.** If a previous `run_all.py` is still alive, the new one
@@ -520,9 +524,9 @@ agents already revoked, scenarios that cannot fire. If results look strange, che
 
 ---
 
-## 17. The eight work packets
+## 17. The work packets
 
-Full briefs in [`work/`](work/), drawn so no two touch the same file.
+Full briefs for the open packets in [`work/`](work/), drawn so no two touch the same file.
 Ready-to-paste AI prompts in [`work/CODEX_PROMPT.md`](work/CODEX_PROMPT.md).
 
 | | Packet | Blocked? | Priority |
@@ -595,11 +599,10 @@ correct. Keeping those three claims separate is what makes it rigorous instead o
 
 | Document | For |
 |---|---|
-| [`status.md`](status.md) | detailed done / not done / risks / decisions |
+| [`REFERENCE.md`](REFERENCE.md) | the exhaustive version — every module, every feature, every gap |
 | [`contracts.md`](contracts.md) | every REST route, WebSocket event and object shape |
-| [`work/README.md`](work/README.md) | the eight packets and file ownership |
+| [`work/README.md`](work/README.md) | the open packets and file ownership |
 | [`work/CODEX_PROMPT.md`](work/CODEX_PROMPT.md) | ready-to-paste prompts for an AI session |
 | [`work/fixtures/`](work/fixtures/) | real captured backend output and Webmesh trust cards |
 | [`godaddy-questions.md`](godaddy-questions.md) | what to ask at the sponsor table |
-| [`REFERENCE.md`](REFERENCE.md) | the exhaustive version — every module, every feature, every gap |
-| [`onboarding.md`](onboarding.md) | a shorter primer if this file is too long |
+| [`LIVE_INTEGRATION.md`](LIVE_INTEGRATION.md) | how the Next.js app is wired to the hub (P1) |

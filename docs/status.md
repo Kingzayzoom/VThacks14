@@ -367,7 +367,29 @@ registering public URLs while running on localhost fails by design.
   verification against GoDaddy live on stage, run the mission on the simulator. Gets the ANS
   integration credit without betting the demo on deployment at 2am.
 
-## 10. Running it
+## 10. Parallel work packets
+
+Remaining work is split into six packets in [`work/`](work/), drawn so **no two touch the same
+file**. Each is a self-contained brief you can hand to a separate AI session, with its own branch,
+its own file territory and its own done-criteria.
+
+| | Packet | Status | Priority |
+|---|---|---|---|
+| P1 | [Frontend data adapter](work/p1-frontend-adapter.md) | ready | critical path |
+| P2 | [Trust and Guardian views](work/p2-frontend-views.md) | ready | critical path |
+| P3 | [Backend API for the frontend](work/p3-backend-api.md) | ready | high |
+| P4 | [Live ANS and deployment](work/p4-live-ans.md) | partly blocked on a PAT | high — prize track |
+| P5 | [Agent output quality](work/p5-agent-output.md) | ready | medium |
+| P6 | [Demo script and rehearsal](work/p6-demo.md) | ready | high by Saturday |
+
+Three or four at a time, not six — more than that and the time goes on reviewing merges. P1 + P2 +
+P4 are the ones that decide how the demo looks and whether the track lands.
+
+[`work/fixtures/`](work/fixtures/) holds real captured output from a full run: 95 events, one
+example of each of the 32 event types, and every REST response. That is what lets P2 build the
+views before P1 has wired the data, so neither waits on the other.
+
+## 11. Running it
 
 ```bash
 python -m venv .venv && .venv\Scripts\activate
@@ -383,7 +405,7 @@ python scripts/smoke_test.py            # the whole demo, asserted (system must 
 
 Use **Reset demo** between runs, and `--fresh` before the real thing so versions start clean.
 
-## 11. Risks
+## 12. Risks
 
 | Risk | Mitigation |
 |---|---|

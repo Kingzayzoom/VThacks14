@@ -43,8 +43,8 @@ We built the layer they say is needed and deliberately did not build.
 
 | | State |
 |---|---|
-| **Backend** | Complete. 135 unit tests, all five demo scenarios green end to end. |
-| **Frontend** | Next.js, 6 routes, builds clean — and makes **zero network calls**. |
+| **Backend** | Complete. 137 unit tests, all five demo scenarios green end to end. |
+| **Frontend** | Next.js, builds clean. **Now wired to the hub** — SSE stream + proxied REST (P1 landed 19 Sep). |
 | **ANS discovery (live)** | **Working.** No credential. 216,110 real agents in production. |
 | **ANS stranger verification** | **Working.** Real GoDaddy-issued certs verified by our own code. |
 | **A2A interaction with a stranger** | **Working.** Proven against `agent.webmesh.ai`. |
@@ -53,14 +53,15 @@ We built the layer they say is needed and deliberately did not build.
 | **Domain** | `getcortex.vip` at Porkbun. Wired as a switch; both modes pass the full demo. |
 | **Name** | CortexAi. Settled. Anything saying PERIHELION, APHELION or Mission Control is stale. |
 
-**The two things that decide the demo:** the frontend is not connected to the backend, and no
-agent is thinking. Everything else is polish or reach.
+**What decides the demo now:** no agent is thinking (§11), and the Trust Gate, Guardian and
+Recruitment views do not exist yet (P2). The frontend-to-backend connection — the biggest hole
+until today — is closed.
 
 ### Size
 
 ```
 4,667 lines  application Python      (mc/, services/, scripts/)
-1,169 lines  tests                   (135 passing, under a second)
+1,169 lines  tests                   (137 passing, under a second)
 3,889 lines  TypeScript/TSX          (src/, e2e/)
    32        distinct event types
 ```
@@ -366,22 +367,34 @@ There are **two** frontends.
 | | `dashboard/` | `src/` |
 |---|---|---|
 | Stack | plain HTML/CSS/JS, no build | Next.js 16, React 19, TypeScript, Tailwind |
-| Backend | **fully wired** — WebSocket, all routes | **none** |
+| Backend | wired — WebSocket, all routes | **wired** — SSE + proxied REST |
 | Looks | functional | considerably better |
-| Drives the demo today | yes | no |
+| Ships | no — fallback only | **yes** |
 
 **Decision: the Next.js app ships.** `dashboard/` stays as a fallback and as the only thing that
 currently exercises every contract end to end, which makes it a useful reference while wiring.
 Do not delete it until the Next.js app has run all five scenarios twice.
 
-### Why the shapes do not line up
+### How they are connected
 
-The frontend was built from the original design brief; the backend grew into `docs/contracts.md`.
-Different envelope, `camelCase` vs `snake_case`, 4 event types defined against 32 real ones, and a
-single `identityStatus` enum where we emit five checks with four states each.
+The shapes never lined up — the frontend was built from the original design brief while the
+backend grew into `docs/contracts.md`: different envelope, `camelCase` vs `snake_case`, 4 event
+types defined against 32 real ones, and a single `identityStatus` enum where we emit five checks
+with four states each.
 
-Connecting them needs `HttpControlApi` plus a mapping layer. **Real captured backend output is in
-`docs/work/fixtures/`** — 95 events, one example of each of the 32 types, every REST response.
+`src/lib/api/hub-mapping.ts` is the translation layer, and the browser never talks to the hub
+directly. Next.js route handlers proxy it:
+
+```
+browser -> /api/control/events      (SSE)  -> Next route -> hub /ws
+browser -> /api/control/<path>      (REST) -> Next route -> hub /api/<path>
+```
+
+That keeps credentials server-side, which is house rule 3. `CORTEX_RUNTIME_MODE=live` switches
+the provider from `MockControlApi` to `HttpControlApi`; demo mode still works with the hub down.
+
+**Real captured backend output is in `docs/work/fixtures/`** — 95 events, one example of each of
+the 32 types, every REST response. Build new views against those.
 
 ---
 
@@ -458,7 +471,7 @@ docs/
   status.md            detailed done / not done / risks
   contracts.md         every route, event and object shape
   work/                the eight work packets + fixtures
-tests/                 135 tests
+tests/                 137 tests
 ```
 
 ---
@@ -468,14 +481,21 @@ tests/                 135 tests
 ```bash
 python -m venv .venv && .venv\Scripts\activate
 pip install -r requirements.txt
+npm install                        # the frontend; skip only if you never touch src/
 copy .env.example .env
 python scripts/run_all.py --fresh
+```
+
+For the wired Next.js app, in a second terminal:
+
+```bash
+set CORTEX_RUNTIME_MODE=live && npm run dev     # proxies to the hub on :8000
 ```
 
 Dashboard at http://127.0.0.1:8000. No API keys needed — it runs fully offline.
 
 ```bash
-pytest -q                            # 135 tests, under a second
+pytest -q                            # 137 tests, under a second
 python scripts/smoke_test.py         # all five scenarios, asserted
 npm run typecheck && npm run build   # the frontend
 python scripts/check_ans.py          # live ANS preflight, read-only
@@ -499,7 +519,7 @@ Ready-to-paste AI prompts in [`work/CODEX_PROMPT.md`](work/CODEX_PROMPT.md).
 
 | | Packet | Blocked? | Priority |
 |---|---|---|---|
-| P1 | Frontend data adapter | no | **critical** |
+| ~~P1~~ | ~~Frontend data adapter~~ | **DONE 19 Sep** | — |
 | P2 | Trust & Guardian views | no | **critical** |
 | P3 | Backend API for the frontend | no | high |
 | P7 | Live discovery over 216k agents | no | **high — prize track** |
@@ -508,7 +528,7 @@ Ready-to-paste AI prompts in [`work/CODEX_PROMPT.md`](work/CODEX_PROMPT.md).
 | P4 | Live ANS registration + deployment | needs a key | medium |
 | P5 | Agent output quality | no | medium |
 
-Three or four at a time, not eight. If you can only staff four: **P1, P2, P7, P8**.
+Three or four at a time. With P1 done, the ones that matter most are **P2, P7, P8**.
 
 ### Two errands that unblock people
 

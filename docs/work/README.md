@@ -27,8 +27,8 @@ Or by hand:
 
 | | Status |
 |---|---|
-| **Backend** | Complete. 135 unit tests, all five demo scenarios green end to end. |
-| **Frontend** | Next.js, 6 routes, builds clean — and makes **zero network calls**. |
+| **Backend** | Complete. 137 unit tests, all five demo scenarios green end to end. |
+| **Frontend** | Next.js, builds clean, **wired to the hub** via SSE + proxied REST. |
 | **Live ANS discovery** | **Working today**, no credential, against 216,110 real agents. |
 | **Live ANS identity** | Blocked on a PAT. Resolution and certificates 302 to a login. |
 | **LLM** | **Nothing is using one.** Two keys tried, both dead. Running on templates. |
@@ -44,7 +44,7 @@ The two things that decide the demo: **the frontend is not connected to the back
 
 | | Packet | Blocked? | Owns | Priority |
 |---|---|---|---|---|
-| **P1** | [Frontend data adapter](p1-frontend-adapter.md) | no | `src/lib/api/`, provider, env config | **critical** |
+| ~~P1~~ | ~~[Frontend data adapter](p1-frontend-adapter.md)~~ | **DONE 19 Sep** | — | — |
 | **P2** | [Trust & Guardian views](p2-frontend-views.md) | no | new components + routes | **critical** |
 | **P3** | [Backend API for the frontend](p3-backend-api.md) | no | `services/hub/app.py`, contracts | high |
 | **P7** | [Live discovery over 216k agents](p7-live-discovery.md) | no | `mc/discovery.py` (new) | **high — prize track** |
@@ -53,14 +53,15 @@ The two things that decide the demo: **the frontend is not connected to the back
 | **P4** | [Live ANS registration + deployment](p4-live-ans.md) | needs a PAT | `mc/ans/`, scripts, `deployment/` | medium |
 | **P5** | [Agent output quality](p5-agent-output.md) | no | `mc/skills.py` | medium |
 
-**Run three or four at a time, not eight.** More than that and the weekend goes on reviewing
-merges. If you can only staff four: **P1, P2, P7, P8**.
+**Run three or four at a time.** More than that and the weekend goes on reviewing merges. With P1
+landed, the three that matter most are **P2, P7, P8**.
 
-### Why that four
+### Why those three
 
-P1 + P2 connect the two halves of the project — without them you demo a beautiful mock or an ugly
-real thing, not both. P7 is the prize track and needs nothing from anyone. P8 is the difference
-between a system that plans and one that replays a template.
+P2 builds the Trust Gate, Guardian and Recruitment views — the screens that make the product
+legible, and the only major UI still missing now that data flows. P7 is the prize track and needs
+nothing from anyone. P8 is the difference between a system that plans and one that replays a
+template.
 
 P4 is the one most likely to be cut. Read its hybrid section: registering **one** agent for real
 buys most of the credit for a fraction of the risk.
@@ -70,8 +71,7 @@ buys most of the credit for a fraction of the risk.
 ## File ownership
 
 ```
-P1   src/lib/api/HttpControlApi.ts   src/lib/api/backend-map.ts (new)
-     src/lib/env/config.ts           src/components/provider.tsx
+P1   DONE — HttpControlApi.ts, hub-mapping.ts, app/api/control/** (proxy routes)
 
 P2   src/components/trust/**         src/components/guardian/**       (all new)
      src/components/recruitment/**   src/app/(workspace)/guardian/**
@@ -126,7 +126,7 @@ arrive live and the views keep working.
 ## Rules for every packet
 
 1. **Branch per packet.** `git checkout -b p1-adapter`. Merge to `main` twice a day minimum.
-2. **Run the checks before pushing.** `pytest` (135, under a second) · `npm run typecheck && npm run build` · anything structural: `python scripts/smoke_test.py`.
+2. **Run the checks before pushing.** `pytest` (137, under a second) · `npm run typecheck && npm run build` · anything structural: `python scripts/smoke_test.py`.
 3. **Stay in your files.** Need something elsewhere? Ask; don't reach in.
 4. **The house rules in [`../onboarding.md`](../onboarding.md) §10 are not negotiable.** Never show
    a green check you did not earn. `unverified` is not `pass`. No secret reaches the browser. No

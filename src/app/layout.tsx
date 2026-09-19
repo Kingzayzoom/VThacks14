@@ -8,6 +8,7 @@ import "@/styles/global.css";
 import { MotionSystem } from "@/components/motion-system";
 import { ControlProvider } from "@/components/provider";
 import { runtimeConfig } from "@/lib/env/config";
+import { PageTransition } from "@/components/page-transition";
 export const metadata: Metadata = {
   title: "CORTEXAI — Intelligence, coordinated.",
   description:
@@ -24,7 +25,7 @@ export default function RootLayout({
           Skip to content
         </a>
         {config.available ? (
-          <MotionSystem><ControlProvider>{children}</ControlProvider></MotionSystem>
+          <MotionSystem><ControlProvider><PageTransition>{children}</PageTransition></ControlProvider></MotionSystem>
         ) : (
           <main id="main" className="setup-error">
             <h1>Live runtime is not configured.</h1>

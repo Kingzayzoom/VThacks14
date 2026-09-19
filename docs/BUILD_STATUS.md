@@ -1,3 +1,7 @@
+## Current checkpoint: route transition screen
+
+Added the owner-requested loading transition between real pages on `feat/page-transitions`, based on `ebc0f92`. Preview: http://127.0.0.1:3028/field. All 17 browser tests, 11 unit tests, typecheck, lint and build pass. [Video, screenshots and behavior](PAGE_TRANSITIONS.md). No dependencies, backend/contracts, credentials, push or deployment changes.
+
 ## Current: visible atmosphere motion
 
 Owner correction implemented: 12-second desktop / 16-second mobile sweeps, visibly traveling and changing proportions. Reduced motion and hidden-page pause preserved. Preview: http://127.0.0.1:3027/missions. [Motion clips and validation](WATERLIGHT_CHECKPOINT.md).

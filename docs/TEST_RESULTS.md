@@ -1,3 +1,7 @@
+## Route transition validation - September 19, 2026
+
+Preview http://127.0.0.1:3028. Typecheck, lint, build passed; **11 unit tests, all 17 browser tests passed** (27.2s), zero final failures. Three new route-transition cases supplement the existing 14: desktop/mobile navigation and focus, browser history, programmatic mission submission, same-page exclusions and keyboard/reduced-motion behavior. First run caught a heading-focus selector bug; corrected before the final full run. Axe tested states: zero violations. [Screenshots and recording](PAGE_TRANSITIONS.md).
+
 ## Visible motion correction
 
 The owner requested visibly moving atmosphere. Desktop now uses a 12-second sweep each direction, mobile 16 seconds, with larger travel, rotation, changing proportions and stronger pearl/mauve light. Static-mobile behavior is removed; reduced motion remains static and hidden tabs pause. This supersedes the slower/static treatment documented below.

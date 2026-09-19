@@ -129,10 +129,10 @@ and it is the single largest piece of remaining work on the project.
 | | |
 |---|---|
 | Stack | Next.js 16.3.5 (App Router), React 19, strict TypeScript, Tailwind 4, Framer Motion, Zod, Playwright + axe-core |
-| Size | ~3,400 lines TS/TSX, ~4,700 lines CSS, 8,100 total |
-| Routes | `/` · `/field` · `/missions` · `/missions/[id]` · `/settings` (5 of the 10 the brief lists) |
+| Size | ~3,800 lines TS/TSX, ~5,200 lines CSS, 9,000 total |
+| Routes | `/` · `/field` · `/agents` · `/missions` · `/missions/[id]` · `/settings` (6 of the 10 the brief lists) |
 | Build | **Clean.** `npm run typecheck` passes, `npm run build` compiles in 7s, 7 routes generated |
-| Tests | 5 Playwright specs covering reduced motion, canvas-failure fallback, accessibility, wide/compact desktop, mobile |
+| Tests | Playwright specs covering reduced motion, canvas-failure fallback, accessibility, wide/compact desktop, mobile, and the agents console |
 | Extras | Procedural Canvas atmosphere, shared frame clock, visual-pause and reduced-motion support, self-hosted fonts |
 
 ### What it does well, and should be preserved
@@ -284,9 +284,11 @@ actually running there. See §9.
 3. Gemini split (§7) — confirm or change.
 4. Live ANS: full deployment, or the hybrid in §9.
 5. **Disk space.** The dev machine is at 100% (0 bytes free); clearing the npm cache recovered
-   154 MB, which is not enough to work in. `.git` is 54 MB and `docs/` is 40 MB, mostly committed
-   PNG screenshots. Worth pruning before Sunday — a full disk will break the demo, not just the
-   build.
+   ~150 MB, which is not enough to work in. `.git` is 54 MB and `docs/` is 44 MB and growing —
+   mostly committed PNG screenshots, now joined by a 1.5 MB video. Every design review adds a few
+   megabytes to history that can never be removed without a rewrite. Worth agreeing a convention
+   today (screenshots outside git, or downscaled) — and a full disk will break the demo, not just
+   the build.
 
 ## 9. The live-ANS reality check
 

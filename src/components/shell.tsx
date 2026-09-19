@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
   Aperture,
@@ -12,33 +12,30 @@ import {
   ArrowUpRight,
   Menu,
   X,
-  ArrowRight,
+
 } from "lucide-react";
 import { Brand, ModeBadge } from "./ui";
-import { useControl } from "./provider";
 import { Dialog } from "./dialog";
 import { MissionComposer } from "./composer";
-import { MotionControl } from "./motion-system";
-import { SignalField } from "./atmosphere";
 import { VoicePanel } from "./voice/voice-panel";
 
 const nav = [
   {
-    name: "FIELD",
+    name: "Overview",
     index: "01",
     icon: Aperture,
     href: "/field",
     description: "Agent operations",
   },
   {
-    name: "MISSIONS",
+    name: "Missions",
     index: "02",
     icon: Layers2,
     href: "/missions",
     description: "Objectives and tasks",
   },
   {
-    name: "AGENTS",
+    name: "Agents",
     index: "03",
     icon: Network,
     href: "/agents",
@@ -46,17 +43,13 @@ const nav = [
   },
 ];
 export function Shell({ children }: { children: React.ReactNode }) {
-  const { api, state } = useControl();
+
   const path = usePathname();
-  const router = useRouter();
   const [newMission, setNewMission] = useState(false);
+  const [composerGeneration, setComposerGeneration] = useState(0);
   const [mobileNav, setMobileNav] = useState(false);
   const [voice, setVoice] = useState(false);
-  const [command, setCommand] = useState("");
-  const [commandError, setCommandError] = useState("");
-  const mission =
-    state.missions.find((m) => m.id === state.selectedMissionId) ??
-    state.missions[0];
+  const [voiceDraft, setVoiceDraft] = useState("");
   const sidebar = useRef<HTMLElement>(null);
   useEffect(() => {
     if (!mobileNav) return;
@@ -85,31 +78,8 @@ export function Shell({ children }: { children: React.ReactNode }) {
       first.focus();
     }
   }
-  async function submitCommand(e: React.FormEvent) {
-    e.preventDefault();
-    if (!command.trim()) {
-      setCommandError("Type an objective to create a demo mission.");
-      return;
-    }
-    const objective = command;
-    setCommand("");
-    setCommandError("");
-    try {
-      const created = await api.createMission({
-        objective,
-        idempotencyKey: crypto.randomUUID(),
-      });
-      router.push(`/missions/${created.id}`);
-    } catch (err) {
-      setCommand(objective);
-      setCommandError(
-        err instanceof Error ? err.message : "Unable to create mission.",
-      );
-    }
-  }
   return (
     <div className={`workspace-shell ${path === "/agents" ? "agents-workspace" : ""}`}>
-      <SignalField compact />
       <aside
         ref={sidebar}
         role={mobileNav ? "dialog" : undefined}
@@ -141,7 +111,6 @@ export function Shell({ children }: { children: React.ReactNode }) {
                 >
                   <item.icon size={18} />
                   <span>{item.name}</span>
-                  <span className="nav-index">{item.index}</span>
                 </Link>
               )
             )}
@@ -153,7 +122,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
               onClick={() => setMobileNav(false)}
             >
               <Settings2 size={17} />
-              <span>SETTINGS</span>
+              <span>Settings</span>
               <ArrowUpRight size={13} />
             </Link>
           </div>
@@ -169,78 +138,19 @@ export function Shell({ children }: { children: React.ReactNode }) {
             >
               <Menu size={20} />
             </button>
-            <span className="eyebrow">WORKSPACE</span>
+            <span>Workspace</span>
             <span className="muted">/</span>
-            <span>Personal field</span>
+            <span>{path === "/field" ? "Overview" : path.startsWith("/missions") ? "Missions" : path === "/agents" ? "Agents" : "Settings"}</span>
           </div>
           <div className="topbar-right">
-            <MotionControl />
+            <button className="icon-button" onClick={() => setVoice(true)} aria-label="Voice connection information"><MicOff size={18} /></button>
+            <button className="button primary" onClick={() => setNewMission(true)}><Plus size={15} />New mission</button>
             <ModeBadge />
           </div>
         </header>
-        <div className="mission-context">
-          <div>
-            <span className="eyebrow muted">ACTIVE MISSION</span>
-            <label className="sr-only" htmlFor="active-mission">
-              Active mission
-            </label>
-            <select
-              id="active-mission"
-              value={mission.id}
-              onChange={(e) => {
-                api.selectMission(e.target.value);
-                if (path.startsWith("/missions/"))
-                  router.push(`/missions/${e.target.value}`);
-              }}
-            >
-              {state.missions.map((m) => (
-                <option value={m.id} key={m.id}>
-                  {m.title}
-                </option>
-              ))}
-            </select>
-          </div>
-          <button className="button subtle" onClick={() => setNewMission(true)}>
-            <Plus size={15} />
-            New mission
-          </button>
-        </div>
         <main id="main" className="workspace-main">
           {children}
         </main>
-        <div className="command-dock">
-          <button
-            className="voice-control"
-            onClick={() => setVoice(true)}
-            aria-label="Voice connection information"
-          >
-            <MicOff size={19} />
-          </button>
-          <form onSubmit={submitCommand}>
-            <label className="sr-only" htmlFor="dock-command">
-              New mission objective
-            </label>
-            <input
-              id="dock-command"
-              value={command}
-              onChange={(e) => setCommand(e.target.value)}
-              placeholder="Give the field a new objective…"
-              maxLength={2000}
-            />
-            <button
-              className="icon-button"
-              type="submit"
-              aria-label="Run new objective"
-            >
-              <ArrowRight size={19} />
-            </button>
-          </form>
-          {commandError && (
-            <p className="dock-error" role="alert">
-              {commandError}
-            </p>
-          )}
-        </div>
       </div>
       <Dialog
         open={newMission}
@@ -249,17 +159,18 @@ export function Shell({ children }: { children: React.ReactNode }) {
         wide
       >
         <h2>Begin with an objective.</h2>
-        <p className="secondary">Tell the field what you want to accomplish.</p>
-        <MissionComposer compact onSubmitted={() => setNewMission(false)} />
+        <p className="secondary">Describe the outcome and any constraints.</p>
+        <MissionComposer key={composerGeneration} compact onSubmitted={() => { setNewMission(false); setComposerGeneration(value => value + 1); }} />
       </Dialog>
       <Dialog
         open={voice}
         onClose={() => setVoice(false)}
         title="Voice channel"
       >
-        {voice && <VoicePanel onSubmitted={() => setVoice(false)} onText={() => {
+        {voice && <VoicePanel initialDraft={voiceDraft} onDraftChange={setVoiceDraft} onSubmitted={() => setVoice(false)} onText={() => {
             setVoice(false);
-            requestAnimationFrame(() => document.getElementById("dock-command")?.focus());
+            setNewMission(true);
+            requestAnimationFrame(() => document.getElementById("dialog-objective")?.focus());
           }} />}
       </Dialog>
     </div>

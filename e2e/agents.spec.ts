@@ -1,136 +1,66 @@
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import fs from "node:fs";
+const captures = "docs/screenshots/reset";
 
-const captures = "docs/screenshots/agents";
-
-test("agents constellation reflects mission state, filters, selection and visual pause", async ({ page }) => {
-  const errors: string[] = [];
-  const external: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
-  page.on("request", (request) => {
-    if (!request.url().startsWith(process.env.TEST_BASE_URL || "http://127.0.0.1:3000") && !request.url().startsWith("data:")) external.push(request.url());
-  });
-  await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto("/agents");
-  await expect(page.getByRole("heading", { name: "AGENTS." })).toBeVisible();
-  await expect(page.getByRole("link", { name: "AGENTS 03" })).toHaveAttribute("aria-current", "page");
-  await expect(page.locator(".constellation-atmosphere")).toHaveAttribute("data-rendered", "true");
-  const firstFrame = await page.locator(".constellation-atmosphere").evaluate((canvas: HTMLCanvasElement) => canvas.toDataURL());
-  await expect.poll(() => page.locator(".constellation-atmosphere").evaluate((canvas: HTMLCanvasElement) => canvas.toDataURL())).not.toBe(firstFrame);
-  await expect(page.locator(".constellation-node")).toHaveCount(6);
-  await expect(page.getByRole("complementary", { name: "Agent inspector" })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Focus selected branch" })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Reset field view" })).toHaveCount(0);
-  await expect(page.locator(".constellation-signal")).toHaveCount(1);
-  await page.getByRole("button", { name: "Inspect Sage", exact: true }).click();
-  const inspector = page.getByRole("complementary", { name: "Agent inspector" });
-  await expect(inspector.getByRole("heading", { name: "Sage", exact: true })).toBeVisible();
-  await expect(inspector).toContainText("dataset.read:public-demo");
-  await expect(inspector).toContainText("Demo fixture");
-  await expect(inspector).toContainText("Not checked");
-  await page.getByRole("button", { name: "Focus selected branch" }).click();
-  await expect(page.locator('.constellation-link[data-agent="scout"]')).toHaveClass(/is-dim/);
-  await page.getByRole("button", { name: "Pause demo mission" }).click();
-  await expect(page.locator(".constellation-signal")).toHaveCount(0);
-  await expect(page.locator(".agents-mission-control")).toContainText("Execution paused");
-  await expect(page.locator(".constellation-atmosphere")).toHaveAttribute("data-motion", "fluid");
-  await page.getByRole("button", { name: "Resume demo mission" }).click();
-  await expect(page.locator(".constellation-signal")).toHaveCount(1);
-  await page.getByRole("button", { name: "Pause visual motion" }).click();
-  await expect(page.locator(".constellation-atmosphere")).toHaveAttribute("data-motion", "still");
-  const stillFrame = await page.locator(".constellation-atmosphere").evaluate((canvas: HTMLCanvasElement) => canvas.toDataURL());
-  // The canvas must remain identical across several normal frame-clock ticks.
-  await page.waitForTimeout(180);
-  expect(await page.locator(".constellation-atmosphere").evaluate((canvas: HTMLCanvasElement) => canvas.toDataURL())).toBe(stillFrame);
-  expect(await page.locator(".constellation-signal").evaluate((el) => getComputedStyle(el).animationName)).toBe("none");
-  await page.getByRole("button", { name: "Resume visual motion" }).click();
-  await page.getByRole("button", { name: "Close agent inspector" }).click();
-  await expect(inspector).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Inspect Sage", exact: true })).toBeFocused();
-  await page.getByText("Mission activity", { exact: false }).first().click();
-  await expect(page.locator(".agents-event")).toHaveCount(4);
-  await page.locator(".agents-event").last().click();
-  await expect(inspector).toBeVisible();
-  await page.keyboard.press("Escape");
-  await expect(inspector).toHaveCount(0);
-  expect(errors).toEqual([]);
-  expect(external).toEqual([]);
+test("roster reflects assignments, selection, events and real demo pause state", async ({ page }) => {
+ const errors:string[]=[]; const external:string[]=[];
+ page.on("pageerror",e=>errors.push(e.message));
+ page.on("request",r=>{if(!r.url().startsWith(process.env.TEST_BASE_URL || "http://127.0.0.1:3000")&&!r.url().startsWith("data:")) external.push(r.url());});
+ await page.goto("/agents");
+ await expect(page.getByRole("heading",{name:"Agents",exact:true})).toBeVisible();
+ await expect(page.getByRole("link",{name:"Agents",exact:true})).toHaveAttribute("aria-current","page");
+ await expect(page.locator(".constellation-roster-row")).toHaveCount(7);
+ await expect(page.locator("canvas")).toHaveCount(0);
+ const inspector=page.getByRole("complementary",{name:"Agent inspector"});
+ await expect(inspector).toHaveCount(0);
+ await page.getByRole("button",{name:"Inspect Sage",exact:true}).click();
+ await expect(inspector).toContainText("dataset.read:public-demo");
+ await expect(inspector).toContainText("Demo fixture");
+ await expect(inspector).toContainText("Not checked");
+ await page.getByRole("button",{name:"Close agent inspector"}).click();
+ await expect(page.getByRole("button",{name:"Inspect Sage",exact:true})).toBeFocused();
+ await page.getByRole("button",{name:"Pause demo mission"}).click();
+ await expect(page.locator(".agents-mission-control")).toContainText("Execution paused");
+ await expect(page.getByRole("button",{name:"Inspect Sage",exact:true})).toContainText("Paused");
+ await page.getByRole("button",{name:"Resume demo mission"}).click();
+ await expect(page.getByRole("button",{name:"Inspect Sage",exact:true})).toContainText("Running");
+ await page.getByText("Mission activity",{exact:false}).first().click();
+ await expect(page.locator(".agents-event")).toHaveCount(4);
+ await page.locator(".agents-event").last().click();
+ await expect(inspector).toBeVisible(); await page.keyboard.press("Escape"); await expect(inspector).toHaveCount(0);
+ expect(errors).toEqual([]); expect(external).toEqual([]);
 });
 
-test("agents discovery and previews are honest, accessible, and responsive", async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/agents");
-  const inspector = page.getByRole("complementary", { name: "Agent inspector" });
-  await page.getByText("Find agents", { exact: true }).click();
-  await page.getByLabel("Search agents", { exact: true }).fill("nobody matches this");
-  await expect(page.getByRole("heading", { name: "No matching agents." })).toBeVisible();
-  await page.getByRole("button", { name: "Clear agent search" }).click();
-  await page.getByRole("combobox", { name: "Filter agents", exact: true }).selectOption("review");
-  await expect(page.locator(".constellation-node")).toHaveCount(1);
-  await expect(page.getByRole("button", { name: "Inspect Forge", exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Reset field view" }).click();
-  await expect(inspector).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Reset field view" })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Map view" })).toBeFocused();
-  await page.getByRole("button", { name: "Inspect Memory", exact: true }).click();
-  await expect(inspector).toContainText("Not connected");
-  await expect(inspector).toContainText("0 scoped permissions");
-  await expect(inspector).toContainText("Not assigned");
-  await page.getByRole("button", { name: "List view" }).click();
-  await expect(page.locator(".constellation-roster-row")).toHaveCount(7);
-  await expect(page.getByRole("button", { name: "Focus selected branch" })).toHaveCount(0);
-  await page.getByRole("button", { name: "Reset field view" }).click();
-  await page.getByText("Find agents", { exact: true }).click();
-  await page.mouse.move(1, 1);
-  await page.evaluate(() => document.fonts.ready);
-  fs.mkdirSync(captures, { recursive: true });
-  await page.screenshot({ path: `${captures}/desktop.png`, fullPage: true });
-  const accessibility = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
-  expect(accessibility.violations).toEqual([]);
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  await page.setViewportSize({ width: 1920, height: 1080 });
-  await page.screenshot({ path: `${captures}/wide.png`, fullPage: true });
-  await page.setViewportSize({ width: 1280, height: 900 });
-  await page.screenshot({ path: `${captures}/compact.png`, fullPage: true });
+test("search, all seven categories, honest previews and keyboard return", async ({page})=>{
+ await page.goto("/agents");
+ await page.getByLabel("Search agents",{exact:true}).fill("nobody matches");
+ await expect(page.getByRole("heading",{name:"No matching agents."})).toBeVisible();
+ await page.getByRole("button",{name:"Clear agent search"}).click();
+ const categories=await page.locator('select optgroup option').evaluateAll(els=>els.map(el=>(el as HTMLOptionElement).value));
+ expect(categories).toHaveLength(7);
+ for(const category of categories){await page.getByLabel("Filter agents").selectOption(category);await expect(page.locator(".constellation-roster-row")).toHaveCount(1);}
+ await page.getByLabel("Filter agents").selectOption("review");
+ await expect(page.getByRole("button",{name:"Inspect Forge",exact:true})).toBeVisible();
+ await page.getByRole("button",{name:"Reset filters"}).click();
+ await page.getByRole("button",{name:"Inspect Memory",exact:true}).click();
+ const inspector=page.getByRole("complementary",{name:"Agent inspector"});
+ for(const text of ["Not connected","0 scoped permissions","Not assigned","Unverified","Not checked"]) await expect(inspector).toContainText(text);
+ await page.keyboard.press("Escape");
+ await expect(page.getByRole("button",{name:"Inspect Memory",exact:true})).toBeFocused();
 });
 
-test("mobile agents use a readable roster, keyboard inspector, and optional scrollable map", async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/agents");
-  await expect(page.locator(".constellation-roster-row")).toHaveCount(7);
-  await page.getByRole("button", { name: "Inspect Forge", exact: true }).click();
-  const inspector = page.getByRole("complementary", { name: "Agent inspector" });
-  await expect(inspector).toBeFocused();
-  await expect(inspector.getByRole("heading", { name: "Forge", exact: true })).toBeVisible();
-  await expect(inspector).toContainText("Needs review");
-  const accessibility = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
-  expect(accessibility.violations).toEqual([]);
-  fs.mkdirSync(captures, { recursive: true });
-  await page.screenshot({ path: `${captures}/mobile-inspector.png` });
-  await page.getByRole("button", { name: "Reset field view" }).click();
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await page.screenshot({ path: `${captures}/mobile.png`, fullPage: true });
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  await page.getByRole("button", { name: "Map view" }).click();
-  await expect(page.locator(".constellation-map")).toBeVisible();
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  await page.getByRole("button", { name: "List view" }).click();
-  await page.getByRole("button", { name: "Open navigation" }).click();
-  await page.getByRole("link", { name: "FIELD 01" }).click();
-  await expect(page.getByRole("heading", { name: "FIELD." })).toBeVisible();
-});
-
-test("constellation honors reduced motion and remains usable without Canvas", async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.addInitScript(() => {
-    HTMLCanvasElement.prototype.getContext = (() => null) as typeof HTMLCanvasElement.prototype.getContext;
-  });
-  await page.goto("/agents");
-  await page.getByRole("button", { name: "Inspect Sage", exact: true }).click();
-  await expect(page.getByRole("complementary", { name: "Agent inspector" }).getByRole("heading", { name: "Sage", exact: true })).toBeVisible();
-  await expect(page.locator(".constellation-link")).toHaveCount(5);
-  expect(await page.locator(".constellation-signal").evaluate((el) => getComputedStyle(el).animationName)).toBe("none");
-  await page.getByRole("button", { name: "Inspect Guardian", exact: true }).click();
-  await expect(page.getByRole("complementary", { name: "Agent inspector" })).toContainText("cannot grant its own permissions");
-});
+for(const [size,viewport] of Object.entries({desktop:{width:1440,height:900},mobile:{width:390,height:844}})){
+ test(`roster and drawer accessible at ${size}`,async({page})=>{
+ await page.setViewportSize(viewport);await page.goto("/agents");await page.evaluate(()=>document.fonts.ready);
+ fs.mkdirSync(captures,{recursive:true});await page.screenshot({path:`${captures}/agents-${size}.png`,fullPage:true});
+ expect((await new AxeBuilder({page}).withTags(["wcag2a","wcag2aa","wcag21aa"]).analyze()).violations).toEqual([]);
+ await page.getByRole("button",{name:"Inspect Forge",exact:true}).click();
+ const inspector=page.getByRole("complementary",{name:"Agent inspector"});await expect(inspector).toBeFocused();await expect(inspector).toContainText("Needs review");
+ await page.screenshot({path:`${captures}/agent-detail-${size}.png`});
+ expect((await new AxeBuilder({page}).withTags(["wcag2a","wcag2aa","wcag21aa"]).analyze()).violations).toEqual([]);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await page.keyboard.press("Escape");
+ if(size==="mobile"){await page.getByRole("button",{name:"Open navigation"}).click();await page.getByRole("link",{name:"Overview",exact:true}).click();await expect(page.getByRole("heading",{name:"Overview",exact:true})).toBeVisible();}
+ });
+}

@@ -1,3 +1,22 @@
+## Product UI reset validation - September 19, 2026
+
+Production preview: http://127.0.0.1:3024 (`CORTEX_BUILD_DIR=.next/ui-reset`).
+
+- `npm.cmd run typecheck`: passed.
+- `npm.cmd run lint`: passed.
+- `npm.cmd test`: 11 passed, 0 failed.
+- `npm.cmd run build`: passed; all existing routes built.
+- `npm.cmd run test:e2e`: final full run passed 12 of 13; remaining failure was a test locator selecting the hidden objective dialog instead of the visible objective. Corrected the locator and ran `npm.cmd run test:e2e -- --grep 'objective validation'`: 1 passed. All 13 browser cases pass across those runs.
+- Browser: Playwright Chromium 153.0.8010.12. Initially missing browser executable; installed the version required by the existing package, with no dependency/lockfile changes.
+- Viewports: 1440x900, 390x844, and wide/compact checks at 1920x900 and 1280x900.
+- Axe WCAG 2 A/AA and 2.1 AA checks: zero violations on entry, overview, mission detail, missions, settings, roster, agent drawer, and voice error dialog at desktop/mobile.
+- Behavioral coverage: objective validation, keyboard submission, duplicate submission, persistence, unsent draft retention through voice fallback, navigation, all seven agent categories, search/empty results, preview identity/authority, inspector focus return/Escape, pause/resume, review dialog, reduced motion, Canvas absence, voice authorization failure and microphone denial.
+- One implementation pass and one browser correction pass. Corrected mobile top-bar overflow, task separator encoding, and the drawer's initially transparent content. Final screenshot set inspected; no additional redesign round.
+
+Screenshots: [entry desktop](screenshots/reset/entry-desktop.png), [entry mobile](screenshots/reset/entry-mobile.png), [overview desktop](screenshots/reset/overview-desktop.png), [overview mobile](screenshots/reset/overview-mobile.png), [agents desktop](screenshots/reset/agents-desktop.png), [agents mobile](screenshots/reset/agents-mobile.png), [drawer desktop](screenshots/reset/agent-detail-desktop.png), [drawer mobile](screenshots/reset/agent-detail-mobile.png), [mission detail](screenshots/reset/mission-detail-desktop.png), [missing mission](screenshots/reset/missing-mission.png), [empty search](screenshots/reset/empty-search.png), [validation error](screenshots/reset/objective-error.png).
+
+Limits: live ElevenLabs conversation and live backend execution were not exercised. Browser voice tests mock session responses and never contact the paid provider; microphone denial is synthetic. The reviewed draft tool remains unit-tested. The existing demo adapter always seeds one mission; zero-mission rendering is defensive and was not reached through its public API. No fabricated history or artifacts were added. No connection pass, deployment, push, environment changes, or backend/security edits.
+
 # Phase A visual-refinement verification
 
 ## Voice and category extension / September 19

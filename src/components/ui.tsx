@@ -9,7 +9,9 @@ import {
   Compass,
   Triangle,
   Square,
-  Orbit,
+  Workflow,
+  Layers3,
+  Mic,
   ArrowUpRight,
 } from "lucide-react";
 import Link from "next/link";
@@ -29,7 +31,7 @@ export function Brand({ large = false }: { large?: boolean }) {
 export function ModeBadge() {
   return (
     <span className="mode-badge">
-      <span /> DEMO
+      <span /> Demo
     </span>
   );
 }
@@ -41,9 +43,11 @@ export function AgentGlyph({ id, size = 24 }: { id: string; size?: number }) {
         sage: Triangle,
         forge: Square,
         guardian: Shield,
-        coordinator: Orbit,
+        coordinator: Workflow,
+        memory: Layers3,
+        voice: Mic,
       } as Record<string, typeof Shield>
-    )[id] ?? Orbit;
+    )[id] ?? Workflow;
   return <Icon size={size} strokeWidth={1.35} aria-hidden="true" />;
 }
 const labels: Record<RuntimeStatus, string> = {

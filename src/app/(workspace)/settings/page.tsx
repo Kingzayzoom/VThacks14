@@ -29,8 +29,7 @@ const integrations = [
 export default function SettingsPage() {
   return (
     <div className="simple-page">
-      <div className="eyebrow muted">WORKSPACE / CONNECTIONS</div>
-      <h1>Integration readiness.</h1>
+      <h1>Settings</h1>
       <p className="secondary">
         Missions currently use the demo adapter. Voice can be configured
         separately to help you draft an objective.

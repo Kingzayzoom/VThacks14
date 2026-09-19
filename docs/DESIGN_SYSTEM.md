@@ -1,3 +1,5 @@
+> **Active owner reset (2026-09-19):** `CORTEXAI_VISUAL_RESET.md` supersedes the historical visuals below. Geist, graphite, warm-white actions, restrained blue selection, one sidebar/top bar, task-first Overview and roster-first Agents. No mounted atmosphere, neural wallpaper, decorative orbits, glow, oversized serif type or perpetual motion. Identity, standing, authority and runtime stay separate. Stop at visual review; do not start the connection pass or deploy.
+
 # CORTEXAI / Design foundation
 
 Phase A visual refinement plus the explicitly requested Agents frontend extension. Visual approval: pending Roheen's review. `/agents` is now available; adapters, shared fixtures, contracts and integration boundaries are unchanged.

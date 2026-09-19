@@ -1,14 +1,10 @@
 import type { Metadata } from "next";
-import "@fontsource/cormorant-garamond/400.css";
-import "@fontsource/cormorant-garamond/400-italic.css";
 import "@fontsource/geist/400.css";
 import "@fontsource/geist/500.css";
 import "@fontsource/ibm-plex-mono/400.css";
 import "@/styles/utilities.css";
 import "@/styles/tokens.css";
 import "@/styles/global.css";
-import "@/styles/refinement.css";
-import "@/styles/living.css";
 import { MotionSystem } from "@/components/motion-system";
 import { ControlProvider } from "@/components/provider";
 import { runtimeConfig } from "@/lib/env/config";

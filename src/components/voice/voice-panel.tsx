@@ -6,17 +6,17 @@ import { VoiceSession, type VoiceState } from "@/lib/voice/session-client";
 import { MissionComposer } from "../composer";
 import "@/styles/voice.css";
 
-export function VoicePanel({ onText, onSubmitted }: { onText: () => void; onSubmitted: () => void }) {
+export function VoicePanel({ onText, onSubmitted, initialDraft = "", onDraftChange }: { onText: () => void; onSubmitted: () => void; initialDraft?: string; onDraftChange?: (value: string) => void }) {
   const [configured, setConfigured] = useState<boolean | null>(null);
   const [status, setStatus] = useState<VoiceState>("idle");
   const [error, setError] = useState("");
   const [accessCode, setAccessCode] = useState("");
-  const [draft, setDraft] = useState("");
+  const [draft, setDraft] = useState(initialDraft);
   const session = useRef<VoiceSession | null>(null);
   const path = usePathname();
   useEffect(() => {
     const controller = new AbortController();
-    const voice = new VoiceSession({ state: setStatus, draft: setDraft, error: setError });
+    const voice = new VoiceSession({ state: setStatus, draft: (value) => { setDraft(value); onDraftChange?.(value); }, error: setError });
     session.current = voice;
     fetch("/api/voice/session", { signal: controller.signal, cache: "no-store" })
       .then(async (response) => {
@@ -25,7 +25,7 @@ export function VoicePanel({ onText, onSubmitted }: { onText: () => void; onSubm
         if (!controller.signal.aborted) setConfigured(data.configured === true);
       }).catch(() => { if (!controller.signal.aborted) { setConfigured(false); setError("Voice availability could not be checked."); } });
     return () => { controller.abort(); void voice.stop(); session.current = null; };
-  }, [path]);
+  }, [path, onDraftChange]);
   const connected = status === "listening" || status === "speaking" || status === "muted";
   return <div className="voice-panel">
     <h2>Talk it through.</h2>
@@ -50,7 +50,7 @@ export function VoicePanel({ onText, onSubmitted }: { onText: () => void; onSubm
     {error && <p role="alert" className="form-error">{error}</p>}
     {draft && <section className="voice-draft" aria-label="Review voice objective">
       <h3>Review your objective.</h3>
-      <MissionComposer key={draft} compact initialObjective={draft} onSubmitted={onSubmitted} />
+      <MissionComposer key={draft} compact inputId="voice-objective" initialObjective={draft} onObjectiveChange={onDraftChange} onSubmitted={onSubmitted} />
     </section>}
     <button className="button subtle" onClick={onText}>Use text instead</button>
   </div>;

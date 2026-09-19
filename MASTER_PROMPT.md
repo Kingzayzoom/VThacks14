@@ -1,3 +1,5 @@
+> **Active owner reset (2026-09-19):** `CORTEXAI_VISUAL_RESET.md` supersedes the historical visuals below. Geist, graphite, warm-white actions, restrained blue selection, one sidebar/top bar, task-first Overview and roster-first Agents. No mounted atmosphere, neural wallpaper, decorative orbits, glow, oversized serif type or perpetual motion. Identity, standing, authority and runtime stay separate. Stop at visual review; do not start the connection pass or deploy.
+
 # PERIHELION — Master Frontend Build Brief
 
 ## 0. Assignment and scope

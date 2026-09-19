@@ -1,3 +1,7 @@
+## Pearl / mauve atmosphere refinement - September 19, 2026
+
+At http://127.0.0.1:3027: typecheck, lint, build passed; **11 unit tests, 14 browser tests passed**, zero failures. Tested Axe states: zero violations. Existing interaction assertions unchanged. Measured shell/panel geometry identical at desktop/wide/mobile. No added JS or dependencies; +64 bytes gzip CSS versus the layering checkpoint. [Screenshots and measurements](WATERLIGHT_CHECKPOINT.md).
+
 ## Layering and atmosphere validation - September 19, 2026
 
 Final build at http://127.0.0.1:3026 (`CORTEX_BUILD_DIR=.next/layering`): typecheck, lint, production build passed; **11 unit tests and all 14 browser tests passed**, zero failures. Axe reports zero violations in tested desktop/mobile states. Existing assertions preserved; added single-background, reduced-motion/mobile suppression and hidden-page lifecycle checks.

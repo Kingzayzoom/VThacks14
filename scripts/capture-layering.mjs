@@ -7,7 +7,7 @@ import { gzipSync } from 'node:zlib';
 const phase = process.argv[2];
 if (!['before', 'after'].includes(phase)) throw new Error('Choose before or after');
 const base = process.env.TEST_BASE_URL || 'http://127.0.0.1:3025';
-const output = `docs/screenshots/layering/${phase}`;
+const output = `${process.env.CAPTURE_ROOT || "docs/screenshots/layering"}/${phase}`;
 await mkdir(output, { recursive: true });
 const browser = await chromium.launch();
 const report = [];

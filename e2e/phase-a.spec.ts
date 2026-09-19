@@ -1,7 +1,7 @@
 import {test,expect} from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import fs from "node:fs";
-const captures="docs/screenshots/layering/verification";
+const captures=process.env.SCREENSHOT_DIR || "docs/screenshots/layering/verification";
 
 test("objective validation, idempotent submission, reload and draft retention",async({page})=>{
  fs.mkdirSync(captures,{recursive:true});await page.goto("/");await page.getByRole("button",{name:"Start mission"}).click();await expect(page.locator("#composer-error")).toHaveText("Describe an objective to begin.");await page.screenshot({path:`${captures}/objective-error.png`});

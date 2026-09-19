@@ -1,3 +1,7 @@
+## Current checkpoint: pearl / mauve atmosphere refinement
+
+The owner's supplied ShaderGradient waterPlane preset is adapted into the existing CSS background, preserving all approved product geometry. Branch `feat/pearl-waterlight`, based on `51a6f60`. Local preview: http://127.0.0.1:3027/field. See [checkpoint](WATERLIGHT_CHECKPOINT.md). No dependency, backend, contract or credential changes; no deployment.
+
 ## Current checkpoint: layering and atmosphere ready for review
 
 Implemented on `feat/layering-atmosphere` from `98d924a`. The approved design-finish composition is preserved; one shared CSS light field and restrained surface material provide depth. Local production preview: http://127.0.0.1:3026 (`CORTEX_BUILD_DIR=.next/layering`). See [layering evidence and before/after comparisons](LAYERING_CHECKPOINT.md). No dependencies, backend/API/security, credentials or mission behavior changed. No push, deployment or connection pass.

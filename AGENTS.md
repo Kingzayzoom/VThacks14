@@ -1,3 +1,5 @@
+> **Latest atmosphere refinement:** The owner supplied a ShaderGradient waterPlane preset using pearl `#f5f9ff`, muted mauve `#e4bce8` and black. Interpret it as one broad diagonal light field with a dark trough, no grain, no axes/helpers, and slow 48-second alternate transform/opacity motion. Keep the existing CSS renderer, static mobile/reduced-motion treatment, hidden-page pause and opaque product surfaces. Layout, typography and application behavior stay approved and unchanged. See `docs/WATERLIGHT_CHECKPOINT.md` for the implementation and evidence.
+
 # CORTEXAI
 
 Yo, Hackathon time, be primed.

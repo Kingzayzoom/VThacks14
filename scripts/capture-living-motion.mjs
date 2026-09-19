@@ -24,6 +24,6 @@ await page.waitForTimeout(2500);
 await page.getByRole("button", { name: "Pause demo mission" }).click();
 await page.waitForTimeout(2000);
 await context.close();
-await page.video().saveAs(`${out}/perihelion-living-field.webm`);
+await page.video().saveAs(`${out}/cortexai-living-field.webm`);
 await browser.close();
-console.log(`Captured motion review: ${out}/perihelion-living-field.webm`);
+console.log(`Captured motion review: ${out}/cortexai-living-field.webm`);

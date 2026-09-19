@@ -19,10 +19,10 @@ from .config import policy
 ALLOW, REVIEW, DENY = "allow", "review", "deny"
 
 # Actions no agent may ever take, whatever it was hired for, however the human votes.
-# If an agent could talk its way past these, nothing else in Mission Control would mean
+# If an agent could talk its way past these, nothing else in CortexAi would mean
 # anything — so they are checked before grants, scopes and approvals are even looked at.
 HARD_DENY = {
-    "secrets.read": "reading Mission Control's own credentials",
+    "secrets.read": "reading CortexAi's own credentials",
     "key.export": "exporting an identity private key",
     "ans.revoke": "revoking another agent in ANS",
     "guardian.disable": "switching the Guardian off",

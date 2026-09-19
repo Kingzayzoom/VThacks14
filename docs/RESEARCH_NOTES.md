@@ -1,10 +1,10 @@
-# PERIHELION — Evidence and research notes
+# CORTEXAI — Evidence and research notes
 
 Prepared September 18, 2026. This is a primary-source synthesis and design brief, not a recovered standalone Deep Research output.
 
 ## What was available
 
-The user's brief and design decisions in the current conversation: frontend-first; VS Code/Codex as the main builder; team of Roheen, Zabish, and Ashraf; Gemini, ElevenLabs, ANS discovery/identity, dynamic recruitment, Guardian oversight, task organization; the move from NEXUS to PERIHELION; rejection of planet-dominated visuals; four PERIHELION image boards.
+The user's brief and design decisions in the current conversation: frontend-first; VS Code/Codex as the main builder; team of Roheen, Zabish, and Ashraf; Gemini, ElevenLabs, ANS discovery/identity, dynamic recruitment, Guardian oversight, task organization; the move from NEXUS to CORTEXAI; rejection of planet-dominated visuals; four CORTEXAI image boards.
 
 The shared conversation at https://chatgpt.com/share/6aad8a25-6fdc-83ea-ab89-8e102a7900af could not be fetched. A completed standalone Deep Research report was not found in the available file search. Do not claim unseen content is included. The new build brief explicitly separates supplied direction from verified platform details and original implementation recommendations.
 
@@ -18,7 +18,7 @@ The retrieved page uses coordinates, sector/object numbering, an archive structu
 ### S2 — Linear product structure
 https://linear.app/features
 
-Linear organizes work around planning/projects, issue tracking, cycles, insights, and agent-assisted workflows. PERIHELION borrows organized work and inspectable progress, not Linear branding. This does not require a real Linear API integration for the hackathon frontend.
+Linear organizes work around planning/projects, issue tracking, cycles, insights, and agent-assisted workflows. CORTEXAI borrows organized work and inspectable progress, not Linear branding. This does not require a real Linear API integration for the hackathon frontend.
 
 ### S3 — Agent observability
 https://docs.langchain.com/langsmith/studio
@@ -28,7 +28,7 @@ LangSmith Studio provides graph visualization, agent interaction, and state insp
 ### S4 — ANS identity, possession, authorization distinction
 https://www.godaddy.com/resources/news/dont-trust-verify-offline-sub-millisecond-agent-verification-with-ans
 
-GoDaddy's September 15, 2026 engineering post separates identity, proof of possession, and authorization. The PERIHELION spec preserves those boundaries. ANS identity is not itself a behavioral safety score or permission to write data. Guardian's deterministic gateway and scoped approvals are proposed application architecture, not claims that ANS supplies them automatically.
+GoDaddy's September 15, 2026 engineering post separates identity, proof of possession, and authorization. The CORTEXAI spec preserves those boundaries. ANS identity is not itself a behavioral safety score or permission to write data. Guardian's deterministic gateway and scoped approvals are proposed application architecture, not claims that ANS supplies them automatically.
 
 ### S5 — ANS developer integration
 https://www.godaddy.com/ans/developers

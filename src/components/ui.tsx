@@ -19,10 +19,10 @@ export function Brand({ large = false }: { large?: boolean }) {
     <Link
       href="/"
       className={`brand ${large ? "large" : ""}`}
-      aria-label="Perihelion home"
+      aria-label="CortexAi home"
     >
       <span className="brand-mark" aria-hidden="true" />
-      <span>PERIHELION</span>
+      <span>CORTEXAI</span>
     </Link>
   );
 }

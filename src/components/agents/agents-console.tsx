@@ -216,7 +216,7 @@ function ConstellationNode({ agent, selected, dim, task, select, hover }: {
     onClick={select} onMouseEnter={() => hover(true)} onMouseLeave={() => hover(false)} onFocus={() => hover(true)} onBlur={() => hover(false)}>
     <span className="neuron-satellites" aria-hidden="true"><i /><i /><i /></span>
     <span className="neuron-aura" aria-hidden="true" /><NeuronGlyph id={agent.id} />
-    <span className="neuron-label"><span className="neuron-family">{node.family}</span><strong>{agent.id === "coordinator" ? "Perihelion" : agent.name}</strong><AgentState agent={agent} /></span>
+    <span className="neuron-label"><span className="neuron-family">{node.family}</span><strong>{agent.id === "coordinator" ? "CortexAi" : agent.name}</strong><AgentState agent={agent} /></span>
     <span className="neuron-tooltip"><span>{agent.capabilities[0]}</span>{task?.title ?? agent.role}<ArrowUpRight size={12} /></span>
   </button>;
 }
@@ -265,7 +265,7 @@ function AgentInspector({ agent, mission, tasks, task, members, inspectorRef, se
         <h3 className="inspector-output-label">OUTPUT TYPE</h3><p>{node.output}</p><span className="inspector-footnote">{task?.resultRef ? `Result: ${task.resultRef}` : "No delivered artifact"}</span>
       </section>
       {!!relations.length && <section className="inspector-block"><h3>ASSIGNMENT & HANDOFFS</h3><ol className="inspector-handoffs">
-        {agent.id === "coordinator" && <li className="handoff-current"><i /><span>Perihelion<small>Coordinate this mission</small></span></li>}
+        {agent.id === "coordinator" && <li className="handoff-current"><i /><span>CortexAi<small>Coordinate this mission</small></span></li>}
         {relations.map((item) => { const worker = members.find((member) => member.id === item.assignedAgentId); return <li key={item.id} className={worker?.id === agent.id ? "handoff-current" : ""}><i /><button onClick={() => select(item.assignedAgentId, false)}>{worker?.name ?? item.assignedAgentId}<small>{item.title}</small></button><ChevronRight size={12} /></li>; })}
       </ol></section>}
       <details className="inspector-evidence"><summary>Identity evidence <ChevronRight size={13} /></summary>{agent.verificationEvidence.map((evidence) => <p key={evidence}>{evidence}</p>)}<p>ANS standing has not been checked in this frontend demo.</p></details>

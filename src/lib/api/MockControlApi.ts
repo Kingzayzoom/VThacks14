@@ -9,7 +9,7 @@ import {
 import { initialSnapshot, makeMission } from "@/lib/demo/fixtures";
 import type { ControlApi } from "./ControlApi";
 
-export const STORAGE_KEY = "perihelion:phase-a:v1";
+export const STORAGE_KEY = "cortexai:phase-a:v1";
 export class MockControlApi implements ControlApi {
   private initial = initialSnapshot();
   private state = this.initial;

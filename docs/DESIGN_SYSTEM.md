@@ -1,4 +1,4 @@
-# PERIHELION / Design foundation
+# CORTEXAI / Design foundation
 
 Phase A visual refinement plus the explicitly requested Agents frontend extension. Visual approval: pending Roheen's review. `/agents` is now available; adapters, shared fixtures, contracts and integration boundaries are unchanged.
 

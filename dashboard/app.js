@@ -36,7 +36,7 @@ function orgFor(ans) {
     return byHost ? `${byHost.org} v${p.version}` : p.host;
   }
   const imp = S.agents.find((x) => x.role === "impostor" && x.endpoint === ans);
-  return imp ? "Impostor" : ans || "Mission Control";
+  return imp ? "Impostor" : ans || "CortexAi";
 }
 function time(ts) { return ts ? new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }) : ""; }
 

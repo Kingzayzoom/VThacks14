@@ -4,7 +4,7 @@ Environment: Windows PowerShell, Node 24.20.0, npm 11.19.0, Next.js 16.3.5, Reac
 
 ## Agents extension / current verification
 
-Production QA on `http://127.0.0.1:3018`, built with `PERIHELION_BUILD_DIR=.next/agents-final`. New screenshots are in `docs/screenshots/agents/`.
+Production QA on `http://127.0.0.1:3018`, built with `CORTEX_BUILD_DIR=.next/agents-final`. New screenshots are in `docs/screenshots/agents/`.
 
 | Check | Result |
 | --- | --- |
@@ -33,7 +33,7 @@ Limits: this establishes demo behavior and selected Chromium accessibility state
 | npm.cmd run typecheck | PASS after final changes |
 | npm.cmd run lint | PASS, no warnings after final changes |
 | npm.cmd test | PASS, 6 tests; fixture/API semantics unchanged |
-| npm.cmd run build | PASS with PERIHELION_BUILD_DIR=.next/visual-review |
+| npm.cmd run build | PASS with CORTEX_BUILD_DIR=.next/visual-review |
 | npx.cmd playwright test e2e/living-field.spec.ts on dev | PASS, 2 tests, 7.9s |
 | npm.cmd run test:e2e on production port 3001 | PASS, 5 tests, 46.7s |
 

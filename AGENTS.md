@@ -1,4 +1,4 @@
-# PERIHELION
+# CORTEXAI
 
 Yo, Hackathon time, be primed.
 

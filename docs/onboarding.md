@@ -1,4 +1,4 @@
-# Mission Control — context primer
+# CortexAi — context primer
 
 **Read this first. Then paste the whole file into your AI assistant before asking it for help
 with this project.** It is written to be self-contained: an assistant that has read it can

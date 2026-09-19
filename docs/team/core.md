@@ -97,8 +97,8 @@ route around is decoration.
 - **Keep [`../status.md`](../status.md) current.** It is the team's source of truth and it goes
   stale in hours.
 - **Merge `main` often.** Four branches, one weekend.
-- **Own the name decision.** Code says Mission Control, the brief says APHELION. Cheap
-  find-and-replace, but three people must not build against three answers. Decide it today.
+- **The name is settled: CortexAi.** Renamed across both halves. Anything still saying PERIHELION
+  or Mission Control outside the archived briefs is a leftover — fix it in passing.
 
 ## The thing only you can do on Sunday
 

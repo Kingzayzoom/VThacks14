@@ -1,7 +1,7 @@
-# Mission Control — project status
+# CortexAi — project status
 
 The single place to find out what this is, what works, and what is still open.
-**Last updated: 18 September 2026, after analysing the merged frontend (`47c682c`).**
+**Last updated: 18 September 2026 — renamed to CortexAi; the Next.js frontend is the one that ships.**
 
 Quick numbers: 4,508 lines of application Python · 819 lines of tests · 90 unit tests passing ·
 five demo scenarios green end to end · 8,100 lines of Next.js frontend that builds clean and is
@@ -171,7 +171,7 @@ reasonable things to build from. They describe different systems.
 | Mission | `text`, `business`, `jobs[]`, `hires[]`, `recruitments[]`, `roster[]`, `plan` | `title`, `objective`, `constraints[]`, `taskIds[]`, `budget`, `currentStage` |
 | Agent | `ans_name`, `org`, `version`, `status`, `fingerprint`, `capabilities[]` | `identityStatus` (one enum), `authorizationSummary`, `verificationEvidence[]` |
 | Trust | 5 checks × 4 states, each with evidence | a single `identityStatus` enum |
-| Cast | BrandStudio, WebForge, SiteSmith, LegalCheck, Commander | Scout, Sage, Forge, Guardian, Perihelion |
+| Cast | BrandStudio, WebForge, SiteSmith, LegalCheck, Commander | Scout, Sage, Forge, Guardian, CortexAi |
 
 The frontend also has slots for things the backend does not produce (`budget`, `constraints`,
 `artifactIds`, `attempt`), and no slot for things it does (the five-row gate, recruitment
@@ -196,17 +196,37 @@ single risk to the demo.
 | Looks | functional | considerably better |
 | Drives the demo today | yes | no |
 
-**This needs a decision, and it is the most consequential one left.** Options:
+### DECIDED: the Next.js app ships
 
-1. **Wire the Next.js app** — implement `HttpControlApi` against the real hub plus a mapping layer
-   from our shapes to theirs. Half a day, the mapping layer is the bulk of it, and it buys the
-   better-looking demo.
-2. **Keep `dashboard/` for the demo**, finish the Next.js app after. Safe, and wastes the
-   frontend work on the day.
-3. **Port the Next.js visual language onto the wired dashboard.** Middle path, awkward.
+`src/` is the product. `dashboard/` stays in the repo as a **working fallback and as a reference
+implementation** — it is the only thing that currently proves every contract end to end, so it is
+useful to diff against while wiring. **Do not delete it** until the Next.js app has run the full
+demo, all five scenarios, at least twice.
 
-Recommendation: **1, with 2 as the fallback**, and decide by Saturday midday. `dashboard/` is not
-deleted until the Next.js app has run the full demo end to end at least twice.
+That makes the integration the critical path. Two pieces, and they can be done in parallel by
+different people:
+
+**A. `HttpControlApi`** — implement the adapter that currently throws `NOT_CONFIGURED`. Fetch
+against the hub on `:8000`, subscribe to `/ws`, feed the same store `MockControlApi` feeds so the
+components do not have to change. `API_CONTRACT.md` already describes this seam.
+
+**B. The mapping layer** — translate our shapes into theirs. This is the bulk of it. Mechanical,
+but it is where the honesty rules live: five checks × four states must not collapse into a single
+`identityStatus` enum without somewhere to show the detail.
+
+Endpoint reconciliation, the frontend's proposal against what exists:
+
+| Proposed | Reality |
+|---|---|
+| `POST /api/missions` with `Idempotency-Key` | exists, takes `{text, scenario}`; no idempotency key yet |
+| `POST /api/missions/:id/commands` `{pause\|resume}` | **does not exist.** We have `/decision` for version approvals. Pause/resume is unbuilt |
+| `GET /api/bootstrap` | `/api/state` + `/api/missions/current` cover it between them |
+| `GET /api/events/stream` (SSE) | we have WebSocket `/ws`, which is strictly better here |
+
+Agree those four before writing the adapter, and fold the result into
+[`contracts.md`](contracts.md) — there are currently **two** contract documents
+([`contracts.md`](contracts.md) from the backend, `API_CONTRACT.md` from the frontend) and that is
+one too many.
 
 ## 6. What is not done
 
@@ -275,14 +295,18 @@ for a simulator demo. **Both modes are tested end to end.**
 Still needed: DNS records pointing those subdomains at wherever the agents run, and the agents
 actually running there. See §9.
 
+### Settled
+- **The name is CortexAi**, matching the `getcortex.vip` domain. Renamed across both halves in one
+  commit — 40 files, the package name, the `CORTEX_RUNTIME_MODE` env var and the localStorage key.
+  Python tests, frontend typecheck, frontend unit tests and the production build all pass after it.
+  The archived source briefs (`MASTER_PROMPT.md`, `PERIHLEION_MASTER_PROMPT.md/`, `documents/`)
+  were deliberately left alone: they are the record of what we were handed, and rewriting them to
+  match a later decision would make provenance useless.
+- **The Next.js frontend ships** (§5). `dashboard/` is the fallback, not the product.
+
 ### Decisions still open
-1. **Which frontend ships** (§5). The most consequential one left. Decide by Saturday midday.
-2. **The name.** No longer cheap. The backend says *Mission Control*, the brief says *APHELION*,
-   and the frontend is *PERIHELION* throughout — package name, routes, components, docs, the
-   coordinator agent. Two halves of one project currently have two different names. Pick one
-   today; whoever renames the frontend should do it in a single commit.
-3. Gemini split (§7) — confirm or change.
-4. Live ANS: full deployment, or the hybrid in §9.
+1. Gemini split (§7) — confirm or change.
+2. Live ANS: full deployment, or the hybrid in §9.
 5. **Disk space.** The dev machine is at 100% (0 bytes free); clearing the npm cache recovered
    ~150 MB, which is not enough to work in. `.git` is 54 MB and `docs/` is 44 MB and growing —
    mostly committed PNG screenshots, now joined by a 1.5 MB video. Every design review adds a few
@@ -328,6 +352,6 @@ Use **Reset demo** between runs, and `--fresh` before the real thing so versions
 | Gemini breaks the review-loop beat | Deterministic floor (§7). Not done yet — do it with the Gemini work. |
 | A judge types an unusual mission | Plans are real graphs now; out-of-scope work is named, not faked. |
 | Frontend integration runs out of time | `dashboard/` is wired and drives the demo today. Do not delete it until the Next.js app has run the demo twice. |
-| Two names in one project | Decide today. The cost grows with every commit either side makes. |
+| Integration is the critical path | Two parallel pieces (§5). Fallback is `dashboard/`, which works today. |
 | Dev machine out of disk | Prune `.git` and `docs/` screenshots; keep the demo machine above a few GB free. |
 | Something fails live | Every dependency degrades visibly rather than silently. That is the story, not a failure of it. |

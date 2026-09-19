@@ -5,7 +5,7 @@ export const EXAMPLE_OBJECTIVE =
 export const agents: Agent[] = [
   {
     id: "coordinator",
-    name: "Perihelion",
+    name: "CortexAi",
     role: "Mission coordinator",
     capabilities: ["Planning", "Delegation"],
     runtimeStatus: "planning",

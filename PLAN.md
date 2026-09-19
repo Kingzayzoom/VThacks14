@@ -1,4 +1,4 @@
-# PERIHELION checkpoint plan
+# CORTEXAI checkpoint plan
 
 ## Phase A — built; awaiting visual approval
 - [x] Read entire master brief, research notes, all four images; inspect workspace.

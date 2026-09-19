@@ -1,4 +1,4 @@
-# PERIHELION / Phase A living visual checkpoint
+# CORTEXAI / Phase A living visual checkpoint
 
 ## Current checkpoint / Agents constellation
 
@@ -12,7 +12,7 @@ The owner's explicit Agents request extends the frontend with `/agents`, using `
 
 Validation: typecheck, lint, all 6 unit tests, production build and all 9 browser tests passed. Agents accessibility checks found zero axe violations on desktop and mobile. Browser coverage includes real changing Canvas pixels, frozen pixels during visual pause, paused mission counts/packets, filtering, preview authority, mobile navigation and unavailable Canvas. See `docs/TEST_RESULTS.md` for limits.
 
-Preview: `http://127.0.0.1:3018/agents`. The verified build uses `PERIHELION_BUILD_DIR=.next/agents-final` because OneDrive locked the older output. To reproduce: set that process environment variable, run `npm.cmd run build`, then `npm.cmd run start -- --port 3018`. Normal development remains `npm.cmd run dev`. Existing environment files and the pre-existing `next-env.d.ts` development imports were preserved.
+Preview: `http://127.0.0.1:3018/agents`. The verified build uses `CORTEX_BUILD_DIR=.next/agents-final` because OneDrive locked the older output. To reproduce: set that process environment variable, run `npm.cmd run build`, then `npm.cmd run start -- --port 3018`. Normal development remains `npm.cmd run dev`. Existing environment files and the pre-existing `next-env.d.ts` development imports were preserved.
 
 Review artifacts: [desktop](screenshots/agents/desktop.png), [wide](screenshots/agents/wide.png), [compact desktop](screenshots/agents/compact.png), [mobile](screenshots/agents/mobile.png), [mobile inspector](screenshots/agents/mobile-inspector.png), [motion recording](screenshots/agents/motion.webm). Re-record with `node scripts/capture-agents.mjs` against the local preview. The reference image itself is never loaded by the runtime.
 
@@ -36,9 +36,9 @@ Validation: strict typecheck, lint, 6 unit tests, production build and all 5 pro
 
 Current changed files: `src/components/living-field.tsx`, `motion-system.tsx`, `atmosphere.tsx`, `entry.tsx`, `network.tsx`, `field.tsx`, `shell.tsx`, `agent-signature.tsx`; `src/lib/visual/field-config.ts`, `frame-clock.ts`; `src/styles/living.css`, `utilities.css`, `refinement.css`; `src/app/layout.tsx`; `package.json`, `package-lock.json`, `postcss.config.mjs`, `next.config.ts`, `tsconfig.json`; `e2e/living-field.spec.ts`, `e2e/phase-a.spec.ts`; `scripts/capture-living-motion.mjs`; `AGENTS.md`, `PLAN.md`, `docs/DESIGN_SYSTEM.md`, `docs/TEST_RESULTS.md`, `docs/OPTICAL_ASSET.md`, this document and screenshot/video artifacts.
 
-Motion review: `docs/screenshots/living-motion/perihelion-living-field.webm`. Current desktop/mobile screenshots remain in `docs/screenshots/`; inspected iterations are `living-pass1/` and `living-pass2/`.
+Motion review: `docs/screenshots/living-motion/cortexai-living-field.webm`. Current desktop/mobile screenshots remain in `docs/screenshots/`; inspected iterations are `living-pass1/` and `living-pass2/`.
 
-Run development: `npm.cmd run dev`, open http://127.0.0.1:3000. For production QA in this OneDrive workspace: `$env:PERIHELION_BUILD_DIR='.next/visual-review'; npm.cmd run build; npm.cmd run start -- --port 3001`. The optional output override preserves an older generated cache that Windows/OneDrive marked read-only. Use the same override for build/start. No environment file was modified.
+Run development: `npm.cmd run dev`, open http://127.0.0.1:3000. For production QA in this OneDrive workspace: `$env:CORTEX_BUILD_DIR='.next/visual-review'; npm.cmd run build; npm.cmd run start -- --port 3001`. The optional output override preserves an older generated cache that Windows/OneDrive marked read-only. Use the same override for build/start. No environment file was modified.
 
 Remaining: Roheen's visual approval; physical-mobile frame-rate/battery and Safari/Firefox checks. The long mobile field intentionally scrolls; selecting a node moves focus to its inspector. This is still an honest local demo.
 

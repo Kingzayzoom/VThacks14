@@ -242,7 +242,7 @@ function AgentNode({
           {indices[agent.id]} /
         </span>
         <strong>
-          {agent.id === "coordinator" ? "PERIHELION" : agent.name.toUpperCase()}
+          {agent.id === "coordinator" ? "CORTEXAI" : agent.name.toUpperCase()}
         </strong>
       </span>
       <span className="node-role">{agent.role}</span>

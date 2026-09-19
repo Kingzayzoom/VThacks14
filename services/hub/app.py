@@ -18,7 +18,7 @@ from . import integrations
 from .guardian import reset as guardian_reset
 from .guardian import router as guardian_router
 
-app = FastAPI(title="Mission Control hub")
+app = FastAPI(title="CortexAi hub")
 app.include_router(guardian_router)
 ans = get_ans_client()
 
@@ -173,7 +173,7 @@ async def chaos_revoke(key: str):
     rec = await ans.resolve(card["ans_name"])
     if not rec:
         raise HTTPException(404, "Agent isn't registered in ANS")
-    rec = await ans.revoke(rec["agent_id"], "Compromised: revoked from Mission Control")
+    rec = await ans.revoke(rec["agent_id"], "Compromised: revoked from CortexAi")
     await emit("agent.revoked", f"{cfg['org']} was revoked in ANS ({card['ans_name']})", subject=card["ans_name"])
     return rec
 

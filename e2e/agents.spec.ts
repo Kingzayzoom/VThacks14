@@ -57,7 +57,7 @@ test("agents discovery and previews are honest, accessible, and responsive", asy
   await expect(page.locator(".constellation-node")).toHaveCount(1);
   await expect(page.getByRole("button", { name: "Inspect Forge", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Reset field view" }).click();
-  await expect(inspector.getByRole("heading", { name: "Perihelion", exact: true })).toBeVisible();
+  await expect(inspector.getByRole("heading", { name: "CortexAi", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Inspect Memory", exact: true }).click();
   await expect(inspector).toContainText("Not connected");
   await expect(inspector).toContainText("0 scoped permissions");

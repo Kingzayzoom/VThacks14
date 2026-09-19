@@ -10,7 +10,7 @@
 
 Every run is streamed to the dashboard as a "trust.check" event.
 
-On the `authenticate` check: the nonce-and-signature exchange below is Mission Control's own
+On the `authenticate` check: the nonce-and-signature exchange below is CortexAi's own
 proof-of-possession protocol, not an ANS one. GoDaddy's documented mechanisms are mTLS (the
 identity certificate presented in the handshake) and DPoP (a per-request signed proof). Ours
 verifies the same key against the same ANS-issued certificate, so it answers the same question

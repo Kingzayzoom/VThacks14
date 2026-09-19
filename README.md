@@ -1,8 +1,8 @@
-# Mission Control
+# CortexAi
 
 **Hire AI agents you can actually trust.** Built for VTHacks 14, GoDaddy "Best Use of ANS" track.
 
-Mission Control turns a plain-English goal into finished work by hiring specialist AI agents from different organizations. Before any agent touches the job, it proves who it is through GoDaddy's [Agent Name Service (ANS)](https://www.godaddy.com/ans). Every hire, rejection and deliverable is visible, signed and traceable.
+CortexAi turns a plain-English goal into finished work by hiring specialist AI agents from different organizations. Before any agent touches the job, it proves who it is through GoDaddy's [Agent Name Service (ANS)](https://www.godaddy.com/ans). Every hire, rejection and deliverable is visible, signed and traceable.
 
 ### Start here
 

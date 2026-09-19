@@ -40,7 +40,7 @@ export function Dialog({
       }}
     >
       <div className="dialog-heading">
-        <span className="eyebrow">PERIHELION / {title}</span>
+        <span className="eyebrow">CORTEXAI / {title}</span>
         <button
           className="icon-button"
           aria-label="Close dialog"

@@ -2,7 +2,7 @@ import { z } from "zod";
 export function runtimeConfig(env: Record<string, string | undefined>) {
   const mode = z
     .enum(["demo", "live"])
-    .safeParse(env.PERIHELION_RUNTIME_MODE?.trim() || "demo");
+    .safeParse(env.CORTEX_RUNTIME_MODE?.trim() || "demo");
   if (!mode.success)
     return {
       mode: "live" as const,

@@ -13,7 +13,7 @@ import { MotionSystem } from "@/components/motion-system";
 import { ControlProvider } from "@/components/provider";
 import { runtimeConfig } from "@/lib/env/config";
 export const metadata: Metadata = {
-  title: "PERIHELION — Intelligence, coordinated.",
+  title: "CORTEXAI — Intelligence, coordinated.",
   description:
     "Autonomous systems. Human authority. An agentic operations design foundation.",
 };
@@ -34,7 +34,7 @@ export default function RootLayout({
             <h1>Live runtime is not configured.</h1>
             <p>
               This Phase A checkpoint supports demo mode. Set
-              PERIHELION_RUNTIME_MODE to demo or leave it empty.
+              CORTEX_RUNTIME_MODE to demo or leave it empty.
             </p>
             <code>{config.error}</code>
           </main>

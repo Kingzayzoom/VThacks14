@@ -1,11 +1,11 @@
 # Initial application contract / v1
 
-Phase A seam for discussion with Zabish and Ashraf. These are PERIHELION application types, not provider payloads. No HTTP endpoint in this document is implemented yet.
+Phase A seam for discussion with Zabish and Ashraf. These are CORTEXAI application types, not provider payloads. No HTTP endpoint in this document is implemented yet.
 
 `src/contracts/index.ts` provides Zod runtime schemas for Agent, Mission, Task, Snapshot, CreateMissionRequest, and the four initial event variants. Recruitment, ActionRequest, Approval, Incident, Artifact, and IntegrationStatus have initial TypeScript definitions; their runtime validators and full flows belong to B/C.
 
 ## Current adapter
-UI components consume `ControlApi`; `MockControlApi` stores fixtures in memory, optionally persisted under `perihelion:phase-a:v1`. `createHttpControlApi` fails with `NOT_CONFIGURED`. Root server configuration also rejects live mode; populated keys cannot activate an SDK.
+UI components consume `ControlApi`; `MockControlApi` stores fixtures in memory, optionally persisted under `cortexai:phase-a:v1`. `createHttpControlApi` fails with `NOT_CONFIGURED`. Root server configuration also rejects live mode; populated keys cannot activate an SDK.
 
 Implemented local operations:
 - `getSnapshot`, `getServerSnapshot`, `subscribe`.

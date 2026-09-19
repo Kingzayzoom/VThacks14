@@ -7,20 +7,20 @@ import { createHttpControlApi } from "../src/lib/api/HttpControlApi";
 import { agentInMission } from "../src/lib/demo/fixtures";
 
 test("blank configuration selects demo; live adapter fails closed even with a key", () => {
-  assert.deepEqual(runtimeConfig({ PERIHELION_RUNTIME_MODE: "" }), {
+  assert.deepEqual(runtimeConfig({ CORTEX_RUNTIME_MODE: "" }), {
     mode: "demo",
     available: true,
     error: null,
   });
   assert.equal(
     runtimeConfig({
-      PERIHELION_RUNTIME_MODE: "live",
+      CORTEX_RUNTIME_MODE: "live",
       GEMINI_API_KEY: "test-only",
     }).available,
     false,
   );
   assert.equal(
-    runtimeConfig({ PERIHELION_RUNTIME_MODE: "typo" }).available,
+    runtimeConfig({ CORTEX_RUNTIME_MODE: "typo" }).available,
     false,
   );
   assert.throws(createHttpControlApi, { code: "NOT_CONFIGURED" });

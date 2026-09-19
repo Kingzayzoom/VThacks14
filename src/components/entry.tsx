@@ -75,7 +75,7 @@ export function Entry() {
             <span className="tiny-rule" /> AUTONOMOUS SYSTEMS. HUMAN AUTHORITY.{" "}
             <span className="tiny-rule" />
           </div>
-          <p className="hero-wordmark">PERIHELION</p>
+          <p className="hero-wordmark">CORTEXAI</p>
           <p className="eyebrow system-title">
             <span>AGENTIC OPERATIONS SYSTEM</span>
             <span className="system-edition">VOL. 01 / FIELD INSTRUMENT</span>
@@ -157,7 +157,7 @@ export function Entry() {
         </section>
       </main>
       <footer className="entry-footer">
-        <span className="eyebrow">PERIHELION / FRONTEND PREVIEW</span>
+        <span className="eyebrow">CORTEXAI / FRONTEND PREVIEW</span>
         <Link href="/field">
           Explore the demo field
           <ArrowRight size={14} />

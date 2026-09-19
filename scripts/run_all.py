@@ -90,7 +90,7 @@ def main():
         print(f"Warning: initial reset failed ({exc})")
 
     url = config.hub_url()
-    print(f"\n  Mission Control is running at {url}\n  ANS backend: {backend}  |  Ctrl+C to stop\n", flush=True)
+    print(f"\n  CortexAi is running at {url}\n  ANS backend: {backend}  |  Ctrl+C to stop\n", flush=True)
     if "--no-browser" not in sys.argv:
         webbrowser.open(url)
 

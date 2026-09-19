@@ -15,6 +15,14 @@ assistant needs to help you build this without reading the Python.
 > [`../status.md`](../status.md) §5. **Nothing below asks you to redesign anything**; the work is
 > `HttpControlApi` plus a mapping layer. Talk to Zay before starting so we agree who writes which
 > half.
+>
+> **Two decisions since you pushed:** the project is now **CortexAi** (after the `getcortex.vip`
+> domain), renamed across both halves including your package name, the `CORTEX_RUNTIME_MODE` env
+> var and the localStorage key — your build, typecheck and unit tests all still pass. And **your
+> app is the one that ships**; `dashboard/` stays only as a fallback and as a working reference for
+> every contract. Integration is now the critical path, and your `API_CONTRACT.md` is the right
+> starting point — [`../status.md`](../status.md) §5 reconciles your four proposed endpoints
+> against what actually exists.
 
 ## Your job
 

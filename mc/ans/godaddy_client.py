@@ -103,7 +103,7 @@ class GoDaddyAnsClient(AnsClient):
 
     @classmethod
     def _to_record(cls, raw: dict) -> dict:
-        """GoDaddy's agent shape → the record shape the rest of Mission Control speaks."""
+        """GoDaddy's agent shape → the record shape the rest of CortexAi speaks."""
         endpoints = raw.get("endpoints") or [{}]
         first = endpoints[0]
         host = raw.get("agentHost") or ""

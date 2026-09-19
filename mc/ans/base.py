@@ -1,4 +1,4 @@
-"""The operations Mission Control needs from ANS. Both backends implement this.
+"""The operations CortexAi needs from ANS. Both backends implement this.
 
 Agent records are plain dicts with these keys:
   agent_id, ans_name, host, label, domain, version, org, endpoint, agent_card_url,

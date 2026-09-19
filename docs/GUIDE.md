@@ -44,7 +44,7 @@ We built the layer they say is needed and deliberately did not build.
 | | State |
 |---|---|
 | **Backend** | Complete. 137 unit tests, all five demo scenarios green end to end. |
-| **Frontend** | Next.js, builds clean. **Now wired to the hub** — SSE stream + proxied REST (P1 landed 19 Sep). |
+| **Frontend** | Next.js, builds clean, **wired and verified end to end** — a mission launched from the browser layer ran to `delivered` (19 Sep). |
 | **ANS discovery (live)** | **Working.** No credential. 216,110 real agents in production. |
 | **ANS stranger verification** | **Working.** Real GoDaddy-issued certs verified by our own code. |
 | **A2A interaction with a stranger** | **Working.** Proven against `agent.webmesh.ai`. |
@@ -392,6 +392,14 @@ browser -> /api/control/<path>      (REST) -> Next route -> hub /api/<path>
 
 That keeps credentials server-side, which is house rule 3. `CORTEX_RUNTIME_MODE=live` switches
 the provider from `MockControlApi` to `HttpControlApi`; demo mode still works with the hub down.
+
+The proxy is not a pass-through. Reads are allowlisted by regex (`reset`, `chaos/*` and `log` all
+404), writes additionally require same origin (403 without it), bodies are capped and Zod-checked,
+and `objective`/`idempotencyKey` are rewritten to the hub's `text`/`idempotency_key`.
+
+**Verified end to end on 19 September**, not merely compiled: real hub data through every
+allowlisted read, a mission POSTed from the browser layer that ran to `delivered` with 5 jobs and
+5 hires, and the SSE stream delivering `connected` then a `history` frame of real events.
 
 **Real captured backend output is in `docs/work/fixtures/`** — 95 events, one example of each of
 the 32 types, every REST response. Build new views against those.

@@ -1,3 +1,5 @@
+> **Current integration checkpoint - September 19, 2026:** The approved frontend now supports demo/live adapters, same-origin hub transport, strict confirmed start_mission voice handoff, and truthful ANS/Guardian state. Typecheck, lint and build pass; 20 JS unit tests, 124 Python tests, 17 demo browser tests and the separate real-hub browser test pass. Gemini was not contacted (key absent); ElevenLabs token issuance returned HTTP 401. Older disconnected/draft-only descriptions below are historical. See [live integration handoff](docs/LIVE_INTEGRATION.md) for run commands, screenshots and limits. No redesign or deployment.
+
 # Product
 
 ## Register

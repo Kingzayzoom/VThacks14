@@ -8,10 +8,13 @@ import {
   type ReactNode,
 } from "react";
 import { MockControlApi, STORAGE_KEY } from "@/lib/api/MockControlApi";
-const ApiContext = createContext<MockControlApi | null>(null);
-export function ControlProvider({ children }: { children: ReactNode }) {
-  const [api] = useState(() => new MockControlApi());
+import { HttpControlApi } from "@/lib/api/HttpControlApi";
+import type { ControlApi } from "@/lib/api/ControlApi";
+const ApiContext = createContext<ControlApi | null>(null);
+export function ControlProvider({ children, mode = "demo" }: { children: ReactNode; mode?: "demo" | "live" }) {
+  const [api] = useState(() => mode === "live" ? new HttpControlApi() : new MockControlApi());
   useEffect(() => {
+    if (api instanceof HttpControlApi) return api.start();
     try {
       api.hydrate(localStorage.getItem(STORAGE_KEY));
     } catch {

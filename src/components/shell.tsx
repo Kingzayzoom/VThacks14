@@ -17,6 +17,7 @@ import {
 import { Brand, ModeBadge } from "./ui";
 import { Dialog } from "./dialog";
 import { MissionComposer } from "./composer";
+import { LiveConnection } from "./live-status";
 import { VoicePanel } from "./voice/voice-panel";
 import { WorkspaceAtmosphere } from "./workspace-atmosphere";
 
@@ -151,7 +152,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
           </div>
         </header>
         <main id="main" className="workspace-main">
-          {children}
+          <LiveConnection />{children}
         </main>
       </div>
       <Dialog

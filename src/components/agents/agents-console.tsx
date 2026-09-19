@@ -9,9 +9,10 @@ import { agentInMission } from "@/lib/demo/fixtures";
 import { useControl } from "../provider";
 import { useFieldMotion } from "../motion-system";
 import { Status, AgentGlyph } from "../ui";
-import { eventSummary, fieldNodes, previewAgents, visualFor, type FieldNode } from "./field-model";
+import { eventSummary, fieldNodes, previewAgents, visualFor } from "./field-model";
 
-type Filter = "all" | "mission" | "review" | `category:${FieldNode["family"]}`;
+type Filter = "all" | "mission" | "review" | `category:${string}`;
+const categoryFor = (agent: Agent) => agent.trustChecks ? agent.role === "Mission orchestration" ? "Orchestrator" : agent.capabilities[0] || "Unclassified" : visualFor(agent.id).family;
 const compactQuery = "(max-width: 1100px)";
 function subscribeCompact(callback: () => void) {
   const query = matchMedia(compactQuery);
@@ -34,7 +35,7 @@ export function AgentsConsole() {
   const mission = state.missions.find((m) => m.id === state.selectedMissionId) ?? state.missions[0];
   const members = state.agents.filter((agent) => mission?.agentIds.includes(agent.id))
     .map((agent) => agentInMission(agent, state, mission?.id ?? ""));
-  const agents = [...members, ...previewAgents];
+  const agents = [...(state.live ? state.agents : members), ...previewAgents];
   const selectedId = previewId ?? state.selectedAgentId;
   const selected = agents.find((agent) => agent.id === selectedId) ?? members[0];
   const tasks = state.tasks.filter((task) => task.missionId === mission?.id);
@@ -42,7 +43,7 @@ export function AgentsConsole() {
   const normalizedQuery = query.trim().toLowerCase();
   const visible = agents.filter((agent) => {
     const matches = `${agent.name} ${agent.role} ${visualFor(agent.id).family} ${agent.capabilities.join(" ")}`.toLowerCase().includes(normalizedQuery);
-    return matches && (filter === "all" || (filter === "mission" && mission?.agentIds.includes(agent.id)) || (filter === "review" && agent.runtimeStatus === "waiting_approval") || filter === `category:${visualFor(agent.id).family}`);
+    return matches && (filter === "all" || (filter === "mission" && mission?.agentIds.includes(agent.id)) || (filter === "review" && agent.runtimeStatus === "waiting_approval") || filter === `category:${categoryFor(agent)}`);
   });
   useEffect(() => {
     if (inspectorOpen) {
@@ -79,12 +80,12 @@ export function AgentsConsole() {
         <div className="roster-count"><span>{members.length} in mission</span><span>{previewAgents.length} previews</span></div>
       </header>
       <div className="agents-constellation">
-        <FieldControls query={query} setQuery={setQuery} filter={filter} setFilter={setFilter} reset={reset} canReset={!!query || filter !== "all"} />
+        <FieldControls categories={state.live ? [...new Set(agents.map(categoryFor))] : fieldNodes.map(n => n.family)} query={query} setQuery={setQuery} filter={filter} setFilter={setFilter} reset={reset} canReset={!!query || filter !== "all"} />
         <div className="roster-heading" aria-hidden="true"><span>Agent</span><span className="roster-assignment">Current assignment</span><span>Runtime</span></div>
           <div className="agents-roster" aria-label="Agent roster">
             {visible.map((agent) => <button key={agent.id} className={`constellation-roster-row ${agent.runtimeStatus === "disconnected" ? "preview-row" : ""} ${inspectorOpen && selected?.id === agent.id ? "selected" : ""}`}
               aria-label={`Inspect ${agent.name}`} aria-pressed={inspectorOpen && selected?.id === agent.id}
-              aria-controls={inspectorOpen ? "agent-inspector" : undefined} onClick={() => selectAgent(agent.id)}>
+              aria-controls={inspectorOpen ? "agent-inspector" : undefined} onClick={() => agent && selectAgent(agent.id)}>
               <NeuronGlyph id={agent.id} /><span className="roster-agent-name"><strong>{agent.name}</strong><span>{agent.role}</span></span>
               <span className="roster-assignment">{tasks.find(t => t.id === agent.currentTaskId)?.title ?? (previewAgents.some(p => p.id === agent.id) ? "Not assigned" : agent.role)}</span><AgentState agent={agent} /><ChevronRight size={14} />
             </button>)}
@@ -95,18 +96,18 @@ export function AgentsConsole() {
       {inspectorOpen && selected && mission && <AgentInspector agent={selected} mission={mission} tasks={tasks} task={currentTask} members={members}
         inspectorRef={inspector} compact={compact} select={selectAgent} close={closeInspector} />}
       <details className="agents-activity">
-        <summary>Mission activity <span>Recorded demo events</span></summary>
+        <summary>Mission activity <span>{state.live ? "Recorded hub events" : "Recorded demo events"}</span></summary>
         <div className="agents-event-strip">
           {state.events.filter((event) => event.missionId === mission?.id).slice(-4).map((event) => {
             const agent = agents.find((item) => item.id === event.agentId) ?? members[0];
-            return <button key={event.id} className="agents-event" onClick={() => selectAgent(agent.id)}>
+            return <button key={event.id} className="agents-event" onClick={() => agent && selectAgent(agent.id)}>
               <span className="event-sequence">{String(event.sequence).padStart(2, "0")} / <time dateTime={event.occurredAt}>{new Date(event.occurredAt).toISOString().slice(11, 16)} UTC</time></span>
-              <strong><i />{agent.name}</strong><span>{eventSummary(event)}</span><small>{visualFor(agent.id).family}<ArrowUpRight size={13} /></small>
+              <strong><i />{agent?.name ?? "Commander"}</strong><span>{eventSummary(event)}</span><small>{agent ? visualFor(agent.id).family : "Orchestration"}<ArrowUpRight size={13} /></small>
             </button>;
           })}
         </div>
       </details>
-      {mission && <div className="agents-mission-control">
+      {mission && !state.live && <div className="agents-mission-control">
         <p>{mission.status === "paused" ? "Execution paused" : mission.currentStage}</p>
         <button className="button subtle" onClick={toggleMission} aria-label={mission.status === "paused" ? "Resume demo mission" : "Pause demo mission"}>
           {mission.status === "paused" ? <Play size={14} /> : <Pause size={14} />}{mission.status === "paused" ? "Resume mission" : "Pause mission"}
@@ -117,15 +118,15 @@ export function AgentsConsole() {
   );
 }
 
-function FieldControls({ query, setQuery, filter, setFilter, reset, canReset }: {
-  query: string; setQuery: (value: string) => void; filter: Filter; setFilter: (value: Filter) => void; reset: () => void; canReset: boolean;
+function FieldControls({ categories, query, setQuery, filter, setFilter, reset, canReset }: {
+  categories: string[]; query: string; setQuery: (value: string) => void; filter: Filter; setFilter: (value: Filter) => void; reset: () => void; canReset: boolean;
 }) {
   return <div className="agents-field-controls"><div className="field-search-controls">
       <label className="agent-search"><Search size={13} /><span className="sr-only">Search agents</span><input placeholder="Find an agent…" value={query} onChange={(event) => setQuery(event.target.value)} />
         {query && <button aria-label="Clear agent search" onClick={() => setQuery("")}><X size={12} /></button>}</label>
       <label className="agent-filter"><span className="sr-only" id="agent-filter-label">Filter agents</span><select aria-labelledby="agent-filter-label" value={filter} onChange={(event) => setFilter(event.target.value as Filter)}>
         <option value="all">All agents</option><option value="mission">In mission</option><option value="review">Needs review</option>
-        <optgroup label="Categories">{fieldNodes.map((node) => <option key={node.family} value={`category:${node.family}`}>{node.family}</option>)}</optgroup>
+        <optgroup label="Categories">{categories.map(category => <option key={category} value={`category:${category}`}>{category}</option>)}</optgroup>
       </select></label>
       </div>
     {canReset && <button className="button subtle" aria-label="Reset filters" onClick={reset}><RotateCcw size={14} />Reset</button>}
@@ -155,24 +156,24 @@ function AgentInspector({ agent, mission, tasks, task, members, inspectorRef, co
     <motion.div className="agent-inspector-content" key={agent.id} initial={still ? false : { x: 8 }} animate={{ x: 0 }} transition={{ duration: still ? 0 : 0.2 }}>
       <div className="inspector-identity"><NeuronGlyph id={agent.id} /><div><h2>{agent.name}</h2><p>{agent.role}</p></div></div>
       <dl className="inspector-state-grid">
-        <div><dt>Identity</dt><dd>{agent.identityStatus === "demo_verified" ? "Demo fixture" : agent.identityStatus === "verified" ? "Verified" : "Unverified"}</dd></div>
-        <div><dt>Standing</dt><dd>Not checked</dd></div>
+        <div><dt>Identity</dt><dd>{agent.identityStatus === "demo_verified" ? agent.trustChecks ? "Simulator evidence" : "Demo fixture" : agent.identityStatus === "verified" ? "Verified" : "Unverified"}</dd></div>
+        <div><dt>Standing</dt><dd>{agent.standingSummary ?? "Not checked"}</dd></div>
         <div><dt>Authority</dt><dd>{agent.allowedScopes.length} scoped {agent.allowedScopes.length === 1 ? "permission" : "permissions"}</dd></div>
         <div><dt>Runtime</dt><dd><AgentState agent={agent} /></dd></div>
       </dl>
       <section className="inspector-block"><h3>Authorization boundary <Shield size={12} /></h3><p>{agent.authorizationSummary}</p>
         <ul className="inspector-scopes">{agent.allowedScopes.map((scope) => <li key={scope}><Check size={11} /><code>{scope}</code></li>)}</ul>
-        <span className="inspector-footnote">{preview ? "Admission required before any assignment." : "Demo scope only · no live grant or expiry."}</span>
+        <span className="inspector-footnote">{preview ? "Admission required before any assignment." : mission.source === "live" ? "Active authority is reported by Guardian for this mission." : "Demo scope only · no live grant or expiry."}</span>
       </section>
       <section className="inspector-block"><h3>Capabilities</h3><ul className="inspector-capabilities">{agent.capabilities.map((capability) => <li key={capability}><i />{capability}</li>)}</ul></section>
       <section className="inspector-block"><h3>Current work</h3><p className="inspector-mission-title">{preview ? "Not assigned" : mission.title}</p><p>{task?.title ?? (preview ? "This specialist is not part of the mission roster." : agent.id === "guardian" ? "Independent policy observation" : "Coordinate the assigned specialists")}</p>
-        <h3 className="inspector-output-label">Output type</h3><p>{node.output}</p><span className="inspector-footnote">{task?.resultRef ? `Result: ${task.resultRef}` : "No delivered artifact"}</span>
+        <h3 className="inspector-output-label">Output type</h3><p>{mission.source === "live" && !preview ? agent.capabilities.join(" / ") : node.output}</p><span className="inspector-footnote">{task?.resultRef ? `Result: ${task.resultRef}` : "No delivered artifact"}</span>
       </section>
       {!!relations.length && <section className="inspector-block"><h3>Assignment & handoffs</h3><ol className="inspector-handoffs">
         {agent.id === "coordinator" && <li className="handoff-current"><i /><span>CortexAi<small>Coordinate this mission</small></span></li>}
         {relations.map((item) => { const worker = members.find((member) => member.id === item.assignedAgentId); return <li key={item.id} className={worker?.id === agent.id ? "handoff-current" : ""}><i /><button onClick={() => select(item.assignedAgentId, false)}>{worker?.name ?? item.assignedAgentId}<small>{item.title}</small></button><ChevronRight size={12} /></li>; })}
       </ol></section>}
-      <details className="inspector-evidence"><summary>Identity evidence <ChevronRight size={13} /></summary>{agent.verificationEvidence.map((evidence) => <p key={evidence}>{evidence}</p>)}<p>ANS standing has not been checked in this frontend demo.</p></details>
+      <details className="inspector-evidence"><summary>Identity evidence <ChevronRight size={13} /></summary>{agent.verificationEvidence.map((evidence) => <p key={evidence}>{evidence}</p>)}{agent.trustChecks?.map(check => <p key={check.name}><strong>{check.name}: {check.state}</strong> ? {check.detail}</p>)}<p>{agent.standingSummary ?? "ANS standing has not been checked in this frontend demo."}</p></details>
       <Link className="inspector-open-link" href={preview ? "/settings" : `/missions/${mission.id}`}>{preview ? "Integration readiness" : "Open mission console"}<ArrowUpRight size={15} /></Link>
     </motion.div>
   </>;

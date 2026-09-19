@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowUpRight, Pause, Play, TriangleAlert, ArrowRight, Shield, FileText, X, CircleCheck, CircleDot, CirclePause, Circle, CornerDownRight } from "lucide-react";
 import { useControl } from "./provider";
 import { AgentGlyph, Status } from "./ui";
+import { LiveMissionContext } from "./live-status";
 import { Dialog } from "./dialog";
 import { agentInMission } from "@/lib/demo/fixtures";
 import { eventSummary } from "./agents/field-model";
@@ -24,7 +25,7 @@ export function Field({ missionId }: { missionId?: string }) {
     api.selectAgent(id); setInspecting(true);
     requestAnimationFrame(() => document.getElementById("selected-agent-details")?.focus());
   }
-  if (!mission) return <div className="empty-state"><h1>{missionId ? "Mission not found on this device." : "No mission selected"}</h1><p>Start a mission or choose one from your workspace.</p><Link className="button primary" href="/">Create mission</Link><Link className="text-link" href="/missions">Browse missions</Link></div>;
+  if (!mission) return <div className="empty-state"><h1>{missionId ? state.live ? "Loading mission from the hub?" : "Mission not found on this device." : "No mission selected"}</h1><p>Start a mission or choose one from your workspace.</p><Link className="button primary" href="/">Create mission</Link><Link className="text-link" href="/missions">Browse missions</Link></div>;
   const tasks = state.tasks.filter(t => t.missionId === mission.id);
   const completed = tasks.filter(t => t.status === "completed").length;
   const pending = tasks.filter(t => t.status === "waiting_approval").length;
@@ -45,9 +46,9 @@ export function Field({ missionId }: { missionId?: string }) {
           <p className="objective-copy">{mission.objective}</p>
           <div className="mission-actions">
             <button className="text-link" onClick={() => setObjective(true)}>View objective <ArrowUpRight size={14} /></button>
-            <button className="button subtle" aria-label={mission.status === "paused" ? "Resume demo mission" : "Pause demo mission"} onClick={toggleMission}>
+            {!state.live && <button className="button subtle" aria-label={mission.status === "paused" ? "Resume demo mission" : "Pause demo mission"} onClick={toggleMission}>
               {mission.status === "paused" ? <Play size={14} /> : <Pause size={14} />}{mission.status === "paused" ? "Resume demo" : "Pause demo"}
-            </button>
+            </button>}
           </div>
           {commandError && <p role="alert" className="form-error">{commandError}</p>}
         </div>
@@ -77,11 +78,11 @@ export function Field({ missionId }: { missionId?: string }) {
         <details className="mission-activity">
           <summary>Recent activity <span>{events.length} events</span></summary>
           <ol className="activity-list">{events.map(event => <li key={event.id}><span><strong>{state.agents.find(a => a.id === event.agentId)?.name ?? "Operator"}</strong><p>{eventSummary(event)}</p></span><time dateTime={event.occurredAt}>{new Date(event.occurredAt).toISOString().slice(11,16)} UTC</time></li>)}</ol>
-          <p className="secondary">Local fixture events. No external agent is executing.</p>
+          <p className="secondary">{state.live ? "Events received from the hub. See the evidence source above for ANS mode." : "Local fixture events. No external agent is executing."}</p>
         </details>
       </section>
-      <div className="mission-context-column">
-        {pending > 0 && <aside className="review-callout">
+      <div className="mission-context-column"><LiveMissionContext missionId={mission.id} />
+        {!state.live && pending > 0 && <aside className="review-callout">
           <div className="context-label"><TriangleAlert size={16} /><span>Needs your input</span></div>
           <h2>A capability is missing.</h2>
           <p>Forge needs a data visualization specialist to finish the brief.</p>
@@ -91,11 +92,11 @@ export function Field({ missionId }: { missionId?: string }) {
         </aside>}
         <section className="results-section">
           <div className="section-heading"><h2>Results</h2><span className="count-label">{mission.artifactIds.length}</span></div>
-          {mission.artifactIds.length ? mission.artifactIds.map(id => <p key={id}><code>{id}</code></p>) : <div className="result-empty"><FileText size={22} /><div><h3>No delivered artifacts yet</h3><p>Outputs will appear here as tasks finish.</p></div></div>}
+          {mission.artifactIds.length ? mission.artifactIds.map(id => <div key={id}>{state.live ? <iframe title="Mission result" sandbox="" src={`/api/control/missions/${mission.id}/result`} style={{width: "100%", height: 360, border: 0}} /> : <code>{id}</code>}</div>) : <div className="result-empty"><FileText size={22} /><div><h3>No delivered artifacts yet</h3><p>Outputs will appear here as tasks finish.</p></div></div>}
         </section>
       </div>
     </div>
-    {inspecting && agent && <aside className="context-inspector inspector-content" id="selected-agent-details" tabIndex={-1} aria-label="Selected agent details" onKeyDown={e => { if (e.key === "Escape") closeInspector(); }}><header className="agent-inspector-header"><span>Agent details</span><button className="icon-button" aria-label="Close inspector" onClick={closeInspector}><X size={18} /></button></header><div className="inspector-identity"><AgentGlyph id={agent.id} /><div><h2>{agent.name}</h2><p>{agent.role}</p></div></div><dl className="inspector-state-grid"><div><dt>Identity</dt><dd>Demo verification only</dd></div><div><dt>Standing</dt><dd>Not checked</dd></div><div><dt>Authority</dt><dd>{agent.allowedScopes.length} scoped permissions</dd></div><div><dt>Runtime</dt><dd><Status status={agent.runtimeStatus} /></dd></div></dl><dl className="inspector-block"><dt>Current assignment</dt><dd>{task?.title ?? agent.role}</dd><dt>Authorization</dt><dd>{agent.authorizationSummary}</dd><dt>Allowed scopes</dt><dd className="scope-list">{agent.allowedScopes.map(s => <code key={s}>{s}</code>)}</dd><dt>Capabilities</dt><dd>{agent.capabilities.join(" / ")}</dd></dl><details className="inspector-evidence"><summary>Identity evidence</summary>{agent.verificationEvidence.map(e => <p key={e}>{e}</p>)}</details></aside>}
+    {inspecting && agent && <aside className="context-inspector inspector-content" id="selected-agent-details" tabIndex={-1} aria-label="Selected agent details" onKeyDown={e => { if (e.key === "Escape") closeInspector(); }}><header className="agent-inspector-header"><span>Agent details</span><button className="icon-button" aria-label="Close inspector" onClick={closeInspector}><X size={18} /></button></header><div className="inspector-identity"><AgentGlyph id={agent.id} /><div><h2>{agent.name}</h2><p>{agent.role}</p></div></div><dl className="inspector-state-grid"><div><dt>Identity</dt><dd>{agent.identityStatus === "demo_verified" ? state.live ? "Simulator evidence" : "Demo verification only" : agent.identityStatus}</dd></div><div><dt>Standing</dt><dd>{agent.standingSummary ?? "Not checked"}</dd></div><div><dt>Authority</dt><dd>{agent.allowedScopes.length} scoped permissions</dd></div><div><dt>Runtime</dt><dd><Status status={agent.runtimeStatus} /></dd></div></dl><dl className="inspector-block"><dt>Current assignment</dt><dd>{task?.title ?? agent.role}</dd><dt>Authorization</dt><dd>{agent.authorizationSummary}</dd><dt>Allowed scopes</dt><dd className="scope-list">{agent.allowedScopes.map(s => <code key={s}>{s}</code>)}</dd><dt>Capabilities</dt><dd>{agent.capabilities.join(" / ")}</dd></dl><details className="inspector-evidence"><summary>Identity evidence</summary>{agent.verificationEvidence.map(e => <p key={e}>{e}</p>)}</details></aside>}
       <Dialog
         open={review}
         onClose={() => setReview(false)}
@@ -152,11 +153,10 @@ export function Field({ missionId }: { missionId?: string }) {
           ))}
         </ul>
         <div className="notice">
-          {mission.status === "paused" ? "Paused" : mission.currentStage} · Demo
-          fixture plan
+          {mission.status === "paused" ? "Paused" : mission.currentStage} · {state.live ? "Hub mission" : "Demo fixture plan"}
           <br />
           <span>
-            Demo objectives use the same sample task plan. External execution is not connected.
+            {state.live ? "Execution and policy decisions are reported by the hub." : "Demo objectives use the same sample task plan. External execution is not connected."}
           </span>
         </div>
       </Dialog>

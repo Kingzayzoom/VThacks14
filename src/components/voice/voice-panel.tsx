@@ -1,22 +1,25 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { Mic, MicOff } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { VoiceSession, type VoiceState } from "@/lib/voice/session-client";
-import { MissionComposer } from "../composer";
+import { useControl } from "../provider";
 import "@/styles/voice.css";
 
-export function VoicePanel({ onText, onSubmitted, initialDraft = "", onDraftChange }: { onText: () => void; onSubmitted: () => void; initialDraft?: string; onDraftChange?: (value: string) => void }) {
+export function VoicePanel({ onText, onSubmitted }: { onText: () => void; onSubmitted: () => void; initialDraft?: string; onDraftChange?: (value: string) => void }) {
   const [configured, setConfigured] = useState<boolean | null>(null);
   const [status, setStatus] = useState<VoiceState>("idle");
   const [error, setError] = useState("");
   const [accessCode, setAccessCode] = useState("");
-  const [draft, setDraft] = useState(initialDraft);
+  const { api } = useControl();
+  const router = useRouter();
+  const submitted = useRef(onSubmitted);
+  useEffect(() => { submitted.current = onSubmitted; }, [onSubmitted]);
   const session = useRef<VoiceSession | null>(null);
   const path = usePathname();
   useEffect(() => {
     const controller = new AbortController();
-    const voice = new VoiceSession({ state: setStatus, draft: (value) => { setDraft(value); onDraftChange?.(value); }, error: setError });
+    const voice = new VoiceSession({ state: setStatus, createMission: (input) => api.createMission(input), created: (mission) => { router.push(`/missions/${mission.id}`); submitted.current(); }, error: setError });
     session.current = voice;
     fetch("/api/voice/session", { signal: controller.signal, cache: "no-store" })
       .then(async (response) => {
@@ -25,11 +28,11 @@ export function VoicePanel({ onText, onSubmitted, initialDraft = "", onDraftChan
         if (!controller.signal.aborted) setConfigured(data.configured === true);
       }).catch(() => { if (!controller.signal.aborted) { setConfigured(false); setError("Voice availability could not be checked."); } });
     return () => { controller.abort(); void voice.stop(); session.current = null; };
-  }, [path, onDraftChange]);
+  }, [path, api, router]);
   const connected = status === "listening" || status === "speaking" || status === "muted";
   return <div className="voice-panel">
     <h2>Talk it through.</h2>
-    <p>Shape an objective with your AI voice assistant, then review it before starting a mission.</p>
+    <p>Describe your objective to CONTROL. When you ask it to start, the mission opens here after confirmation from CORTEXAI.</p>
     <p className="voice-state" role="status">
       {status === "idle" ? "Microphone inactive. No audio is captured." : status === "connecting" ? "Connecting…" : status === "muted" ? "Microphone muted." : status === "speaking" ? "Assistant speaking." : "Listening to you."}
     </p>
@@ -48,10 +51,6 @@ export function VoicePanel({ onText, onSubmitted, initialDraft = "", onDraftChan
       <button className="button subtle" onClick={() => void session.current?.stop()}>{status === "connecting" ? "Cancel connection" : "End conversation"}</button>
     </div>}
     {error && <p role="alert" className="form-error">{error}</p>}
-    {draft && <section className="voice-draft" aria-label="Review voice objective">
-      <h3>Review your objective.</h3>
-      <MissionComposer key={draft} compact inputId="voice-objective" initialObjective={draft} onObjectiveChange={onDraftChange} onSubmitted={onSubmitted} />
-    </section>}
     <button className="button subtle" onClick={onText}>Use text instead</button>
   </div>;
 }

@@ -10,7 +10,7 @@ export function Missions() {
     <div className="simple-page missions-page">
       <header className="page-heading"><div><h1>Missions</h1><p className="secondary">Every objective, from first task to final result.</p></div></header>
       <section className="mission-list" aria-label="Mission list">
-        <div className="list-toolbar"><h2>All missions <span className="count-label">{state.missions.length}</span></h2><span>Saved on this device</span></div>
+        <div className="list-toolbar"><h2>All missions <span className="count-label">{state.missions.length}</span></h2><span>{state.live ? "Observed from the hub" : "Saved on this device"}</span></div>
         {!!state.missions.length && <div className="mission-columns" aria-hidden="true"><span>Mission</span><span>Status</span><span>Tasks</span><span>Updated</span><span /></div>}
         {!state.missions.length && <div className="empty-state"><h2>No missions yet</h2><p>Give your agents an objective to work toward.</p><Link href="/" className="button primary">Create mission</Link></div>}
         {[...state.missions].reverse().map(m => {
@@ -25,7 +25,7 @@ export function Missions() {
           </Link>;
         })}
       </section>
-      <p className="settings-note">Demo missions use a sample task plan. External execution is not connected.</p>
+      <p className="settings-note">{state.live ? "Live missions use the existing Commander and Guardian. History is held by the hub process." : "Demo missions use a sample task plan. External execution is not connected."}</p>
     </div>
   );
 }

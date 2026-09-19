@@ -1,3 +1,5 @@
+> **Current integration checkpoint - September 19, 2026:** The approved frontend now supports demo/live adapters, same-origin hub transport, strict confirmed start_mission voice handoff, and truthful ANS/Guardian state. Typecheck, lint and build pass; 20 JS unit tests, 124 Python tests, 17 demo browser tests and the separate real-hub browser test pass. Gemini was not contacted (key absent); ElevenLabs token issuance returned HTTP 401. Older disconnected/draft-only descriptions below are historical. See [live integration handoff](LIVE_INTEGRATION.md) for run commands, screenshots and limits. No redesign or deployment.
+
 ## Current checkpoint: route transition screen
 
 Added the owner-requested loading transition between real pages on `feat/page-transitions`, based on `ebc0f92`. Preview: http://127.0.0.1:3028/field. All 17 browser tests, 11 unit tests, typecheck, lint and build pass. [Video, screenshots and behavior](PAGE_TRANSITIONS.md). No dependencies, backend/contracts, credentials, push or deployment changes.

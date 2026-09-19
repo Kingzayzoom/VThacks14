@@ -1,3 +1,4 @@
+import { LiveIntegrations } from "@/components/live-status";
 import { Circle } from "lucide-react";
 import { VoiceReadiness } from "@/components/voice/voice-readiness";
 const integrations = [
@@ -31,10 +32,9 @@ export default function SettingsPage() {
     <div className="simple-page">
       <h1>Settings</h1>
       <p className="secondary">
-        Missions currently use the demo adapter. Voice can be configured
-        separately to help you draft an objective.
+        Runtime mode selects demo or the live hub. CONTROL uses the same mission creation path as the composer.
       </p>
-      <div className="integration-table">
+      <LiveIntegrations /><div className="integration-table">
         {integrations.map((i) => (
           <section key={i.name} className="integration-row">
             <div>
@@ -43,7 +43,7 @@ export default function SettingsPage() {
             </div>
             {i.name === "ElevenLabs" ? <VoiceReadiness /> : <span className="status">
               <Circle size={10} />
-              Not connected
+              Requires runtime check
             </span>}
             <div className="env-names">
               {i.variables.map((v) => (

@@ -1,3 +1,5 @@
+"use client";
+import { useControl } from "./provider";
 import type { RuntimeStatus } from "@/contracts";
 import {
   CircleCheck,
@@ -29,9 +31,10 @@ export function Brand({ large = false }: { large?: boolean }) {
   );
 }
 export function ModeBadge() {
+  const { state } = useControl();
   return (
     <span className="mode-badge">
-      <span /> Demo
+      <span /> {state.live ? "Live hub" : "Demo"}
     </span>
   );
 }

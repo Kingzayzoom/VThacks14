@@ -6,6 +6,16 @@ assistant needs to help you build this without reading the Python.
 
 ---
 
+> **Read this first (added after your Phase A landed):** the backend is finished and running —
+> five-stage Trust Gate, Guardian, recruitment, all five scenarios green. `PLAN.md` Phase D
+> assumes it is future work; it is not. Your app builds clean and looks considerably better than
+> the plain `dashboard/`, but it makes no network calls, and its contracts were built from
+> `MASTER_PROMPT.md` rather than from [`../contracts.md`](../contracts.md), which is what the
+> running system actually emits. The two do not line up — the differences are tabulated in
+> [`../status.md`](../status.md) §5. **Nothing below asks you to redesign anything**; the work is
+> `HttpControlApi` plus a mapping layer. Talk to Zay before starting so we agree who writes which
+> half.
+
 ## Your job
 
 Make the architecture legible in five seconds. A judge should be able to look at the screen

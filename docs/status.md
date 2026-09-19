@@ -1,10 +1,11 @@
 # Mission Control — project status
 
 The single place to find out what this is, what works, and what is still open.
-**Last updated: 18 September 2026, after the planner rewrite (`ed64c70`).**
+**Last updated: 18 September 2026, after analysing the merged frontend (`47c682c`).**
 
 Quick numbers: 4,508 lines of application Python · 819 lines of tests · 90 unit tests passing ·
-five demo scenarios green end to end.
+five demo scenarios green end to end · 8,100 lines of Next.js frontend that builds clean and is
+**not yet connected to any of it** (§5).
 
 ---
 
@@ -116,18 +117,110 @@ Three boundaries that matter:
 - `docs/contracts.md` — every route, event and object the frontend needs.
 - `docs/godaddy-questions.md` — the six things the public docs do not settle.
 
-## 5. What is not done
+## 5. The frontend
+
+Roheen pushed a complete **Next.js frontend**, merged into `main` (`a3807aa`). It is a
+substantial, genuinely well-made piece of work — and it is **not connected to any of the above.**
+That is deliberate on their side, documented in `AGENTS.md` and `PLAN.md` as a Phase A boundary,
+and it is the single largest piece of remaining work on the project.
+
+### What was built
+
+| | |
+|---|---|
+| Stack | Next.js 16.3.5 (App Router), React 19, strict TypeScript, Tailwind 4, Framer Motion, Zod, Playwright + axe-core |
+| Size | ~3,400 lines TS/TSX, ~4,700 lines CSS, 8,100 total |
+| Routes | `/` · `/field` · `/missions` · `/missions/[id]` · `/settings` (5 of the 10 the brief lists) |
+| Build | **Clean.** `npm run typecheck` passes, `npm run build` compiles in 7s, 7 routes generated |
+| Tests | 5 Playwright specs covering reduced motion, canvas-failure fallback, accessibility, wide/compact desktop, mobile |
+| Extras | Procedural Canvas atmosphere, shared frame clock, visual-pause and reduced-motion support, self-hosted fonts |
+
+### What it does well, and should be preserved
+
+- **It does not claim verification it has not earned.** Fixture agents carry
+  `identityStatus: "demo_verified"` and `verificationEvidence: ["Built-in demo fixture. No ANS
+  registration."]`. That is exactly the house rule, followed without being asked.
+- **It keeps runtime, identity and authorization separate** — three of the four states an agent
+  node must distinguish. Only the per-check breakdown is missing.
+- Accessibility and reduced-motion are tested, not assumed.
+- Strict typing with Zod contracts at the boundary.
+
+### The gap
+
+**There is not one network call in the entire frontend.** No `fetch`, no WebSocket, no URL.
+
+```
+src/lib/api/HttpControlApi.ts   throws NOT_CONFIGURED — "No network calls in Phase A"
+src/components/provider.tsx     hardwired to MockControlApi
+src/lib/env/config.ts           live mode is explicitly available: false
+```
+
+State lives in `MockControlApi` and `localStorage`, driven by fixtures.
+
+### Why the contracts do not match
+
+The frontend was built against **`MASTER_PROMPT.md`** — the original design brief — rather than
+against [`contracts.md`](contracts.md), which describes what the backend actually emits. Both were
+reasonable things to build from. They describe different systems.
+
+| | Backend emits | Frontend expects |
+|---|---|---|
+| Event envelope | `{id, ts, type, message, actor, subject, mission_id, data}` | `{schemaVersion, id, sequence, occurredAt, source, missionId, correlationId, type, payload}` |
+| Event types | 30+, incl. `trust.check`, `agent.admitted`, `action.blocked` | 4: `mission.created`, `mission.state_changed`, `task.progress`, `capability.missing` |
+| Casing | `snake_case` | `camelCase` |
+| Mission | `text`, `business`, `jobs[]`, `hires[]`, `recruitments[]`, `roster[]`, `plan` | `title`, `objective`, `constraints[]`, `taskIds[]`, `budget`, `currentStage` |
+| Agent | `ans_name`, `org`, `version`, `status`, `fingerprint`, `capabilities[]` | `identityStatus` (one enum), `authorizationSummary`, `verificationEvidence[]` |
+| Trust | 5 checks × 4 states, each with evidence | a single `identityStatus` enum |
+| Cast | BrandStudio, WebForge, SiteSmith, LegalCheck, Commander | Scout, Sage, Forge, Guardian, Perihelion |
+
+The frontend also has slots for things the backend does not produce (`budget`, `constraints`,
+`artifactIds`, `attempt`), and no slot for things it does (the five-row gate, recruitment
+candidates and refusals, Guardian decision rules, the plan graph, `age_seconds` on standing).
+
+### What this actually means
+
+`PLAN.md` Phase D reads: *"Team connects Gemini, hosted workers, real ANS verification, server
+policy gateway, persistence."* The frontend was planned on the assumption that **the backend does
+not exist yet.** It has been finished for some time.
+
+Neither half knew about the other. That is a coordination failure, not a competence one — both
+halves are good work. But it means the integration is entirely ahead of us, and it is the biggest
+single risk to the demo.
+
+### Two frontends now exist
+
+| | `dashboard/` | `src/` |
+|---|---|---|
+| Stack | plain HTML/CSS/JS, no build | Next.js + React + TS |
+| Backend | **fully wired** — WebSocket, all routes, Guardian panel | **none** |
+| Looks | functional | considerably better |
+| Drives the demo today | yes | no |
+
+**This needs a decision, and it is the most consequential one left.** Options:
+
+1. **Wire the Next.js app** — implement `HttpControlApi` against the real hub plus a mapping layer
+   from our shapes to theirs. Half a day, the mapping layer is the bulk of it, and it buys the
+   better-looking demo.
+2. **Keep `dashboard/` for the demo**, finish the Next.js app after. Safe, and wastes the
+   frontend work on the day.
+3. **Port the Next.js visual language onto the wired dashboard.** Middle path, awkward.
+
+Recommendation: **1, with 2 as the fallback**, and decide by Saturday midday. `dashboard/` is not
+deleted until the Next.js app has run the full demo end to end at least twice.
+
+## 6. What is not done
 
 | | status |
 |---|---|
 | **Live GoDaddy ANS** | Client written against the published REST reference — auth, registration, resolution, capability search, revocation, certificates. **Never executed.** No token yet. |
 | **SCITT COSE receipts** | Not implemented. Hosted receipts are COSE_Sign1; ours are JSON. Deliberate — use GoDaddy's `ans-verify` rather than writing a COSE parser in a weekend. |
 | **mTLS / DPoP** | Our proof-of-possession is a nonce challenge against the same ANS certificate. Honest about being ours, not ANS's. |
-| **Gemini** | Wired everywhere and never run — no key yet. See §6. |
+| **Gemini** | Wired everywhere and never run — no key yet. See §7. |
 | **Deployment** | Agents run on localhost. Live ANS needs them publicly reachable at their registered FQDNs. |
+| **Frontend integration** | The Next.js app makes no network calls at all. Biggest remaining task — see §5. |
 | **Voice / BRIEF ME** | Cut. Does not change what a judge sees. |
 
-## 6. Gemini: decided, not yet done
+## 7. Gemini: decided, not yet done
 
 All four call sites already use Gemini the moment a key exists — the Commander's planner and all
 three agents. The work outstanding is *which*, because turning all four on has a specific risk.
@@ -150,7 +243,7 @@ Remaining work: per-capability `llm:` setting in `config/agents.yaml`, the deter
 Failure handling is already right: any Gemini error falls back to templates, emits
 `llm.fallback`, and shows as `DEGRADED`. An outage mid-demo degrades visibly, not silently.
 
-## 7. What we need
+## 8. What we need
 
 ### Gemini API key — free, two minutes
 1. **aistudio.google.com** → sign in → **Get API key** → **Create API key**
@@ -180,15 +273,22 @@ subdomains of it; leave it unset and they keep their fictional domains, which is
 for a simulator demo. **Both modes are tested end to end.**
 
 Still needed: DNS records pointing those subdomains at wherever the agents run, and the agents
-actually running there. See §8.
+actually running there. See §9.
 
 ### Decisions still open
-1. Gemini split above — confirm or change.
-2. Live ANS: full deployment, or the hybrid in §8.
-3. The name. Code says Mission Control; the brief says APHELION. Cheap find-and-replace, but it
-   is a team decision and three people should not be building against three answers.
+1. **Which frontend ships** (§5). The most consequential one left. Decide by Saturday midday.
+2. **The name.** No longer cheap. The backend says *Mission Control*, the brief says *APHELION*,
+   and the frontend is *PERIHELION* throughout — package name, routes, components, docs, the
+   coordinator agent. Two halves of one project currently have two different names. Pick one
+   today; whoever renames the frontend should do it in a single commit.
+3. Gemini split (§7) — confirm or change.
+4. Live ANS: full deployment, or the hybrid in §9.
+5. **Disk space.** The dev machine is at 100% (0 bytes free); clearing the npm cache recovered
+   154 MB, which is not enough to work in. `.git` is 54 MB and `docs/` is 40 MB, mostly committed
+   PNG screenshots. Worth pruning before Sunday — a full disk will break the demo, not just the
+   build.
 
-## 8. The live-ANS reality check
+## 9. The live-ANS reality check
 
 Going live is not just a key. Registering `https://brand.<domain>` means the agent has to *be*
 there — resolution hands that URL to whoever is hiring, we fetch the card from it and challenge
@@ -201,7 +301,7 @@ registering public URLs while running on localhost fails by design.
   verification against GoDaddy live on stage, run the mission on the simulator. Gets the ANS
   integration credit without betting the demo on deployment at 2am.
 
-## 9. Running it
+## 10. Running it
 
 ```bash
 python -m venv .venv && .venv\Scripts\activate
@@ -217,12 +317,15 @@ python scripts/smoke_test.py            # the whole demo, asserted (system must 
 
 Use **Reset demo** between runs, and `--fresh` before the real thing so versions start clean.
 
-## 10. Risks
+## 11. Risks
 
 | Risk | Mitigation |
 |---|---|
-| Live ANS does not work in time | Simulator is the default and is honest about being one. Hybrid in §8. |
+| Live ANS does not work in time | Simulator is the default and is honest about being one. Hybrid in §9. |
 | Gemini quota burned in rehearsal | Second key reserved for the demo. |
-| Gemini breaks the review-loop beat | Deterministic floor (§6). Not done yet — do it with the Gemini work. |
+| Gemini breaks the review-loop beat | Deterministic floor (§7). Not done yet — do it with the Gemini work. |
 | A judge types an unusual mission | Plans are real graphs now; out-of-scope work is named, not faked. |
+| Frontend integration runs out of time | `dashboard/` is wired and drives the demo today. Do not delete it until the Next.js app has run the demo twice. |
+| Two names in one project | Decide today. The cost grows with every commit either side makes. |
+| Dev machine out of disk | Prune `.git` and `docs/` screenshots; keep the demo machine above a few GB free. |
 | Something fails live | Every dependency degrades visibly rather than silently. That is the story, not a failure of it. |

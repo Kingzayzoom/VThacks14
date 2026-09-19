@@ -20,6 +20,7 @@ import { Dialog } from "./dialog";
 import { MissionComposer } from "./composer";
 import { MotionControl } from "./motion-system";
 import { SignalField } from "./atmosphere";
+import { VoicePanel } from "./voice/voice-panel";
 
 const nav = [
   {
@@ -256,24 +257,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
         onClose={() => setVoice(false)}
         title="Voice channel"
       >
-        <MicOff className="dialog-symbol" size={32} />
-        <h2>A voice, when you’re ready.</h2>
-        <p>
-          ElevenLabs is not connected in this frontend checkpoint. Use the text
-          command channel to create a demo mission.
-        </p>
-        <div className="notice">Microphone inactive. No audio is captured.</div>
-        <button
-          className="button primary"
-          onClick={(e) => {
-            e.currentTarget.closest("dialog")?.close();
+        {voice && <VoicePanel onSubmitted={() => setVoice(false)} onText={() => {
             setVoice(false);
-            document.getElementById("dock-command")?.focus();
-          }}
-        >
-          Use text instead
-          <ArrowRight size={16} />
-        </button>
+            requestAnimationFrame(() => document.getElementById("dock-command")?.focus());
+          }} />}
       </Dialog>
     </div>
   );

@@ -1,5 +1,32 @@
 # Phase A visual-refinement verification
 
+## Voice and category extension / September 19
+
+- PASS: typecheck, lint, all 11 unit tests, production build (`.next/voice-final`).
+- PASS: all 13 browser checks against `http://127.0.0.1:3023`. The complete run
+  passed 12; the combined homepage/FIELD screenshot workflow timed out under host
+  load. After stopping three older agent-owned QA servers, that workflow passed
+  separately in 24.8 seconds. Its multi-viewport/axe workflow now has a two-minute
+  total budget; individual assertions remain unchanged apart from the new voice
+  readiness wording. Traces: `%TEMP%/cortex-voice-final` and
+  `%TEMP%/cortex-voice-workflow-clean`.
+- PASS: actual ElevenLabs SDK loads in the browser and reports denied microphone
+  permission without contacting the provider. Server tests verify missing config,
+  invitation and origin checks, secret containment, malformed/upstream errors.
+  Client tests verify draft validation, preservation of a draft under review,
+  mute/end, and closing a session that completes after cancellation.
+- PASS: category filters, rejected voice access, text fallback, focus return,
+  mobile overflow and desktop/mobile axe checks (zero violations in tested states).
+- No real voice call or live worker execution was tested: local ElevenLabs values
+  were empty and P1's live adapter is still pending. No microphone audio was captured.
+
+Final home/map screenshots: `screenshots/reduction/voice-final-*.png`, compared with
+`qa-final-*.png`; homepage hierarchy and the default neural-map composition remain
+unchanged. Voice and category screenshots: `screenshots/voice/`. Files named
+`configured-preview-*` use mocked readiness solely to inspect the configured form;
+they do not show a live connection. `dialog-*` captures the rejected-access state.
+See [setup and handoff](VOICE_HANDOFF.md).
+
 ## Final visual QA
 
 PASS: typecheck, lint, all 6 unit tests, production build and all 10 browser tests (one sequential run, 1.6 minutes). Production QA uses `http://127.0.0.1:3021` with `CORTEX_BUILD_DIR=.next/final-visual-qa`; traces are outside OneDrive at `%TEMP%/cortex-final-visual-qa`. Tested desktop/mobile axe states have zero violations. Added assertions verify Reset is absent initially and after reset, keyboard focus remains on the view controls, and branch focus is absent in list mode. [Final screenshots and audit](FINAL_VISUAL_QA.md).

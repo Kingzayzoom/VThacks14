@@ -1,0 +1,12 @@
+.voice-panel { display: grid; gap: 20px; }
+.voice-panel > p { margin: 0; line-height: 1.65; }
+.voice-panel h2 { margin-bottom: 0; }
+.voice-state { color: var(--text); }
+.voice-start { display: grid; gap: 12px; }
+.voice-start label { font-size: 13px; }
+.voice-start input { min-height: 44px; width: 100%; padding: 10px 12px; border: 1px solid var(--border); background: #101614; color: #e4e8df; }
+.voice-start p { font-size: 12px; line-height: 1.6; margin: 0; }
+.voice-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.voice-draft { border-top: 1px solid var(--border); padding-top: 20px; }
+.voice-draft h3 { font-weight: 400; font-size: 18px; }
+.voice-panel > .button { justify-self: start; }

@@ -22,6 +22,9 @@ test("objective composer supports keyboard submission and the workspace dialog",
 test("entry and FIELD screenshots, core interactions, and accessibility", async ({
   page,
 }) => {
+  // This workflow captures both viewports and runs two axe audits; disk/GPU
+  // contention on the Windows QA host can exceed the default one-minute budget.
+  test.setTimeout(120000);
   fs.mkdirSync("docs/screenshots", { recursive: true });
   const errors: string[] = [];
   const externalRequests: string[] = [];
@@ -172,7 +175,8 @@ test("entry and FIELD screenshots, core interactions, and accessibility", async 
   await expect(
     page.getByRole("heading", { name: "Integration readiness." }),
   ).toBeVisible();
-  await expect(page.getByText("Not connected", { exact: true })).toHaveCount(4);
+  await expect(page.getByText("Not connected", { exact: true })).toHaveCount(3);
+  await expect(page.getByText("Not configured", { exact: true })).toBeVisible();
   await expect(page.locator(".sidebar")).not.toBeVisible();
   expect(errors).toEqual([]);
   expect(externalRequests).toEqual([]);

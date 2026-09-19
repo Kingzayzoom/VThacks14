@@ -7,7 +7,7 @@ export const fieldNodes = [
   { id: "sage", x: 79, y: 25, color: "#a2c9eb", family: "Analysis", index: "02", description: "Connect the findings. Shape a clear audience brief from the provided sample data.", output: "Audience synthesis" },
   { id: "forge", x: 33, y: 66, color: "#e5ba83", family: "Execution", index: "03", description: "Bring the work together as a useful artifact, inside the scope of this mission.", output: "Draft launch brief" },
   { id: "memory", x: 55, y: 77, color: "#c2a8e4", family: "Memory", index: "04", description: "A proposed context specialist. No memory service or agent runtime is connected.", output: "Context records · proposed" },
-  { id: "voice", x: 80, y: 69, color: "#e6a598", family: "Voice", index: "05", description: "A proposed conversation specialist. Voice is not configured and the microphone is inactive.", output: "Spoken summary · proposed" },
+  { id: "voice", x: 80, y: 69, color: "#e6a598", family: "Voice", index: "05", description: "A proposed mission specialist. Open the voice channel to check the separate assistant's availability.", output: "Mission voice agent · proposed" },
   { id: "guardian", x: 12, y: 86, color: "#b9cbbf", family: "Oversight", index: "G", description: "An independent authority boundary. Observe scope without becoming a worker the orchestrator can disable.", output: "Policy observation · demo" },
 ] as const;
 export type FieldNode = (typeof fieldNodes)[number];
@@ -16,7 +16,7 @@ export const visualFor = (id: string) => fieldNodes.find((node) => node.id === i
 // Inspectable concept previews are not added to the mission roster or shared contracts.
 export const previewAgents: Agent[] = [
   { id: "memory", name: "Memory", role: "Context & recall", capabilities: ["Context retrieval (proposed)", "Mission recall (proposed)"], runtimeStatus: "disconnected", source: "demo", identityStatus: "unverified", authorizationSummary: "No permissions granted", allowedScopes: [], verificationEvidence: ["Concept preview only. No identity has been registered or checked."] },
-  { id: "voice", name: "Voice", role: "Conversation & delivery", capabilities: ["Conversation (proposed)", "Spoken summaries (proposed)"], runtimeStatus: "disconnected", source: "demo", identityStatus: "unverified", authorizationSummary: "No permissions granted; microphone inactive", allowedScopes: [], verificationEvidence: ["Concept preview only. No voice provider is connected."] },
+  { id: "voice", name: "Voice", role: "Conversation & delivery", capabilities: ["Conversation (proposed)", "Spoken summaries (proposed)"], runtimeStatus: "disconnected", source: "demo", identityStatus: "unverified", authorizationSummary: "No mission permissions granted", allowedScopes: [], verificationEvidence: ["Concept preview only. The assistant's voice connection does not grant this agent authority."] },
 ];
 
 export function connectionPath(node: FieldNode) {

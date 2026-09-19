@@ -12,7 +12,7 @@ import { Status } from "../ui";
 import { FieldAtmosphere } from "./field-atmosphere";
 import { connectionPath, eventSummary, fieldNodes, previewAgents, visualFor, type FieldNode } from "./field-model";
 
-type Filter = "all" | "mission" | "review";
+type Filter = "all" | "mission" | "review" | `category:${FieldNode["family"]}`;
 type View = "map" | "list";
 const compactQuery = "(max-width: 760px)";
 function subscribeCompact(callback: () => void) {
@@ -52,7 +52,7 @@ export function AgentsConsole() {
   const normalizedQuery = query.trim().toLowerCase();
   const visible = agents.filter((agent) => {
     const matches = `${agent.name} ${agent.role} ${visualFor(agent.id).family} ${agent.capabilities.join(" ")}`.toLowerCase().includes(normalizedQuery);
-    return matches && (filter === "all" || (filter === "mission" && mission.agentIds.includes(agent.id)) || (filter === "review" && agent.runtimeStatus === "waiting_approval"));
+    return matches && (filter === "all" || (filter === "mission" && mission.agentIds.includes(agent.id)) || (filter === "review" && agent.runtimeStatus === "waiting_approval") || filter === `category:${visualFor(agent.id).family}`);
   });
   const visibleIds = new Set(visible.map((agent) => agent.id));
   useEffect(() => {
@@ -176,7 +176,10 @@ function FieldControls({ view, setView, focus, setFocus, query, setQuery, filter
       <div className="field-search-controls">
       <label className="agent-search"><Search size={13} /><span className="sr-only">Search agents</span><input placeholder="Find an agent…" value={query} onChange={(event) => setQuery(event.target.value)} />
         {query && <button aria-label="Clear agent search" onClick={() => setQuery("")}><X size={12} /></button>}</label>
-      <label className="agent-filter"><span className="sr-only" id="agent-filter-label">Filter agents</span><select aria-labelledby="agent-filter-label" value={filter} onChange={(event) => setFilter(event.target.value as Filter)}><option value="all">All agents</option><option value="mission">In mission</option><option value="review">Needs review</option></select></label>
+      <label className="agent-filter"><span className="sr-only" id="agent-filter-label">Filter agents</span><select aria-labelledby="agent-filter-label" value={filter} onChange={(event) => setFilter(event.target.value as Filter)}>
+        <option value="all">All agents</option><option value="mission">In mission</option><option value="review">Needs review</option>
+        <optgroup label="Categories">{fieldNodes.map((node) => <option key={node.family} value={`category:${node.family}`}>{node.family}</option>)}</optgroup>
+      </select></label>
       </div>
     </details>
   </div>;

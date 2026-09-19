@@ -1,0 +1,86 @@
+[
+  {
+    "grant_id": "gr_7a15d91a",
+    "ans_name": "ans://v1.0.0.brand.brandstudio.xyz",
+    "mission_id": "m_f06a261d",
+    "job_id": "job_198fca4a",
+    "scopes": [
+      "mission.read:brief",
+      "artifact.write:mission"
+    ],
+    "issued_at": "2026-09-19T02:57:45+00:00",
+    "expires_at": "2026-09-19T03:12:45+00:00",
+    "status": "active"
+  },
+  {
+    "grant_id": "gr_fe109451",
+    "ans_name": "ans://v1.0.0.sitebuilder.webforge.xyz",
+    "mission_id": "m_f06a261d",
+    "job_id": "job_6b9bee98",
+    "scopes": [
+      "mission.read:brand_kit",
+      "artifact.write:mission",
+      "http.fetch:fonts.googleapis.com",
+      "site.publish:site"
+    ],
+    "issued_at": "2026-09-19T02:57:49+00:00",
+    "expires_at": "2026-09-19T03:12:49+00:00",
+    "status": "active"
+  },
+  {
+    "grant_id": "gr_3118f04f",
+    "ans_name": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "mission_id": "m_f06a261d",
+    "job_id": "job_38b4d681",
+    "scopes": [
+      "mission.read:brand_kit",
+      "artifact.write:mission",
+      "http.fetch:fonts.googleapis.com",
+      "site.publish:site"
+    ],
+    "issued_at": "2026-09-19T02:57:52+00:00",
+    "expires_at": "2026-09-19T03:12:52+00:00",
+    "status": "active"
+  },
+  {
+    "grant_id": "gr_f93077fb",
+    "ans_name": "ans://v1.1.0.compliance.legalcheck.xyz",
+    "mission_id": "m_f06a261d",
+    "job_id": "job_457e1088",
+    "scopes": [
+      "mission.read:site",
+      "artifact.write:mission"
+    ],
+    "issued_at": "2026-09-19T02:57:56+00:00",
+    "expires_at": "2026-09-19T03:12:56+00:00",
+    "status": "active"
+  },
+  {
+    "grant_id": "gr_4138becd",
+    "ans_name": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "mission_id": "m_f06a261d",
+    "job_id": "job_17735e39",
+    "scopes": [
+      "mission.read:brand_kit",
+      "artifact.write:mission",
+      "http.fetch:fonts.googleapis.com",
+      "site.publish:site"
+    ],
+    "issued_at": "2026-09-19T02:57:59+00:00",
+    "expires_at": "2026-09-19T03:12:59+00:00",
+    "status": "active"
+  },
+  {
+    "grant_id": "gr_0067fb37",
+    "ans_name": "ans://v1.1.0.compliance.legalcheck.xyz",
+    "mission_id": "m_f06a261d",
+    "job_id": "job_e2c6851d",
+    "scopes": [
+      "mission.read:site",
+      "artifact.write:mission"
+    ],
+    "issued_at": "2026-09-19T02:58:02+00:00",
+    "expires_at": "2026-09-19T03:13:02+00:00",
+    "status": "active"
+  }
+]

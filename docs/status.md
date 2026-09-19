@@ -240,38 +240,78 @@ one too many.
 | **Frontend integration** | The Next.js app makes no network calls at all. Biggest remaining task — see §5. |
 | **Voice / BRIEF ME** | Cut. Does not change what a judge sees. |
 
-## 7. Gemini: decided, not yet done
+## 7. Gemini: built, blocked on a working key
 
-All four call sites already use Gemini the moment a key exists — the Commander's planner and all
-three agents. The work outstanding is *which*, because turning all four on has a specific risk.
+Per-capability routing and the deterministic review floor are **done**. What is missing is a key
+whose project can actually generate.
 
-| Who | Plan | Why |
-|---|---|---|
-| Commander (planning) | **Gemini** | Free text → structure is the genuinely model-shaped task, and now that plans are real graphs it matters. |
-| BrandStudio | **Gemini** | Creative, subjective, cheap, adds visible variety per run. |
-| Site builder | **Offline** | The page is the visible artifact. The template is fast, polished and identical every time. |
-| LegalCheck | **Gemini + deterministic floor** | Reading a page for problems suits a model — but see below. |
+### Which brain does which job — `config/agents.yaml`
 
-**The risk:** the review-loop beat is engineered. `_render_site` deliberately omits the allergen
-notice on the first draft and `_fallback_review` deterministically catches it. Turn Gemini on for
-both and the beat becomes a coin flip. **Fix: always run the rule checks, union them with the
-model's findings.** The rules guarantee the beat, the model adds what a rule cannot express.
+```yaml
+llm:
+  mission.plan:      gemini    # free text into a plan is the model-shaped task
+  brand.identity:    gemini    # creative, cheap, visible variety per run
+  site.generate:     offline   # the page is the artifact; the template never surprises us
+  compliance.review: gemini    # good at reading a page — with the rule floor beneath it
+```
 
-Remaining work: per-capability `llm:` setting in `config/agents.yaml`, the deterministic floor in
-`review_site`, site builder defaulting to offline. About 45 minutes.
+`LLM_MODE` still overrides everything: `LLM_MODE=offline` makes the whole system deterministic
+for rehearsals, `LLM_MODE=gemini` forces the model everywhere. No key means offline regardless.
 
-Failure handling is already right: any Gemini error falls back to templates, emits
-`llm.fallback`, and shows as `DEGRADED`. An outage mid-demo degrades visibly, not silently.
+### The review floor
+
+The demo's review loop was engineered around the offline templates — the first draft genuinely
+has no allergen notice, and the rule checks genuinely catch it. Handing that to a model alone
+turned the beat into a coin flip.
+
+Now the rule checks run on **every** review and their findings are not negotiable. The model adds
+what a rule cannot express; it cannot take a rule finding away. Each issue is tagged `source:
+"rule" | "model"`, duplicates collapse, and any high-severity finding from either blocks approval.
+Ten tests cover it, including the one that matters: an approving model over a page that is
+genuinely non-compliant still produces `approved: false`.
+
+### The key we have does not work
+
+`AIza...6go` is **valid** — it authenticates and lists 58 models. Its Google Cloud project has
+**zero generation quota**:
+
+```
+429 RESOURCE_EXHAUSTED ... 'quota_limit_value': '0'
+```
+
+A limit of zero is not "you used it up", it is "this project was never allocated any". The usual
+cause is a key created against an existing Cloud project that has no free-tier grant for the
+Generative Language API.
+
+**The fix:** at aistudio.google.com, create the key in a **new** project rather than an existing
+one — AI Studio provisions free-tier quota automatically. Failing that, enable the Generative
+Language API on project `803676840463` in the Cloud console and confirm the free tier applies.
+
+### The silver lining
+
+A configured-but-failing provider is exactly the mid-demo outage scenario, and we got to test it
+for real. The full demo ran with the key in place: four `llm.fallback` events, Gemini reported
+`DEGRADED` with the actual reason, every agent fell back to templates, and the mission delivered
+with all five scenarios green. **Nothing pretended to work.** That is a good thing to be able to
+say on stage, and it means a Gemini outage on Sunday costs us polish, not the demo.
+
+### Still unverified
+
+The planner has **never run against a real model**. Plan validation and the retry loop are
+unit-tested against a scripted one, but the first thing to do with a working key is type *"just
+make me a brand kit for a coffee shop"* and confirm you get a **one-job** mission rather than
+three. If you get three, the plan is being ignored.
 
 ## 8. What we need
 
-### Gemini API key — free, two minutes
-1. **aistudio.google.com** → sign in → **Get API key** → **Create API key**
-2. `GEMINI_API_KEY=...` in `.env`
-3. Launch a mission; look for `brains: gemini` instead of `offline`
+### A Gemini key that can generate — the current one cannot
+1. **aistudio.google.com** → **Get API key** → **create it in a NEW project**. Choosing an
+   existing project is what produced the zero-quota key we have (§7).
+2. `GEMINI_API_KEY=...` in `.env` (gitignored — never commit it, never paste it in chat).
+3. Launch a mission; look for `brains: gemini` instead of `offline`.
 
 Get two. One for development, one untouched for the demo — the free quota is easy to burn on
-rehearsals.
+rehearsals. **Rotate the key that was pasted into chat** once the hackathon is over.
 
 ### GoDaddy PAT — from the sponsor
 Take `docs/godaddy-questions.md`. Ask question 1 first, then:
@@ -327,7 +367,29 @@ registering public URLs while running on localhost fails by design.
   verification against GoDaddy live on stage, run the mission on the simulator. Gets the ANS
   integration credit without betting the demo on deployment at 2am.
 
-## 10. Running it
+## 10. Parallel work packets
+
+Remaining work is split into six packets in [`work/`](work/), drawn so **no two touch the same
+file**. Each is a self-contained brief you can hand to a separate AI session, with its own branch,
+its own file territory and its own done-criteria.
+
+| | Packet | Status | Priority |
+|---|---|---|---|
+| P1 | [Frontend data adapter](work/p1-frontend-adapter.md) | ready | critical path |
+| P2 | [Trust and Guardian views](work/p2-frontend-views.md) | ready | critical path |
+| P3 | [Backend API for the frontend](work/p3-backend-api.md) | ready | high |
+| P4 | [Live ANS and deployment](work/p4-live-ans.md) | partly blocked on a PAT | high — prize track |
+| P5 | [Agent output quality](work/p5-agent-output.md) | ready | medium |
+| P6 | [Demo script and rehearsal](work/p6-demo.md) | ready | high by Saturday |
+
+Three or four at a time, not six — more than that and the time goes on reviewing merges. P1 + P2 +
+P4 are the ones that decide how the demo looks and whether the track lands.
+
+[`work/fixtures/`](work/fixtures/) holds real captured output from a full run: 95 events, one
+example of each of the 32 event types, and every REST response. That is what lets P2 build the
+views before P1 has wired the data, so neither waits on the other.
+
+## 11. Running it
 
 ```bash
 python -m venv .venv && .venv\Scripts\activate
@@ -343,7 +405,7 @@ python scripts/smoke_test.py            # the whole demo, asserted (system must 
 
 Use **Reset demo** between runs, and `--fresh` before the real thing so versions start clean.
 
-## 11. Risks
+## 12. Risks
 
 | Risk | Mitigation |
 |---|---|

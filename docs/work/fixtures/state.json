@@ -1,0 +1,126 @@
+{
+  "agents": [
+    {
+      "key": "commander",
+      "name": "Commander",
+      "org": "LaunchPad",
+      "role": "commander",
+      "endpoint": "http://127.0.0.1:8001",
+      "domain": "launchpad.xyz",
+      "online": true,
+      "ans_name": "ans://v1.0.0.commander.launchpad.xyz",
+      "version": "1.0.0",
+      "capabilities": [
+        "mission.plan"
+      ],
+      "status": "ACTIVE",
+      "status_reason": null,
+      "agent_id": "e0f3f20b-24a2-42b5-8c6d-d804e2904547",
+      "registered_at": "2026-09-19T02:57:38+00:00",
+      "fingerprint": "sha256:c33e2c08a2ffffde452f27a848f14d2508931c37f70ea7be9913c0da83e0fbff",
+      "cert_expires": "2026-10-19T02:57:38+00:00"
+    },
+    {
+      "key": "brand",
+      "name": "Brand agent",
+      "org": "BrandStudio",
+      "role": "vendor",
+      "endpoint": "http://127.0.0.1:8002",
+      "domain": "brandstudio.xyz",
+      "online": true,
+      "ans_name": "ans://v1.0.0.brand.brandstudio.xyz",
+      "version": "1.0.0",
+      "capabilities": [
+        "brand.identity"
+      ],
+      "status": "ACTIVE",
+      "status_reason": null,
+      "agent_id": "0d08be61-395e-46fb-bb41-aa425092243e",
+      "registered_at": "2026-09-19T02:57:38+00:00",
+      "fingerprint": "sha256:a48a7505122807fffd6572039e566f045118a321f88d8c67f53d457556be631f",
+      "cert_expires": "2026-10-19T02:57:38+00:00"
+    },
+    {
+      "key": "webforge",
+      "name": "Site builder",
+      "org": "WebForge",
+      "role": "vendor",
+      "endpoint": "http://127.0.0.1:8003",
+      "domain": "webforge.xyz",
+      "online": true,
+      "ans_name": "ans://v1.0.0.sitebuilder.webforge.xyz",
+      "version": "1.0.0",
+      "capabilities": [
+        "site.generate"
+      ],
+      "status": "REVOKED",
+      "status_reason": "Compromised: revoked from CortexAi",
+      "agent_id": "f2fbb4a6-3ee1-48b5-91f6-a6cbde1b07c7",
+      "registered_at": "2026-09-19T02:57:38+00:00",
+      "fingerprint": "sha256:0354b8f98aa9f37516e69f7cdbcdbfb15f4d7c175f45ece077658059f831614e",
+      "cert_expires": "2026-10-19T02:57:38+00:00"
+    },
+    {
+      "key": "sitesmith",
+      "name": "Backup site builder",
+      "org": "SiteSmith",
+      "role": "vendor",
+      "endpoint": "http://127.0.0.1:8004",
+      "domain": "sitesmith.xyz",
+      "online": true,
+      "ans_name": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+      "version": "1.0.0",
+      "capabilities": [
+        "site.generate"
+      ],
+      "status": "ACTIVE",
+      "status_reason": null,
+      "agent_id": "784edb52-ac55-45f8-a007-605d91282d12",
+      "registered_at": "2026-09-19T02:57:38+00:00",
+      "fingerprint": "sha256:408bb916495e4abd53f4ae3d85367998980c78e4a44b029236f89002f172c435",
+      "cert_expires": "2026-10-19T02:57:38+00:00"
+    },
+    {
+      "key": "compliance",
+      "name": "Compliance agent",
+      "org": "LegalCheck",
+      "role": "vendor",
+      "endpoint": "http://127.0.0.1:8005",
+      "domain": "legalcheck.xyz",
+      "online": true,
+      "ans_name": "ans://v1.1.0.compliance.legalcheck.xyz",
+      "version": "1.1.0",
+      "capabilities": [
+        "compliance.review"
+      ],
+      "status": "ACTIVE",
+      "status_reason": null,
+      "agent_id": "ac35e0fb-992a-4a83-a853-22360077a8a8",
+      "registered_at": "2026-09-19T02:57:54+00:00",
+      "fingerprint": "sha256:12d409bd5a66fccb739e10da08096295ad9097c3a8fa52b483a2f3104335c1ef",
+      "cert_expires": "2026-10-19T02:57:54+00:00"
+    },
+    {
+      "key": "impostor",
+      "name": "Impostor",
+      "org": "Unknown",
+      "role": "impostor",
+      "endpoint": "http://127.0.0.1:8006",
+      "domain": null,
+      "online": true,
+      "claiming": "ans://v1.0.0.brand.brandstudio.xyz"
+    }
+  ],
+  "ans_backend": "sim",
+  "llm_mode": "gemini",
+  "offers": [
+    {
+      "ans_name": "ans://v1.0.0.brand.brandstudio.xyz",
+      "endpoint": "http://127.0.0.1:8006",
+      "capability": "brand.identity",
+      "org": "BrandStudio",
+      "pitch": "Half price, delivered instantly."
+    }
+  ],
+  "pace": 1.0
+}

@@ -1,0 +1,130 @@
+[
+  {
+    "index": 0,
+    "ts": "2026-09-19T02:57:38+00:00",
+    "event": "AGENT_REGISTERED",
+    "agent_id": "e0f3f20b-24a2-42b5-8c6d-d804e2904547",
+    "ans_name": "ans://v1.0.0.commander.launchpad.xyz",
+    "data": {
+      "fingerprint": "sha256:c33e2c08a2ffffde452f27a848f14d2508931c37f70ea7be9913c0da83e0fbff",
+      "validation": {
+        "domainControl": "success",
+        "csr": "success"
+      },
+      "capabilities": [
+        "mission.plan"
+      ],
+      "endpoint": "http://127.0.0.1:8001"
+    }
+  },
+  {
+    "index": 1,
+    "ts": "2026-09-19T02:57:38+00:00",
+    "event": "AGENT_REGISTERED",
+    "agent_id": "0d08be61-395e-46fb-bb41-aa425092243e",
+    "ans_name": "ans://v1.0.0.brand.brandstudio.xyz",
+    "data": {
+      "fingerprint": "sha256:a48a7505122807fffd6572039e566f045118a321f88d8c67f53d457556be631f",
+      "validation": {
+        "domainControl": "success",
+        "csr": "success"
+      },
+      "capabilities": [
+        "brand.identity"
+      ],
+      "endpoint": "http://127.0.0.1:8002"
+    }
+  },
+  {
+    "index": 2,
+    "ts": "2026-09-19T02:57:38+00:00",
+    "event": "AGENT_REGISTERED",
+    "agent_id": "3b6e01de-9268-4787-aed6-c79b93105849",
+    "ans_name": "ans://v1.0.0.compliance.legalcheck.xyz",
+    "data": {
+      "fingerprint": "sha256:7670c044802195723961f45e78380b6035e4e5871939b66b58573b5f944603dd",
+      "validation": {
+        "domainControl": "success",
+        "csr": "success"
+      },
+      "capabilities": [
+        "compliance.review"
+      ],
+      "endpoint": "http://127.0.0.1:8005"
+    }
+  },
+  {
+    "index": 3,
+    "ts": "2026-09-19T02:57:38+00:00",
+    "event": "AGENT_REGISTERED",
+    "agent_id": "f2fbb4a6-3ee1-48b5-91f6-a6cbde1b07c7",
+    "ans_name": "ans://v1.0.0.sitebuilder.webforge.xyz",
+    "data": {
+      "fingerprint": "sha256:0354b8f98aa9f37516e69f7cdbcdbfb15f4d7c175f45ece077658059f831614e",
+      "validation": {
+        "domainControl": "success",
+        "csr": "success"
+      },
+      "capabilities": [
+        "site.generate"
+      ],
+      "endpoint": "http://127.0.0.1:8003"
+    }
+  },
+  {
+    "index": 4,
+    "ts": "2026-09-19T02:57:38+00:00",
+    "event": "AGENT_REGISTERED",
+    "agent_id": "784edb52-ac55-45f8-a007-605d91282d12",
+    "ans_name": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "data": {
+      "fingerprint": "sha256:408bb916495e4abd53f4ae3d85367998980c78e4a44b029236f89002f172c435",
+      "validation": {
+        "domainControl": "success",
+        "csr": "success"
+      },
+      "capabilities": [
+        "site.generate"
+      ],
+      "endpoint": "http://127.0.0.1:8004"
+    }
+  },
+  {
+    "index": 5,
+    "ts": "2026-09-19T02:57:49+00:00",
+    "event": "AGENT_REVOKED",
+    "agent_id": "f2fbb4a6-3ee1-48b5-91f6-a6cbde1b07c7",
+    "ans_name": "ans://v1.0.0.sitebuilder.webforge.xyz",
+    "data": {
+      "reason": "Compromised: revoked from CortexAi"
+    }
+  },
+  {
+    "index": 6,
+    "ts": "2026-09-19T02:57:54+00:00",
+    "event": "AGENT_REGISTERED",
+    "agent_id": "ac35e0fb-992a-4a83-a853-22360077a8a8",
+    "ans_name": "ans://v1.1.0.compliance.legalcheck.xyz",
+    "data": {
+      "fingerprint": "sha256:12d409bd5a66fccb739e10da08096295ad9097c3a8fa52b483a2f3104335c1ef",
+      "validation": {
+        "domainControl": "success",
+        "csr": "success"
+      },
+      "capabilities": [
+        "compliance.review"
+      ],
+      "endpoint": "http://127.0.0.1:8005"
+    }
+  },
+  {
+    "index": 7,
+    "ts": "2026-09-19T02:57:54+00:00",
+    "event": "AGENT_SUPERSEDED",
+    "agent_id": "3b6e01de-9268-4787-aed6-c79b93105849",
+    "ans_name": "ans://v1.0.0.compliance.legalcheck.xyz",
+    "data": {
+      "by": "ans://v1.1.0.compliance.legalcheck.xyz"
+    }
+  }
+]

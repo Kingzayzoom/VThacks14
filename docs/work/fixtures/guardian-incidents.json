@@ -1,0 +1,237 @@
+[
+  {
+    "id": "inc_dbe38bec",
+    "at": "2026-09-19T02:57:53+00:00",
+    "state": "ALLOWED",
+    "org": "SiteSmith",
+    "mission_id": "m_f06a261d",
+    "job_id": "job_38b4d681",
+    "from": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "action": "http.fetch",
+    "resource": "brand fonts",
+    "destination": "fonts.googleapis.com",
+    "payload_sha256": "94b87b51b994e33704bea8be2f7f1b0c1936ea61f43593f91388d54c9a303e0d",
+    "purpose": "load the typefaces the brand kit specifies",
+    "url": "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque&family=Source+Sans+3&display=swap",
+    "decision": {
+      "outcome": "allow",
+      "reason": "within the mission grant (http.fetch:fonts.googleapis.com)",
+      "required_scope": "http.fetch:fonts.googleapis.com",
+      "granted_scopes": [
+        "mission.read:brand_kit",
+        "artifact.write:mission",
+        "http.fetch:fonts.googleapis.com",
+        "site.publish:site"
+      ],
+      "rules": [
+        "scope-match"
+      ]
+    },
+    "grant": {
+      "grant_id": "gr_3118f04f",
+      "ans_name": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+      "mission_id": "m_f06a261d",
+      "job_id": "job_38b4d681",
+      "scopes": [
+        "mission.read:brand_kit",
+        "artifact.write:mission",
+        "http.fetch:fonts.googleapis.com",
+        "site.publish:site"
+      ],
+      "issued_at": "2026-09-19T02:57:52+00:00",
+      "expires_at": "2026-09-19T03:12:52+00:00",
+      "status": "active"
+    },
+    "result": {
+      "performed": true,
+      "detail": "GET fonts.googleapis.com \u2192 200 (551 bytes)"
+    }
+  },
+  {
+    "id": "inc_9f93914d",
+    "at": "2026-09-19T02:57:53+00:00",
+    "state": "DENIED",
+    "org": "SiteSmith",
+    "mission_id": "m_f06a261d",
+    "job_id": "job_38b4d681",
+    "from": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "action": "external.upload",
+    "resource": "brand_kit",
+    "destination": "agent-telemetry.example.net",
+    "payload_sha256": "05514a4733f9a8283a066dca4b08d8074102ee5e02d56831e07373ab416f3be2",
+    "purpose": "send the brand kit to our own analytics service",
+    "url": null,
+    "decision": {
+      "outcome": "deny",
+      "reason": "not authorized to external.upload brand_kit to agent-telemetry.example.net",
+      "required_scope": "external.upload:agent-telemetry.example.net",
+      "granted_scopes": [
+        "mission.read:brand_kit",
+        "artifact.write:mission",
+        "http.fetch:fonts.googleapis.com",
+        "site.publish:site"
+      ],
+      "rules": [
+        "scope-missing"
+      ]
+    },
+    "grant": {
+      "grant_id": "gr_3118f04f",
+      "ans_name": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+      "mission_id": "m_f06a261d",
+      "job_id": "job_38b4d681",
+      "scopes": [
+        "mission.read:brand_kit",
+        "artifact.write:mission",
+        "http.fetch:fonts.googleapis.com",
+        "site.publish:site"
+      ],
+      "issued_at": "2026-09-19T02:57:52+00:00",
+      "expires_at": "2026-09-19T03:12:52+00:00",
+      "status": "active"
+    },
+    "result": null
+  },
+  {
+    "id": "inc_7e70de1e",
+    "at": "2026-09-19T02:57:53+00:00",
+    "state": "ALLOWED",
+    "org": "SiteSmith",
+    "mission_id": "m_f06a261d",
+    "job_id": "job_38b4d681",
+    "from": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "action": "site.publish",
+    "resource": "site",
+    "destination": null,
+    "payload_sha256": "05514a4733f9a8283a066dca4b08d8074102ee5e02d56831e07373ab416f3be2",
+    "purpose": "put the finished page on the public web",
+    "url": null,
+    "decision": {
+      "outcome": "allow",
+      "reason": "authorized once by a human",
+      "required_scope": "site.publish:site",
+      "granted_scopes": [
+        "mission.read:brand_kit",
+        "artifact.write:mission",
+        "http.fetch:fonts.googleapis.com",
+        "site.publish:site"
+      ],
+      "rules": [
+        "review-approved"
+      ]
+    },
+    "grant": {
+      "grant_id": "gr_3118f04f",
+      "ans_name": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+      "mission_id": "m_f06a261d",
+      "job_id": "job_38b4d681",
+      "scopes": [
+        "mission.read:brand_kit",
+        "artifact.write:mission",
+        "http.fetch:fonts.googleapis.com",
+        "site.publish:site"
+      ],
+      "issued_at": "2026-09-19T02:57:52+00:00",
+      "expires_at": "2026-09-19T03:12:52+00:00",
+      "status": "active"
+    },
+    "result": null,
+    "approval_id": "ap_a0f4df95"
+  },
+  {
+    "id": "inc_0775cd61",
+    "at": "2026-09-19T02:57:53+00:00",
+    "state": "ALLOWED",
+    "org": "SiteSmith",
+    "mission_id": "m_f06a261d",
+    "job_id": "job_38b4d681",
+    "from": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "action": "site.publish",
+    "resource": "site",
+    "destination": null,
+    "payload_sha256": "05514a4733f9a8283a066dca4b08d8074102ee5e02d56831e07373ab416f3be2",
+    "purpose": "put the finished page on the public web",
+    "url": null,
+    "decision": {
+      "outcome": "allow",
+      "reason": "authorized once by a human",
+      "required_scope": "site.publish:site",
+      "granted_scopes": [
+        "mission.read:brand_kit",
+        "artifact.write:mission",
+        "http.fetch:fonts.googleapis.com",
+        "site.publish:site"
+      ],
+      "rules": [
+        "review-approved"
+      ]
+    },
+    "grant": {
+      "grant_id": "gr_3118f04f",
+      "ans_name": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+      "mission_id": "m_f06a261d",
+      "job_id": "job_38b4d681",
+      "scopes": [
+        "mission.read:brand_kit",
+        "artifact.write:mission",
+        "http.fetch:fonts.googleapis.com",
+        "site.publish:site"
+      ],
+      "issued_at": "2026-09-19T02:57:52+00:00",
+      "expires_at": "2026-09-19T03:12:52+00:00",
+      "status": "active"
+    },
+    "result": {
+      "performed": false,
+      "detail": "no outbound call needed"
+    }
+  },
+  {
+    "id": "inc_7cc28163",
+    "at": "2026-09-19T02:58:01+00:00",
+    "state": "ALLOWED",
+    "org": "SiteSmith",
+    "mission_id": "m_f06a261d",
+    "job_id": "job_17735e39",
+    "from": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+    "action": "http.fetch",
+    "resource": "brand fonts",
+    "destination": "fonts.googleapis.com",
+    "payload_sha256": "94b87b51b994e33704bea8be2f7f1b0c1936ea61f43593f91388d54c9a303e0d",
+    "purpose": "load the typefaces the brand kit specifies",
+    "url": "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque&family=Source+Sans+3&display=swap",
+    "decision": {
+      "outcome": "allow",
+      "reason": "within the mission grant (http.fetch:fonts.googleapis.com)",
+      "required_scope": "http.fetch:fonts.googleapis.com",
+      "granted_scopes": [
+        "mission.read:brand_kit",
+        "artifact.write:mission",
+        "http.fetch:fonts.googleapis.com",
+        "site.publish:site"
+      ],
+      "rules": [
+        "scope-match"
+      ]
+    },
+    "grant": {
+      "grant_id": "gr_4138becd",
+      "ans_name": "ans://v1.0.0.sitebuilder.sitesmith.xyz",
+      "mission_id": "m_f06a261d",
+      "job_id": "job_17735e39",
+      "scopes": [
+        "mission.read:brand_kit",
+        "artifact.write:mission",
+        "http.fetch:fonts.googleapis.com",
+        "site.publish:site"
+      ],
+      "issued_at": "2026-09-19T02:57:59+00:00",
+      "expires_at": "2026-09-19T03:12:59+00:00",
+      "status": "active"
+    },
+    "result": {
+      "performed": true,
+      "detail": "GET fonts.googleapis.com \u2192 200 (551 bytes)"
+    }
+  }
+]

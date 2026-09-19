@@ -67,14 +67,19 @@ class GoDaddyAnsClient(AnsClient):
         mode = (env("ANS_AUTH_MODE", "pat") or "pat").lower()
         if mode == "sso-key":
             key, secret = env("ANS_API_KEY", ""), env("ANS_API_SECRET", "")
-            if not key or not secret:
-                raise AnsError("ANS_AUTH_MODE=sso-key needs ANS_API_KEY and ANS_API_SECRET")
-            return {"Authorization": f"sso-key {key}:{secret}"}
+            return {"Authorization": f"sso-key {key}:{secret}"} if key and secret else {}
         pat = env("ANS_PAT") or env("GODADDY_PAT")
-        if not pat:
-            raise AnsError("ANS_PAT is not set. GoDaddy's ANS REST catalog lists PAT auth; "
-                           "set ANS_AUTH_MODE=sso-key only if the sponsor tells you otherwise.")
-        return {"Authorization": f"Bearer {pat}"}
+        return {"Authorization": f"Bearer {pat}"} if pat else {}
+
+    @property
+    def authenticated(self) -> bool:
+        """No credential is not an error.
+
+        The registry's discovery endpoint answers unauthenticated, so a tokenless client can still
+        search for agents — genuinely useful before the sponsor hands anything over. Everything
+        else redirects to a login, and the caller sees that as the failure it is.
+        """
+        return "Authorization" in self.headers
 
     async def _req(self, method: str, path: str, *, base: str | None = None,
                    allow_404: bool = False, **kwargs):
@@ -85,6 +90,15 @@ class GoDaddyAnsClient(AnsClient):
         r = await client().request(method, url, headers=headers, timeout=20, **kwargs)
         if allow_404 and r.status_code == 404:
             return None
+        # A redirect here is the sign-in page. Saying "no result" would send whoever is
+        # debugging looking for a missing agent instead of a missing credential.
+        if 300 <= r.status_code < 400:
+            raise AnsError(
+                f"ANS {method} {path} needs authentication (HTTP {r.status_code} to a login)"
+                + ("" if self.authenticated else " — no credential is configured"))
+        if r.status_code in (401, 403):
+            raise AnsError(f"ANS {method} {path} rejected the credential ({r.status_code}): "
+                           f"{r.text[:200]}")
         if r.status_code >= 400:
             raise AnsError(f"ANS {method} {path} failed ({r.status_code}): {r.text[:300]}")
         return r.json() if r.content else {}
@@ -105,27 +119,45 @@ class GoDaddyAnsClient(AnsClient):
     def _to_record(cls, raw: dict) -> dict:
         """GoDaddy's agent shape → the record shape the rest of CortexAi speaks."""
         endpoints = raw.get("endpoints") or [{}]
-        first = endpoints[0]
+        first = endpoints[0] if endpoints else {}
         host = raw.get("agentHost") or ""
         ans_name = raw.get("ansName") or raw.get("ans_name")
         parsed = parse_ans_name(ans_name or "") or {}
-        return {
+
+        # Checked against live OTE responses, not only the docs: lifecycle is nested, the version
+        # carries a "v" prefix, and there is no top-level status. Getting any of those wrong
+        # produces a record that looks fine and fails every check.
+        version = str(raw.get("agentVersion") or raw.get("version") or parsed.get("version") or "")
+        lifecycle = raw.get("lifecycle") or {}
+        status = lifecycle.get("status") or raw.get("status") or ""
+
+        record = {
             "agent_id": raw.get("agentId") or raw.get("id"),
             "ans_name": ans_name,
             "host": host or parsed.get("host"),
             "label": parsed.get("label") or (host.split(".")[0] if host else None),
             "domain": parsed.get("domain") or (".".join(host.split(".")[1:]) if host else None),
-            "version": raw.get("version") or parsed.get("version"),
-            "org": raw.get("agentDisplayName") or parsed.get("domain") or host,
+            "version": version.lstrip("v"),
+            "org": raw.get("agentDisplayName") or host or parsed.get("domain"),
+            "description": raw.get("agentDescription"),
             "endpoint": first.get("agentUrl"),
             "agent_card_url": first.get("metaDataUrl"),
+            "protocol": first.get("protocol"),
             "capabilities": cls._capabilities(raw),
-            "status": (raw.get("status") or "").upper(),
-            "status_reason": raw.get("statusReason") or raw.get("revocationReason"),
-            "identity_cert_pem": None,  # a second call; see resolve()
-            "registered_at": raw.get("createdAt") or raw.get("registeredAt"),
+            "status": status.upper(),
+            "status_reason": lifecycle.get("reason") or raw.get("statusReason"),
+            "identity_cert_pem": None,  # a separate authenticated call; see resolve()
+            "registered_at": raw.get("indexedAt") or raw.get("createdAt"),
             "updated_at": raw.get("updatedAt"),
+            "expires_at": raw.get("expiresAt"),
+            "log_index": raw.get("leafIndex"),
+            "log_id": raw.get("logId"),
         }
+        # GoDaddy returns its own relevance/trust scoring. Keep it, clearly labelled as theirs —
+        # it is not our safety judgement and must never be rendered as one.
+        if isinstance(raw.get("scores"), dict):
+            record["provider_scores"] = raw["scores"]
+        return record
 
     # --- registration -------------------------------------------------------------------
 
@@ -229,8 +261,15 @@ class GoDaddyAnsClient(AnsClient):
         except AnsError:
             # POST /v1/ans/search-registered-agents is the documented search form of the same index.
             raw = await self._req("POST", "/v1/ans/search-registered-agents", json=params)
-        items = raw.get("agents") or raw.get("results") or raw if isinstance(raw, dict) else raw
-        return [self._to_record(a) for a in (items or [])]
+        if isinstance(raw, dict):
+            items = raw.get("items") or raw.get("agents") or raw.get("results") or []
+        else:
+            items = raw or []
+        records = [self._to_record(a) for a in items]
+        # The registry lists every lifecycle state; the caller asked for one.
+        if status:
+            records = [r for r in records if r["status"] == status.upper()]
+        return records
 
     # --- lifecycle ----------------------------------------------------------------------
 

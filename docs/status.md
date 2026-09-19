@@ -171,10 +171,16 @@ ANS_PAT=<their token>
 then `python scripts/check_ans.py` — read-only, thirty seconds, tells you which documented
 assumptions survive contact.
 
-### Domain — provided by the sponsor
-One apex is enough; each agent gets a subdomain (`brand.<domain>`, `sitebuilder.<domain>`, …),
-all able to point at the same deployment. Needs DNS console access for `_acme-challenge` TXT
-records. **Blocked on the actual domain name** — give it to me and the config restructure is quick.
+### Domain — we have one
+**`getcortex.vip`, registered at Porkbun.** The registrar does not matter to ANS: domain control
+is proved with a DNS-01 TXT record.
+
+Wired in as a switch rather than a rewrite. `ANS_DOMAIN=getcortex.vip` moves all five agents to
+subdomains of it; leave it unset and they keep their fictional domains, which is the better story
+for a simulator demo. **Both modes are tested end to end.**
+
+Still needed: DNS records pointing those subdomains at wherever the agents run, and the agents
+actually running there. See §8.
 
 ### Decisions still open
 1. Gemini split above — confirm or change.

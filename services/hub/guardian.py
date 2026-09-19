@@ -72,9 +72,9 @@ def _org(ans_name: str) -> str:
     if not parsed:
         return ans_name or "unknown"
     for cfg in config.agents().values():
-        if cfg.get("domain") == parsed["domain"]:
+        if cfg.get("domain") and f"{cfg['label']}.{cfg['domain']}" == parsed["host"]:
             return cfg["org"]
-    return parsed["domain"]
+    return parsed["host"]
 
 
 class SignedBody(BaseModel):

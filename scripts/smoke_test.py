@@ -95,7 +95,9 @@ def main():
     admitted = typed("agent.admitted")
     rejected = typed("agent.rejected")
     assert any(e["data"]["org"] == "BrandStudio" for e in admitted), "BrandStudio should be admitted"
-    assert any("brandstudio" in (e["data"].get("ans_name") or "") for e in rejected), "the impostor is rejected"
+    # The impostor is the one bidding from the open web rather than from the registry. Assert
+    # that, not a domain name — the domains change when we point at a real one.
+    assert any(e["data"].get("source") == "open-web offer" for e in rejected), "the impostor is rejected"
     assert any(e["data"]["org"] == "WebForge" for e in unavailable), "losing WebForge must be announced"
     print(f"✓ {len(admitted)} admitted, {len(rejected)} turned away, {len(unavailable)} dropped mid-mission")
 

@@ -27,8 +27,27 @@ def load() -> dict:
         return yaml.safe_load(f)
 
 
+def ans_domain() -> str | None:
+    """One real domain for every agent, when we have one.
+
+    The five organisations are fictional and each has its own made-up domain, which is the right
+    shape for the story and impossible to register: we do not own brandstudio.xyz. So when
+    ANS_DOMAIN is set, every agent moves to a subdomain of a domain we actually control and can
+    prove control of, and the simulator keeps the five-domain version.
+    """
+    return env("ANS_DOMAIN")
+
+
 def agents() -> dict:
-    return load()["agents"]
+    raw = load()["agents"]
+    domain = ans_domain()
+    if not domain:
+        return raw
+    # Under one apex the label has to carry the identity the domain used to. Two agents both
+    # labelled "sitebuilder" would otherwise become the same host, the same ANS name, and the
+    # same agent — which would quietly delete the backup-vendor scenario.
+    return {key: ({**cfg, "domain": domain, "label": key} if cfg.get("domain") else cfg)
+            for key, cfg in raw.items()}
 
 
 def agent(key: str) -> dict:
@@ -38,7 +57,12 @@ def agent(key: str) -> dict:
 
 
 def policy() -> dict:
-    return load().get("policy", {})
+    rules = dict(load().get("policy", {}))
+    domain = ans_domain()
+    if domain:
+        # An allowlist naming domains we no longer use would refuse every agent we have.
+        rules["allowed_domains"] = [domain]
+    return rules
 
 
 def port(service: str) -> int:

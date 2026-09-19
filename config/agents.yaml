@@ -81,15 +81,17 @@ policy:
     - webforge.xyz
     - sitesmith.xyz
     - legalcheck.xyz
-  # Approved versions per agent host. A different version pauses the mission for approval.
+  # Approved versions, keyed by agent label (or host). A different version pauses the mission
+  # for approval. Labels rather than hosts, so the pin survives moving to a real domain.
   version_pins:
-    compliance.legalcheck.xyz: "1.0"
-  # Order to try vendors in when several can do the same job.
+    compliance: "1.0"
+  # Order to try vendors in when several can do the same job. Agent keys, resolved to hosts at
+  # runtime — a domain list would stop meaning anything once everyone shares one apex.
   preferred_vendors:
-    - brandstudio.xyz
-    - webforge.xyz
-    - sitesmith.xyz
-    - legalcheck.xyz
+    - brand
+    - webforge
+    - sitesmith
+    - compliance
 
   # What a hired agent may DO while it works, per kind of job. Passing the Trust Gate gets an
   # agent through the door; this is what it is allowed to touch once inside. The Guardian

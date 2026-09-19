@@ -268,7 +268,7 @@ class TrustGate:
             return Check("policy", False,
                          f"offering this identity from {endpoint}, but ANS lists {registered}",
                          evidence={"registered_endpoint": registered, "offered_endpoint": endpoint})
-        pin = policy.version_pins.get(parsed["host"])
+        pin = policy.version_pins.get(parsed["label"]) or policy.version_pins.get(parsed["host"])
         if pin and not parsed["version"].startswith(pin + "."):
             return Check("policy", False, f"version {parsed['version']} isn't the approved {pin}.x")
         return Check("policy", True, "domain allowed · at its registered address · version approved")

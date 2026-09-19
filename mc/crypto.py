@@ -8,7 +8,7 @@ import secrets
 from cryptography import x509
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives.asymmetric import ec, ed25519, padding, rsa
 from cryptography.x509.oid import ExtendedKeyUsageOID, NameOID
 
 
@@ -100,10 +100,24 @@ def cert_uris(cert: x509.Certificate) -> list[str]:
 
 
 def cert_issued_by(cert: x509.Certificate, ca_cert: x509.Certificate) -> bool:
+    """Did this CA actually sign this certificate?
+
+    Dispatches on the CA's key type. Our simulator issues ECDSA P-256, but GoDaddy's real ANS
+    certificates are RSA with PKCS#1 v1.5 — assuming ECDSA made every genuine GoDaddy agent look
+    like a forgery, which is the most misleading way this could possibly fail.
+    """
     try:
-        ca_cert.public_key().verify(
-            cert.signature, cert.tbs_certificate_bytes, ec.ECDSA(cert.signature_hash_algorithm)
-        )
+        key = ca_cert.public_key()
+        if isinstance(key, rsa.RSAPublicKey):
+            key.verify(cert.signature, cert.tbs_certificate_bytes,
+                       padding.PKCS1v15(), cert.signature_hash_algorithm)
+        elif isinstance(key, ec.EllipticCurvePublicKey):
+            key.verify(cert.signature, cert.tbs_certificate_bytes,
+                       ec.ECDSA(cert.signature_hash_algorithm))
+        elif isinstance(key, ed25519.Ed25519PublicKey):
+            key.verify(cert.signature, cert.tbs_certificate_bytes)
+        else:
+            return False  # a key type we cannot check is not a key type we trust
         return cert.issuer == ca_cert.subject
     except (InvalidSignature, ValueError, TypeError):
         return False

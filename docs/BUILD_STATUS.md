@@ -1,3 +1,11 @@
+## Current checkpoint: design finish ready for owner review
+
+Implemented on `feat/finish-product-design` from reset commit `30aec66`. The existing information architecture now has stronger type hierarchy, deliberate graphite surfaces, a composed Overview, aligned mission rows and tonal agent identities. The desktop inspector sits beside the roster; smaller screens use a focus-contained modal sheet. Existing routes, mission behavior, search/categories, identity/standing/authority/runtime distinctions and reviewed voice drafts are preserved.
+
+Local production preview: http://127.0.0.1:3025 (`CORTEX_BUILD_DIR=.next/design-finish`). Typecheck, lint, 11 unit tests, production build and all 13 browser tests pass. See [test evidence](TEST_RESULTS.md) and [final screenshots](screenshots/finish/). One implementation pass and one browser correction pass; corrected inspector keyboard containment and status-column spacing. No backend, API, security, environment or dependency changes; no connection pass, push or deployment. Owner visual approval remains pending.
+
+> **Active design finish (2026-09-19):** `CORTEXAI_DESIGN_FINISH.md` refines the reset without changing information architecture. Geist; 224px sidebar; 60px top bar; 32-40px workspace insets; up to 1280px working content. Page/mission headings 32/28px, essential body and row text 14-16px, metadata 12-13px. Graphite surfaces (#0B0D10, #101216, #14171C, #1B1F26), warm-white actions, restrained #8FA8FF selection/focus, hairline borders, subtle shadows and 12px panels. Overview combines mission/tasks in a roughly 2:1 split with context; Missions uses aligned compact rows; Agents uses tonal role glyphs and a desktop side inspector or accessible modal sheet. Preserve actual state, honest preview labels, keyboard/mobile behavior and the reviewed voice draft. No new redesign, atmosphere, connection pass or deployment. Historical guidance below is superseded.
+
 ## Current checkpoint: product UI reset ready for owner review
 
 Implemented on `feat/product-ui-reset` from `986ec5f`. See [checkpoint](UI_RESET_CHECKPOINT.md) and [test evidence](TEST_RESULTS.md). Local production preview: http://127.0.0.1:3024. Graphite/Geist presentation replaces the rejected atmosphere and orbital composition. All existing routes and demo/voice boundaries are preserved. No connection pass or deployment.

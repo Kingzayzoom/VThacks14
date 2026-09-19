@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowUpRight, Pause, Play, TriangleAlert, ArrowRight, Shield, FileText, X } from "lucide-react";
+import { ArrowUpRight, Pause, Play, TriangleAlert, ArrowRight, Shield, FileText, X, CircleCheck, CircleDot, CirclePause, Circle, CornerDownRight } from "lucide-react";
 import { useControl } from "./provider";
 import { AgentGlyph, Status } from "./ui";
 import { Dialog } from "./dialog";
@@ -37,11 +37,64 @@ export function Field({ missionId }: { missionId?: string }) {
     <header className="page-heading"><div><h1>{missionId ? "Mission detail" : "Overview"}</h1><p className="secondary">{missionId ? "Objective, tasks, and results in one place." : "Your current work and the decisions that move it forward."}</p></div>
       <label className="mission-select"><span>Selected mission</span><select aria-label="Active mission" value={mission.id} onChange={e => { api.selectMission(e.target.value); if (missionId) router.push(`/missions/${e.target.value}`); }}>{state.missions.map(m => <option key={m.id} value={m.id}>{m.title}</option>)}</select></label>
     </header>
-    <section className="mission-overview"><div className="section-heading"><h2>{mission.title}</h2><Status status={mission.status} /></div><p className="objective-copy">{mission.objective}</p><div className="mission-actions"><button className="text-link" onClick={() => setObjective(true)}>View objective <ArrowUpRight size={14} /></button><button className="button subtle" aria-label={mission.status === "paused" ? "Resume demo mission" : "Pause demo mission"} onClick={toggleMission}>{mission.status === "paused" ? <Play size={14} /> : <Pause size={14} />}{mission.status === "paused" ? "Resume demo" : "Pause demo"}</button></div>{commandError && <p role="alert" className="form-error">{commandError}</p>}</section>
-    <div className="work-grid"><section className="task-section" aria-label="Current mission progress"><div className="section-heading"><h2>Tasks</h2><span className="secondary">{completed} of {tasks.length} complete</span></div><ol className="task-list">{tasks.map((t,i) => <li key={t.id}><button className="task-item" aria-label={`Inspect ${state.agents.find(a => a.id === t.assignedAgentId)?.name ?? t.assignedAgentId}`} onClick={() => select(t.assignedAgentId)}><span className="task-number">{i+1}</span><span className="task-copy"><strong>{t.title}</strong><span>{state.agents.find(a => a.id === t.assignedAgentId)?.name}<span className="task-dependency">{t.dependencies.length ? ` / After task ${t.dependencies.map(id => tasks.findIndex(task => task.id === id)+1).join(", ")}` : " / No dependencies"}</span></span></span><Status status={mission.status === "paused" && t.status === "running" ? "paused" : t.status} /><ArrowUpRight size={14} /></button></li>)}</ol>{!tasks.length && <p className="secondary">No tasks assigned yet.</p>}
-      <section className="results-section"><h2><FileText size={17} />Results <span className="secondary">{mission.artifactIds.length}</span></h2>{mission.artifactIds.length ? mission.artifactIds.map(id => <p key={id}><code>{id}</code></p>) : <p className="secondary">No delivered artifacts yet. Completed outputs will appear here.</p>}</section>
-      <details className="mission-activity"><summary>Recent activity <span>{events.length} events</span></summary><ol className="activity-list">{events.map(event => <li key={event.id}><span><strong>{state.agents.find(a => a.id === event.agentId)?.name ?? "Operator"}</strong><p>{eventSummary(event)}</p></span><time dateTime={event.occurredAt}>{new Date(event.occurredAt).toISOString().slice(11,16)} UTC</time></li>)}</ol><p className="secondary">Local fixture events. No external agent is executing.</p></details>
-    </section>{pending > 0 && <aside className="review-callout"><TriangleAlert size={19} /><h2>A capability is missing.</h2><p>Forge needs a data visualization specialist to finish the brief.</p><button className="button subtle" onClick={() => setReview(true)}>Review request <ArrowRight size={15} /></button><p className="review-note">{pending} task awaiting review</p></aside>}</div>
+    <div className="work-grid">
+      <section className="mission-work" aria-label="Current mission progress">
+        <div className="mission-overview">
+          <div className="mission-caption"><span>Current mission</span><Status status={mission.status} /></div>
+          <h2>{mission.title}</h2>
+          <p className="objective-copy">{mission.objective}</p>
+          <div className="mission-actions">
+            <button className="text-link" onClick={() => setObjective(true)}>View objective <ArrowUpRight size={14} /></button>
+            <button className="button subtle" aria-label={mission.status === "paused" ? "Resume demo mission" : "Pause demo mission"} onClick={toggleMission}>
+              {mission.status === "paused" ? <Play size={14} /> : <Pause size={14} />}{mission.status === "paused" ? "Resume demo" : "Pause demo"}
+            </button>
+          </div>
+          {commandError && <p role="alert" className="form-error">{commandError}</p>}
+        </div>
+        <div className="task-section">
+          <div className="section-heading"><h2>Mission tasks</h2><span className="progress-label">{completed} of {tasks.length} complete</span></div>
+          <div className="task-progress" aria-hidden="true">{tasks.map(t => <span key={t.id} className={t.status} />)}</div>
+          <ol className="task-list">
+            {tasks.map((t, i) => {
+              const status = mission.status === "paused" && t.status === "running" ? "paused" : t.status;
+              const Icon = status === "completed" ? CircleCheck : status === "running" ? CircleDot : status === "paused" ? CirclePause : status === "waiting_approval" ? TriangleAlert : Circle;
+              const assigned = state.agents.find(a => a.id === t.assignedAgentId);
+              return <li key={t.id}>
+                <button className={`task-item task-${status}`} aria-label={`Inspect ${assigned?.name ?? t.assignedAgentId}`} onClick={() => select(t.assignedAgentId)}>
+                  <span className="task-state-icon"><Icon size={20} aria-hidden="true" /></span>
+                  <span className="task-copy"><strong><span className="sr-only">Task {i + 1}: </span>{t.title}</strong>
+                    <span className="task-assignee"><AgentGlyph id={t.assignedAgentId} size={14} />{assigned?.name}
+                      <span className="task-dependency"><CornerDownRight size={13} />{t.dependencies.length ? `After task ${t.dependencies.map(id => tasks.findIndex(task => task.id === id) + 1).join(", ")}` : "No dependencies"}</span>
+                    </span>
+                  </span>
+                  <Status status={status} /><ArrowUpRight size={15} />
+                </button>
+              </li>;
+            })}
+          </ol>
+          {!tasks.length && <p className="secondary">No tasks assigned yet.</p>}
+        </div>
+        <details className="mission-activity">
+          <summary>Recent activity <span>{events.length} events</span></summary>
+          <ol className="activity-list">{events.map(event => <li key={event.id}><span><strong>{state.agents.find(a => a.id === event.agentId)?.name ?? "Operator"}</strong><p>{eventSummary(event)}</p></span><time dateTime={event.occurredAt}>{new Date(event.occurredAt).toISOString().slice(11,16)} UTC</time></li>)}</ol>
+          <p className="secondary">Local fixture events. No external agent is executing.</p>
+        </details>
+      </section>
+      <div className="mission-context-column">
+        {pending > 0 && <aside className="review-callout">
+          <div className="context-label"><TriangleAlert size={16} /><span>Needs your input</span></div>
+          <h2>A capability is missing.</h2>
+          <p>Forge needs a data visualization specialist to finish the brief.</p>
+          <dl className="request-summary"><div><dt>Requested by</dt><dd><AgentGlyph id="forge" size={15} />Forge</dd></div><div><dt>Scope</dt><dd>This mission only</dd></div></dl>
+          <button className="button primary" onClick={() => setReview(true)}>Review request <ArrowRight size={16} /></button>
+          <p className="review-note">{pending} task awaiting review</p>
+        </aside>}
+        <section className="results-section">
+          <div className="section-heading"><h2>Results</h2><span className="count-label">{mission.artifactIds.length}</span></div>
+          {mission.artifactIds.length ? mission.artifactIds.map(id => <p key={id}><code>{id}</code></p>) : <div className="result-empty"><FileText size={22} /><div><h3>No delivered artifacts yet</h3><p>Outputs will appear here as tasks finish.</p></div></div>}
+        </section>
+      </div>
+    </div>
     {inspecting && agent && <aside className="context-inspector inspector-content" id="selected-agent-details" tabIndex={-1} aria-label="Selected agent details" onKeyDown={e => { if (e.key === "Escape") closeInspector(); }}><header className="agent-inspector-header"><span>Agent details</span><button className="icon-button" aria-label="Close inspector" onClick={closeInspector}><X size={18} /></button></header><div className="inspector-identity"><AgentGlyph id={agent.id} /><div><h2>{agent.name}</h2><p>{agent.role}</p></div></div><dl className="inspector-state-grid"><div><dt>Identity</dt><dd>Demo verification only</dd></div><div><dt>Standing</dt><dd>Not checked</dd></div><div><dt>Authority</dt><dd>{agent.allowedScopes.length} scoped permissions</dd></div><div><dt>Runtime</dt><dd><Status status={agent.runtimeStatus} /></dd></div></dl><dl className="inspector-block"><dt>Current assignment</dt><dd>{task?.title ?? agent.role}</dd><dt>Authorization</dt><dd>{agent.authorizationSummary}</dd><dt>Allowed scopes</dt><dd className="scope-list">{agent.allowedScopes.map(s => <code key={s}>{s}</code>)}</dd><dt>Capabilities</dt><dd>{agent.capabilities.join(" / ")}</dd></dl><details className="inspector-evidence"><summary>Identity evidence</summary>{agent.verificationEvidence.map(e => <p key={e}>{e}</p>)}</details></aside>}
       <Dialog
         open={review}
@@ -49,7 +102,7 @@ export function Field({ missionId }: { missionId?: string }) {
         title="Capability request"
       >
         <div className="eyebrow amber">
-          <TriangleAlert size={14} /> CAPABILITY DEFICIT / DEMO
+          <TriangleAlert size={14} /> Capability request
         </div>
         <h2>Something is missing.</h2>
         <p>
@@ -72,10 +125,9 @@ export function Field({ missionId }: { missionId?: string }) {
           <dd>No candidate verified. Cost not provided.</dd>
         </dl>
         <div className="notice">
-          Request preview · Phase A<br />
+          Request preview<br />
           <span>
-            Candidate discovery and admission arrive after visual approval. This
-            request stays pending.
+            Specialist admission is not connected. This request remains pending.
           </span>
         </div>
         <button className="button primary" onClick={() => setReview(false)}>
@@ -90,7 +142,7 @@ export function Field({ missionId }: { missionId?: string }) {
       >
         <h2>{mission.title}</h2>
         <p className="objective-copy">{mission.objective}</p>
-        <div className="eyebrow muted">CONSTRAINTS</div>
+        <div className="eyebrow muted">Constraints</div>
         <ul className="constraint-list">
           {mission.constraints.map((c) => (
             <li key={c}>
@@ -104,7 +156,7 @@ export function Field({ missionId }: { missionId?: string }) {
           fixture plan
           <br />
           <span>
-            Custom objectives use the same sample task structure in Phase A.
+            Demo objectives use the same sample task plan. External execution is not connected.
           </span>
         </div>
       </Dialog>

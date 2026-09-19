@@ -1,3 +1,30 @@
+## Design finish validation - September 19, 2026
+
+Production preview: http://127.0.0.1:3025 (`CORTEX_BUILD_DIR=.next/design-finish`), branch `feat/finish-product-design`, based on `30aec66`.
+
+| Existing command | Final result |
+| --- | --- |
+| `npm.cmd run typecheck` | Passed |
+| `npm.cmd run lint` | Passed |
+| `npm.cmd test` | 11 passed, 0 failed |
+| `npm.cmd run build` | Passed; existing routes built |
+| `npm.cmd run test:e2e` | 13 passed, 0 failed in the complete final run |
+
+Browser zoom was reset to 100%; measured CSS zoom and viewport scale are 1. Computed desktop sizes: sidebar 224px, top bar 60px, workspace insets 36px vertical / 40px horizontal, page heading 32px, primary mission heading 28px, task title 15px. Working content reaches 1280px at wide desktop.
+
+Actual Chromium screens inspected at 1440x900, 1920x1080 and 390x844; 1280x900 overflow checks also pass. Axe WCAG 2 A/AA and 2.1 AA assertions report zero violations in tested desktop/mobile entry, overview, mission detail, missions, settings, roster, agent sheet and voice-error states. Existing interaction/accessibility assertions remain. Agent inspector selectors accommodate the intended aside/dialog semantics; added a mobile modal focus-loop check.
+
+One implementation pass and one browser correction pass. The correction fixed mobile inspector Tab containment and agent runtime-column spacing; final review-dialog copy removes internal phase terminology. Preserved objective validation/submission, persistence, task controls, category filters, search/empty results, inspector Escape/focus return, reduced motion, review flow and the reviewed voice draft.
+
+| Final screen | Desktop 1440 | Wide 1920 | Mobile 390 |
+| --- | --- | --- | --- |
+| Overview | [Screenshot](screenshots/finish/overview-desktop.png) | [Screenshot](screenshots/finish/overview-1920.png) | [Screenshot](screenshots/finish/overview-mobile.png) |
+| Missions | [Screenshot](screenshots/finish/missions-desktop.png) | [Screenshot](screenshots/finish/missions-1920.png) | [Screenshot](screenshots/finish/missions-mobile.png) |
+| Agents | [Screenshot](screenshots/finish/agents-desktop.png) | [Screenshot](screenshots/finish/agents-1920.png) | [Screenshot](screenshots/finish/agents-mobile.png) |
+| Agent details | [Screenshot](screenshots/finish/agent-detail-desktop.png) | - | [Screenshot](screenshots/finish/agent-detail-mobile.png) |
+
+Limits: live ElevenLabs conversation and live backend execution were not exercised. Browser voice tests mock session responses and use synthetic microphone denial; the reviewed draft flow remains covered. No fake missions, artifacts, verification, grants or execution were added. No backend/security/API, credentials or dependency changes. The pre-existing local `next-env.d.ts` change is preserved and excluded from the checkpoint. No connection pass or deployment.
+
 ## Product UI reset validation - September 19, 2026
 
 Production preview: http://127.0.0.1:3024 (`CORTEX_BUILD_DIR=.next/ui-reset`).

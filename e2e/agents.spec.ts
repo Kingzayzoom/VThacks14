@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import fs from "node:fs";
-const captures = "docs/screenshots/reset";
+const captures = "docs/screenshots/finish";
 
 test("roster reflects assignments, selection, events and real demo pause state", async ({ page }) => {
  const errors:string[]=[]; const external:string[]=[];
@@ -12,7 +12,7 @@ test("roster reflects assignments, selection, events and real demo pause state",
  await expect(page.getByRole("link",{name:"Agents",exact:true})).toHaveAttribute("aria-current","page");
  await expect(page.locator(".constellation-roster-row")).toHaveCount(7);
  await expect(page.locator("canvas")).toHaveCount(0);
- const inspector=page.getByRole("complementary",{name:"Agent inspector"});
+ const inspector=page.getByLabel("Agent inspector",{exact:true});
  await expect(inspector).toHaveCount(0);
  await page.getByRole("button",{name:"Inspect Sage",exact:true}).click();
  await expect(inspector).toContainText("dataset.read:public-demo");
@@ -44,7 +44,7 @@ test("search, all seven categories, honest previews and keyboard return", async 
  await expect(page.getByRole("button",{name:"Inspect Forge",exact:true})).toBeVisible();
  await page.getByRole("button",{name:"Reset filters"}).click();
  await page.getByRole("button",{name:"Inspect Memory",exact:true}).click();
- const inspector=page.getByRole("complementary",{name:"Agent inspector"});
+ const inspector=page.getByLabel("Agent inspector",{exact:true});
  for(const text of ["Not connected","0 scoped permissions","Not assigned","Unverified","Not checked"]) await expect(inspector).toContainText(text);
  await page.keyboard.press("Escape");
  await expect(page.getByRole("button",{name:"Inspect Memory",exact:true})).toBeFocused();
@@ -56,7 +56,8 @@ for(const [size,viewport] of Object.entries({desktop:{width:1440,height:900},mob
  fs.mkdirSync(captures,{recursive:true});await page.screenshot({path:`${captures}/agents-${size}.png`,fullPage:true});
  expect((await new AxeBuilder({page}).withTags(["wcag2a","wcag2aa","wcag21aa"]).analyze()).violations).toEqual([]);
  await page.getByRole("button",{name:"Inspect Forge",exact:true}).click();
- const inspector=page.getByRole("complementary",{name:"Agent inspector"});await expect(inspector).toBeFocused();await expect(inspector).toContainText("Needs review");
+ const inspector=page.getByLabel("Agent inspector",{exact:true});await expect(inspector).toBeFocused();await expect(inspector).toContainText("Needs review");
+ if(size==="mobile") { await expect(page.getByRole("dialog",{name:"Agent inspector"})).toBeVisible(); await inspector.getByRole("link",{name:"Open mission console"}).focus(); await page.keyboard.press("Tab"); await expect(inspector.getByRole("button",{name:"Close agent inspector"})).toBeFocused(); }
  await page.screenshot({path:`${captures}/agent-detail-${size}.png`});
  expect((await new AxeBuilder({page}).withTags(["wcag2a","wcag2aa","wcag21aa"]).analyze()).violations).toEqual([]);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);

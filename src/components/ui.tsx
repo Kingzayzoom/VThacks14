@@ -23,7 +23,7 @@ export function Brand({ large = false }: { large?: boolean }) {
       className={`brand ${large ? "large" : ""}`}
       aria-label="CortexAi home"
     >
-      <span className="brand-mark" aria-hidden="true" />
+      <svg className="brand-mark" viewBox="0 0 28 28" fill="none" aria-hidden="true"><path d="M22 5H11L4 12v11h11l7-7" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M11 5v11h11" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path className="brand-junction" d="M19 2h6v6h-6z" /></svg>
       <span>CORTEXAI</span>
     </Link>
   );

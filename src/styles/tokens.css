@@ -1,8 +1,8 @@
 :root {
  color-scheme: dark;
- --canvas:#0c0d10; --navigation:#101115; --surface:#15171c; --raised:#1d2027;
- --text:#f4f4f5; --secondary:#a4a8b3; --metadata:#a4a8b3; --border:#282b33; --border-strong:#454a57;
- --accent:#6694ff; --cyan:#6694ff; --mint:#88d6ac; --amber:#e9bb75; --warning:#e9bb75; --error:#f39494;
+ --canvas:#0b0d10; --navigation:#101216; --surface:#14171c; --raised:#1b1f26;
+ --text:#f0f1f3; --secondary:#a3aab5; --metadata:#a3aab5; --border:#2b3039; --border-strong:#454a57;
+ --accent:#8fa8ff; --cyan:#8fa8ff; --mint:#88d6ac; --amber:#e9bb75; --warning:#e9bb75; --error:#f39494;
  --font-sans:"Geist",Arial,sans-serif; --font-mono:"IBM Plex Mono",Consolas,monospace;
- --radius-panel:8px; --radius-dialog:8px; --z-overlay:20; --duration-press:150ms; --duration-panel:160ms;
+ --radius-panel:12px; --radius-dialog:12px; --z-overlay:20; --duration-press:150ms; --duration-panel:160ms;
 }

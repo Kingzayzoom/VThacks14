@@ -4,7 +4,7 @@ test("steady interface has no atmosphere loops and honors reduced motion",async(
  await page.emulateMedia({reducedMotion:"reduce"});
  for(const route of ["/","/field","/agents"]){await page.goto(route);await expect(page.locator("canvas")).toHaveCount(0);expect(await page.locator("button").first().evaluate(el=>getComputedStyle(el).transitionDuration)).toBe("0s");}
  await page.getByRole("button",{name:"Inspect Guardian",exact:true}).click();
- await expect(page.getByRole("complementary",{name:"Agent inspector"})).toContainText("cannot grant its own permissions");
+ await expect(page.getByLabel("Agent inspector",{exact:true})).toContainText("cannot grant its own permissions");
 });
 
 test("unavailable Canvas preserves composer and task selection",async({page})=>{

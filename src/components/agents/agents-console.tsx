@@ -12,7 +12,7 @@ import { Status, AgentGlyph } from "../ui";
 import { eventSummary, fieldNodes, previewAgents, visualFor, type FieldNode } from "./field-model";
 
 type Filter = "all" | "mission" | "review" | `category:${FieldNode["family"]}`;
-const compactQuery = "(max-width: 760px)";
+const compactQuery = "(max-width: 1100px)";
 function subscribeCompact(callback: () => void) {
   const query = matchMedia(compactQuery);
   query.addEventListener("change", callback);
@@ -46,11 +46,13 @@ export function AgentsConsole() {
   });
   useEffect(() => {
     if (inspectorOpen) {
-      inspector.current?.focus({ preventScroll: true });
-      inspector.current?.scrollIntoView({ behavior: still ? "instant" : "smooth", block: "start" });
+      const panel = inspector.current;
+      if (panel instanceof HTMLDialogElement && !panel.open) panel.showModal();
+      panel?.focus({ preventScroll: true });
     }
   }, [inspectorOpen, compact, selected?.id, still]);
   function closeInspector() {
+    if (inspector.current instanceof HTMLDialogElement) inspector.current.close();
     setInspectorOpen(false);
     selectionTrigger.current?.focus();
   }
@@ -72,14 +74,15 @@ export function AgentsConsole() {
   }
   return (
     <section className={`agents-console ${inspectorOpen ? "inspector-open" : ""}`} aria-label="Agent command center" onKeyDown={(event) => { if (event.key === "Escape" && inspectorOpen) { event.stopPropagation(); closeInspector(); } }}>
+      <header className="agents-heading">
+        <div><h1>Agents</h1><p className="secondary">The right specialists, with clear responsibilities.</p></div>
+        <div className="roster-count"><span>{members.length} in mission</span><span>{previewAgents.length} previews</span></div>
+      </header>
       <div className="agents-constellation">
-        <header className="agents-heading">
-          <h1>Agents</h1><p className="secondary">Specialists, their assignments, and the boundaries they work within.</p>
-        </header>
         <FieldControls query={query} setQuery={setQuery} filter={filter} setFilter={setFilter} reset={reset} canReset={!!query || filter !== "all"} />
-        <div className="roster-heading"><span>Agent / capability</span><span>Assignment</span><span>Runtime</span></div>
+        <div className="roster-heading" aria-hidden="true"><span>Agent</span><span className="roster-assignment">Current assignment</span><span>Runtime</span></div>
           <div className="agents-roster" aria-label="Agent roster">
-            {visible.map((agent) => <button key={agent.id} className={`constellation-roster-row ${inspectorOpen && selected?.id === agent.id ? "selected" : ""}`}
+            {visible.map((agent) => <button key={agent.id} className={`constellation-roster-row ${agent.runtimeStatus === "disconnected" ? "preview-row" : ""} ${inspectorOpen && selected?.id === agent.id ? "selected" : ""}`}
               aria-label={`Inspect ${agent.name}`} aria-pressed={inspectorOpen && selected?.id === agent.id}
               aria-controls={inspectorOpen ? "agent-inspector" : undefined} onClick={() => selectAgent(agent.id)}>
               <NeuronGlyph id={agent.id} /><span className="roster-agent-name"><strong>{agent.name}</strong><span>{agent.role}</span></span>
@@ -90,7 +93,7 @@ export function AgentsConsole() {
         <span className="sr-only" role="status">{visible.length} agents shown</span>
       </div>
       {inspectorOpen && selected && mission && <AgentInspector agent={selected} mission={mission} tasks={tasks} task={currentTask} members={members}
-        inspectorRef={inspector} select={selectAgent} close={closeInspector} />}
+        inspectorRef={inspector} compact={compact} select={selectAgent} close={closeInspector} />}
       <details className="agents-activity">
         <summary>Mission activity <span>Recorded demo events</span></summary>
         <div className="agents-event-strip">
@@ -137,9 +140,9 @@ export function NeuronGlyph({ id }: { id: string }) {
   return <span className="agent-icon"><AgentGlyph id={id} size={20} /></span>;
 }
 
-function AgentInspector({ agent, mission, tasks, task, members, inspectorRef, select, close }: {
+function AgentInspector({ agent, mission, tasks, task, members, inspectorRef, compact, select, close }: {
   agent: Agent; mission: Mission; tasks: Task[]; task?: Task; members: Agent[];
-  inspectorRef: RefObject<HTMLElement | null>; select: (id: string, reveal?: boolean) => void; close: () => void;
+  compact: boolean; inspectorRef: RefObject<HTMLElement | null>; select: (id: string, reveal?: boolean) => void; close: () => void;
 }) {
   const { still } = useFieldMotion();
   const node = visualFor(agent.id);
@@ -147,22 +150,22 @@ function AgentInspector({ agent, mission, tasks, task, members, inspectorRef, se
   const childTasks = tasks.filter((item) => item.dependencies.includes(task?.id ?? ""));
   const parentTasks = tasks.filter((item) => task?.dependencies.includes(item.id));
   const relations = agent.id === "coordinator" ? tasks : [...parentTasks, ...(task ? [task] : []), ...childTasks];
-  return <aside className="agent-inspector" ref={inspectorRef} id="agent-inspector" aria-label="Agent inspector" tabIndex={-1}>
+  const content = <>
     <header className="agent-inspector-header"><span>{preview ? "Preview agent" : "Agent details"}</span><button className="icon-button" aria-label="Close agent inspector" onClick={close}><X size={16} /></button></header>
-    <motion.div className="agent-inspector-content" key={agent.id} initial={still ? false : { x: 8 }} animate={{ x: 0 }} transition={{ duration: still ? 0 : 0.16 }}>
+    <motion.div className="agent-inspector-content" key={agent.id} initial={still ? false : { x: 8 }} animate={{ x: 0 }} transition={{ duration: still ? 0 : 0.2 }}>
       <div className="inspector-identity"><NeuronGlyph id={agent.id} /><div><h2>{agent.name}</h2><p>{agent.role}</p></div></div>
       <dl className="inspector-state-grid">
-        <div><dt>Runtime</dt><dd><AgentState agent={agent} /></dd></div>
         <div><dt>Identity</dt><dd>{agent.identityStatus === "demo_verified" ? "Demo fixture" : agent.identityStatus === "verified" ? "Verified" : "Unverified"}</dd></div>
         <div><dt>Standing</dt><dd>Not checked</dd></div>
         <div><dt>Authority</dt><dd>{agent.allowedScopes.length} scoped {agent.allowedScopes.length === 1 ? "permission" : "permissions"}</dd></div>
+        <div><dt>Runtime</dt><dd><AgentState agent={agent} /></dd></div>
       </dl>
       <section className="inspector-block"><h3>Authorization boundary <Shield size={12} /></h3><p>{agent.authorizationSummary}</p>
         <ul className="inspector-scopes">{agent.allowedScopes.map((scope) => <li key={scope}><Check size={11} /><code>{scope}</code></li>)}</ul>
         <span className="inspector-footnote">{preview ? "Admission required before any assignment." : "Demo scope only · no live grant or expiry."}</span>
       </section>
       <section className="inspector-block"><h3>Capabilities</h3><ul className="inspector-capabilities">{agent.capabilities.map((capability) => <li key={capability}><i />{capability}</li>)}</ul></section>
-      <section className="inspector-block"><h3>Current mission</h3><p className="inspector-mission-title">{preview ? "Not assigned" : mission.title}</p><p>{task?.title ?? (preview ? "This specialist is not part of the mission roster." : agent.id === "guardian" ? "Independent policy observation" : "Coordinate the assigned specialists")}</p>
+      <section className="inspector-block"><h3>Current work</h3><p className="inspector-mission-title">{preview ? "Not assigned" : mission.title}</p><p>{task?.title ?? (preview ? "This specialist is not part of the mission roster." : agent.id === "guardian" ? "Independent policy observation" : "Coordinate the assigned specialists")}</p>
         <h3 className="inspector-output-label">Output type</h3><p>{node.output}</p><span className="inspector-footnote">{task?.resultRef ? `Result: ${task.resultRef}` : "No delivered artifact"}</span>
       </section>
       {!!relations.length && <section className="inspector-block"><h3>Assignment & handoffs</h3><ol className="inspector-handoffs">
@@ -172,5 +175,20 @@ function AgentInspector({ agent, mission, tasks, task, members, inspectorRef, se
       <details className="inspector-evidence"><summary>Identity evidence <ChevronRight size={13} /></summary>{agent.verificationEvidence.map((evidence) => <p key={evidence}>{evidence}</p>)}<p>ANS standing has not been checked in this frontend demo.</p></details>
       <Link className="inspector-open-link" href={preview ? "/settings" : `/missions/${mission.id}`}>{preview ? "Integration readiness" : "Open mission console"}<ArrowUpRight size={15} /></Link>
     </motion.div>
-  </aside>;
+  </>;
+  function keepFocusInSheet(event: React.KeyboardEvent<HTMLDialogElement>) {
+    if (event.key !== "Tab") return;
+    const targets = Array.from(event.currentTarget.querySelectorAll<HTMLElement>("button, a[href], summary, input, select, textarea, [tabindex='0']"))
+      .filter(element => element.getClientRects().length > 0);
+    const first = targets[0];
+    const last = targets[targets.length - 1];
+    if (!first || !last) return;
+    if (event.shiftKey && (document.activeElement === first || document.activeElement === event.currentTarget)) {
+      event.preventDefault(); last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault(); first.focus();
+    }
+  }
+  if (compact) return <dialog className="agent-inspector inspector-sheet" onKeyDown={keepFocusInSheet} ref={node => { inspectorRef.current = node; }} id="agent-inspector" aria-label="Agent inspector" tabIndex={-1} onCancel={event => { event.preventDefault(); close(); }}>{content}</dialog>;
+  return <aside className="agent-inspector" ref={inspectorRef} id="agent-inspector" aria-label="Agent inspector" tabIndex={-1}>{content}</aside>;
 }

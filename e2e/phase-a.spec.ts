@@ -1,7 +1,7 @@
 import {test,expect} from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import fs from "node:fs";
-const captures="docs/screenshots/reset";
+const captures="docs/screenshots/finish";
 
 test("objective validation, idempotent submission, reload and draft retention",async({page})=>{
  fs.mkdirSync(captures,{recursive:true});await page.goto("/");await page.getByRole("button",{name:"Start mission"}).click();await expect(page.locator("#composer-error")).toHaveText("Describe an objective to begin.");await page.screenshot({path:`${captures}/objective-error.png`});
@@ -29,7 +29,8 @@ for(const [size,viewport] of Object.entries({desktop:{width:1440,height:900},mob
 }
 
 test("wide layouts, missing mission and empty search remain useful",async({page})=>{
- for(const width of [1920,1280]){await page.setViewportSize({width,height:900});await page.goto("/field");await expect(page.getByRole("button",{name:"Review request",exact:true})).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:`${captures}/overview-${width}.png`});}
+ for(const width of [1920,1280]){await page.setViewportSize({width,height:width===1920?1080:900});await page.goto("/field");await expect(page.getByRole("button",{name:"Review request",exact:true})).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:`${captures}/overview-${width}.png`});
+ for(const route of ["missions","agents"]){await page.goto(`/${route}`);await page.screenshot({path:`${captures}/${route}-${width}.png`,fullPage:true});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);}}
  await page.goto("/missions/not-on-this-device");await expect(page.getByRole("heading",{name:"Mission not found on this device."})).toBeVisible();await page.screenshot({path:`${captures}/missing-mission.png`});await expect(page.getByRole("link",{name:"Create mission"})).toHaveAttribute("href","/");
  await page.goto("/agents");await page.getByLabel("Search agents",{exact:true}).fill("no matches");await page.screenshot({path:`${captures}/empty-search.png`});await page.getByRole("button",{name:"Clear filters"}).click();await expect(page.locator(".constellation-roster-row")).toHaveCount(7);
 });

@@ -4,11 +4,19 @@
 
 Mission Control turns a plain-English goal into finished work by hiring specialist AI agents from different organizations. Before any agent touches the job, it proves who it is through GoDaddy's [Agent Name Service (ANS)](https://www.godaddy.com/ans). Every hire, rejection and deliverable is visible, signed and traceable.
 
-- **[Project status](docs/status.md): what this is, what works, what is still open — start here**
-- [Frontend contract](docs/contracts.md): every route, event and object the dashboard needs
-- [Questions for GoDaddy](docs/godaddy-questions.md): what the public ANS docs do not settle
-- [Product spec](docs/product-spec.html): what it does, for whom, and why
-- [Field guide](docs/field-guide.html): ANS concepts, architecture and the build plan
+### Start here
+
+- **[Context primer](docs/onboarding.md)** — what this is and how it works. Read it, then paste
+  it into your AI assistant before asking it for help with this project.
+- **[Who owns what](docs/team/README.md)** — four people, four territories, and your brief.
+- **[Project status](docs/status.md)** — what works, what is open, what we still need.
+
+### Reference
+
+- [Frontend contract](docs/contracts.md) — every route, event and object the dashboard needs
+- [Questions for GoDaddy](docs/godaddy-questions.md) — what the public ANS docs do not settle
+- [Product spec](docs/product-spec.html) — what it does, for whom, and why
+- [Field guide](docs/field-guide.html) — ANS concepts, architecture and the build plan
 
 ## Quick start
 
